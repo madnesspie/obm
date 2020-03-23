@@ -20,7 +20,7 @@ import obm
 
 # -- Project information -----------------------------------------------------
 
-project = 'OBM'
+project = 'Object Blockchain Mapping'
 copyright = '2020, Alexander Polishchuk'
 author = 'Alexander Polishchuk'
 
