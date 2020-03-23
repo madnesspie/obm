@@ -13,7 +13,7 @@ setuptools.setup(
     name='obm',
     version=obm.__version__,
     packages=setuptools.find_packages(exclude=['tests*']),
-    install_requires=[],
+    install_requires=['aiohttp>=3.6,<4'],
     extras_require={
         'dev': [
             'sphinx>=2.4,<3',
@@ -37,7 +37,6 @@ setuptools.setup(
         'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3 :: Only',
     ],
