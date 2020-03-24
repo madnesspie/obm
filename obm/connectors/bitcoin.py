@@ -4,12 +4,14 @@ import json
 
 import aiohttp
 
-from obm.connectors import base
+from obm.connectors import base, exceptions
 
 
 class BitcoinCoreConnector(base.Connector):
     node = 'bitcoin-core'
     currency = 'bitcoin'
+
+    __slots__ = ('listtransactions',)
 
     def __init__(
         self,
@@ -28,17 +30,17 @@ class BitcoinCoreConnector(base.Connector):
             'cache-control': 'no-cache'
         }
 
-    # def __getattribute__(self, item):
-    #     if attr := getattr(self, item) and callable(attr):
-    #         return functools.partial(self.wrapper, method=item)
-    #     super().__getattribute__(item)
+    def __getattribute__(self, item):
+        if item != '__slots__' and item in self.__slots__:
+            return functools.partial(self.wrapper, method=item)
+        return super().__getattribute__(item)
 
-    # async def wrapper(self, *args, method: str = None):
-    #     assert method is not None
-    #     return await self.call(payload={
-    #         'method': method,
-    #         'params': args,
-    #     })
+    async def wrapper(self, *args, method: str = None):
+        assert method is not None
+        return await self.call(payload={
+            'method': method,
+            'params': args,
+        })
 
     async def call(self, payload):
         response = await super().call(payload)

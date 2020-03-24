@@ -1,3 +1,7 @@
+import pytest
+
+
+@pytest.mark.integration
 class TestBitcoinCoreConnector:
 
     @staticmethod
@@ -6,4 +10,9 @@ class TestBitcoinCoreConnector:
             'method': 'listtransactions',
             'params': ['*', 1000]
         })
+        assert isinstance(response, list)
+
+    @staticmethod
+    async def test_call_via_getattribute(bitcoin_core):
+        response = await bitcoin_core.listtransactions('*', 1000)
         assert isinstance(response, list)
