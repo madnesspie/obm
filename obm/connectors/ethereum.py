@@ -8,7 +8,9 @@ class GethConnector(base.Connector):
     currency = 'ethereum'
 
     # TODO: Migrate to __slots__
-    METHODS = ('personal_newAccount',)
+    METHODS = {
+        'rpc_personal_new_account': 'personal_newAccount',
+    }
 
     def __init__(self, rpc_host, rpc_port, timeout=None):
         super().__init__(rpc_host, rpc_port, timeout)
@@ -18,7 +20,7 @@ class GethConnector(base.Connector):
             'cache-control': 'no-cache'
         }
 
-    async def wrapper(self, *args, method: str = None):
+    async def wrapper(self, *args, method: str = None) -> Union[dict, list]:
         assert method is not None
         response = await self.call(payload={
             'method': method,

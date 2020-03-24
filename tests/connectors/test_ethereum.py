@@ -17,5 +17,5 @@ class TestGethConnector:
 
     @staticmethod
     async def test_call_via_getattribute(geth):
-        response = await geth.personal_newAccount('superstrong')
+        response = await geth.rpc_personal_new_account('superstrong')
         assert isinstance(response, str)

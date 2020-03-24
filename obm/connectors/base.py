@@ -41,7 +41,7 @@ class Connector(abc.ABC):
 
     def __getattribute__(self, item):
         if item != 'METHODS' and item in self.METHODS:
-            return functools.partial(self.wrapper, method=item)
+            return functools.partial(self.wrapper, method=self.METHODS[item])
         return super().__getattribute__(item)
 
     @property

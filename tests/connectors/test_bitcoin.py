@@ -15,5 +15,5 @@ class TestBitcoinCoreConnector:
 
     @staticmethod
     async def test_call_via_getattribute(bitcoin_core):
-        response = await bitcoin_core.listtransactions('*', 1000)
+        response = await bitcoin_core.rpc_list_transactions('*', 1000)
         assert isinstance(response, list)

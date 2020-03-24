@@ -10,7 +10,10 @@ class BitcoinCoreConnector(base.Connector):
     currency = 'bitcoin'
 
     # TODO: Migrate to __slots__
-    METHODS = 'listtransactions', 'estimatesmartfee'
+    METHODS = {
+        'rpc_list_transactions': 'listtransactions',
+        'rpc_estimate_smart_fee': 'estimatesmartfee',
+    }
 
     def __init__(self,
                  rpc_host: str = 'localhost',
