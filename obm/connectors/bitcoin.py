@@ -13,6 +13,7 @@ class BitcoinCoreConnector(base.Connector):
     METHODS = {
         'rpc_list_transactions': 'listtransactions',
         'rpc_estimate_smart_fee': 'estimatesmartfee',
+        'rpc_send_to_address': 'sendtoaddress',
     }
 
     def __init__(self,

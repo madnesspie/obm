@@ -19,18 +19,26 @@ class TestBitcoinCoreConnector:
         assert isinstance(response, list)
 
     @staticmethod
-    @pytest.mark.parametrize('method_name, args, expected_type', (
+    @pytest.mark.parametrize(
+        'method_name, args, expected_type',
         (
-            'rpc_list_transactions',
-            ['*', 1000],
-            list,
+            (
+                'rpc_list_transactions',
+                ['*', 1000],
+                list,
+            ),
+            (
+                'rpc_estimate_smart_fee',
+                [1],
+                dict,
+            ),
+            (
+                'rpc_send_to_address',
+                ['2NAmne8BsSXWbV5iStkVzL4vW7Z4F6a5o68', 0.00001],
+                str,
+            ),
         ),
-        (
-            'rpc_estimate_smart_fee',
-            [1],
-            dict,
-        ),
-    ))
+    )
     async def test_rpc(bitcoin_core, method_name, args, expected_type):
         method = getattr(bitcoin_core, method_name)
         response = await method(*args)
