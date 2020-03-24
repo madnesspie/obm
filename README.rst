@@ -2,7 +2,7 @@
    :language: bash
 
 ===========================================
-Welcome to OBM!
+Welcome to Object Blockchain Mapping!
 ===========================================
 
 .. |travis| |pypi-version| |readthedocs|
