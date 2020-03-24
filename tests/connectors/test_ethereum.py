@@ -20,8 +20,6 @@ class TestGethConnector:
         response = await geth.rpc_personal_new_account('superstrong')
         assert isinstance(response, str)
 
-    # The common RPC methods tests below:
-
     @staticmethod
     @pytest.mark.parametrize('method_name, args, expected_type', (
         (
