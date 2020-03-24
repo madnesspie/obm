@@ -10,6 +10,8 @@ class GethConnector(base.Connector):
     # TODO: Migrate to __slots__
     METHODS = {
         'rpc_personal_new_account': 'personal_newAccount',
+        'rpc_eth_estimate_gas':'eth_estimateGas',
+        'rpc_eth_gas_price':'eth_gasPrice',
     }
 
     def __init__(self, rpc_host, rpc_port, timeout=None):
@@ -17,7 +19,6 @@ class GethConnector(base.Connector):
         self.auth = None
         self.headers = {
             'content-type': 'application/json',
-            'cache-control': 'no-cache'
         }
 
     async def wrapper(self, *args, method: str = None) -> Union[dict, list]:
