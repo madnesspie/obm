@@ -11,6 +11,7 @@ class TestBitcoinCoreConnector:
             'params': ['*', 1000]
         })
         assert isinstance(response, dict)
+        assert 'result' in response
 
     @staticmethod
     async def test_call_via_getattribute(bitcoin_core):

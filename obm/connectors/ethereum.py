@@ -1,43 +1,37 @@
 from typing import Union
 
-import aiohttp
-
 from obm.connectors import base, exceptions
 
 
-class BitcoinCoreConnector(base.Connector):
-    node = 'bitcoin-core'
-    currency = 'bitcoin'
+class GethConnector(base.Connector):
+    node = 'geth'
+    currency = 'ethereum'
 
     # TODO: Migrate to __slots__
-    METHODS = 'listtransactions', 'estimatesmartfee'
+    METHODS = ('personal_newAccount',)
 
-    def __init__(self,
-                 rpc_host: str = 'localhost',
-                 rpc_port: int = 18332,
-                 rpc_username: str = None,
-                 rpc_password: str = None,
-                 timeout: int = None):
+    def __init__(self, rpc_host, rpc_port, timeout=None):
         super().__init__(rpc_host, rpc_port, timeout)
-        if rpc_username is not None and rpc_password is not None:
-            self.auth = aiohttp.BasicAuth(rpc_username, rpc_password)
+        self.auth = None
         self.headers = {
             'content-type': 'application/json',
             'cache-control': 'no-cache'
         }
 
-    async def wrapper(self, *args, method: str = None) -> Union[dict, list]:
+    async def wrapper(self, *args, method: str = None):
         assert method is not None
         response = await self.call(payload={
             'method': method,
             'params': args,
+            'jsonrpc': '2.0',
+            'id': 1,
         })
         return await self.validate(response)
 
     @staticmethod
     async def validate(response: dict) -> Union[dict, list]:
         try:
-            error = response['error']
+            error = response.get('error')
             if error:
                 raise exceptions.NodeError(error)
             return response['result']

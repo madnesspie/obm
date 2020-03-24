@@ -48,3 +48,10 @@ def bitcoin_core():
         rpc_username='testnet_user',
         rpc_password='testnet_pass',
     )
+
+@pytest.fixture
+def geth():
+    return connectors.GethConnector(
+        rpc_host='127.0.0.1',
+        rpc_port=8545,
+    )

@@ -39,6 +39,11 @@ class Connector(abc.ABC):
         self.url = url if url.startswith('http') else 'http://' + url
         self.timeout = timeout or self.DEFAULT_TIMEOUT
 
+    def __getattribute__(self, item):
+        if item != 'METHODS' and item in self.METHODS:
+            return functools.partial(self.wrapper, method=item)
+        return super().__getattribute__(item)
+
     @property
     @abc.abstractmethod
     def node(self) -> str:
@@ -49,17 +54,16 @@ class Connector(abc.ABC):
     def currency(self) -> str:
         ...
 
-    def __getattribute__(self, item):
-        if item != 'METHODS' and item in self.METHODS:
-            return functools.partial(self.wrapper, method=item)
-        return super().__getattribute__(item)
-
     @staticmethod
     @abc.abstractmethod
     async def validate(response: dict) -> Union[dict, list]:
         ...
 
-    async def call(self, payload):
+    @abc.abstractmethod
+    async def wrapper(self, *args, method: str = None) -> Union[dict, list]:
+        ...
+
+    async def call(self, payload: dict) -> dict:
         async with aiohttp.ClientSession(
                 headers=self.headers,
                 auth=self.auth,
