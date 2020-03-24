@@ -11,7 +11,8 @@ class BitcoinCoreConnector(base.Connector):
     node = 'bitcoin-core'
     currency = 'bitcoin'
 
-    __slots__ = ('listtransactions',)
+    # TODO: Migrate to __slots__
+    METHODS = 'listtransactions', 'estimatesmartfee'
 
     def __init__(
         self,
@@ -31,7 +32,7 @@ class BitcoinCoreConnector(base.Connector):
         }
 
     def __getattribute__(self, item):
-        if item != '__slots__' and item in self.__slots__:
+        if item != 'METHODS' and item in self.METHODS:
             return functools.partial(self.wrapper, method=item)
         return super().__getattribute__(item)
 
