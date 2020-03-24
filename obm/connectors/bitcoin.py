@@ -1,6 +1,4 @@
-import abc
-import functools
-import json
+from typing import Union
 
 import aiohttp
 
@@ -14,39 +12,33 @@ class BitcoinCoreConnector(base.Connector):
     # TODO: Migrate to __slots__
     METHODS = 'listtransactions', 'estimatesmartfee'
 
-    def __init__(
-        self,
-        rpc_host,
-        rpc_port,
-        rpc_username,
-        rpc_password,
-        timeout=None,
-    ):
-        super().__init__(timeout)
-        url = f"{rpc_host}:{rpc_port}"
-        self.url = url if 'http://' in url else 'http://' + url
-        self.auth = aiohttp.BasicAuth(rpc_username, rpc_password)
+    def __init__(self,
+                 rpc_host: str = 'localhost',
+                 rpc_port: int = 18332,
+                 rpc_username: str = None,
+                 rpc_password: str = None,
+                 timeout: int = None):
+        super().__init__(rpc_host, rpc_port, timeout)
+        if rpc_username is not None and rpc_password is not None:
+            self.auth = aiohttp.BasicAuth(rpc_username, rpc_password)
         self.headers = {
             'content-type': 'application/json',
             'cache-control': 'no-cache'
         }
 
-    def __getattribute__(self, item):
-        if item != 'METHODS' and item in self.METHODS:
-            return functools.partial(self.wrapper, method=item)
-        return super().__getattribute__(item)
-
     async def wrapper(self, *args, method: str = None):
         assert method is not None
-        return await self.call(payload={
+        response = await self.call(payload={
             'method': method,
             'params': args,
         })
+        return await self.validate(response)
 
-    async def call(self, payload):
-        response = await super().call(payload)
+    @staticmethod
+    async def validate(response: dict) -> Union[dict, list]:
         try:
-            if error := response['error']:
+            error = response['error']
+            if error:
                 raise exceptions.NodeError(error)
             return response['result']
         except KeyError:

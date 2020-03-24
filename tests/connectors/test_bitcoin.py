@@ -10,7 +10,7 @@ class TestBitcoinCoreConnector:
             'method': 'listtransactions',
             'params': ['*', 1000]
         })
-        assert isinstance(response, list)
+        assert isinstance(response, dict)
 
     @staticmethod
     async def test_call_via_getattribute(bitcoin_core):
