@@ -1,0 +1,20 @@
+version: '3.7'
+services:
+  bitcoin-core:
+    image: kylemanna/bitcoind
+    restart: always
+    ports:
+      - "8332:8332"
+      - "18332:18332"
+    volumes:
+      - "$HOME/.bitcoin:/bitcoin/.bitcoin"
+      - "$PWD/configs/bitcoin.conf:/bitcoin/.bitcoin/bitcoin.conf"
+    command: bitcoind
+  geth:
+    image: ethereum/client-go
+    restart: always
+    ports:
+      - "8545:8545"
+    volumes:
+      - "$HOME/.ethereum:/root/.ethereum"
+    command: --rinkeby --rpc --rpcapi "personal,eth,web3" --rpcaddr 0.0.0.0
