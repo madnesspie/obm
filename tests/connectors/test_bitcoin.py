@@ -36,7 +36,7 @@ class TestBitcoinCoreConnector:
             ),
             (
                 'rpc_send_to_address',
-                [os.environ['BTC_IN_WALLET_ADDRESS'], 0.00001],
+                [os.environ['BITCOIN_CORE_IN_WALLET_ADDRESS'], 0.00001],
                 str,
             ),
         ),

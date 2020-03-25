@@ -10,8 +10,10 @@ class GethConnector(base.Connector):
     # TODO: Migrate to __slots__
     METHODS = {
         'rpc_personal_new_account': 'personal_newAccount',
-        'rpc_eth_estimate_gas':'eth_estimateGas',
-        'rpc_eth_gas_price':'eth_gasPrice',
+        'rpc_eth_estimate_gas': 'eth_estimateGas',
+        'rpc_eth_gas_price': 'eth_gasPrice',
+        'rpc_personal_send_transaction': 'personal_sendTransaction',
+        'rpc_personal_unlock_account': 'personal_unlockAccount',
     }
 
     def __init__(self, rpc_host, rpc_port, timeout=None):

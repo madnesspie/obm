@@ -1,4 +1,8 @@
+import os
+
 import pytest
+
+from obm import utils
 
 
 @pytest.mark.integration
@@ -21,25 +25,40 @@ class TestGethConnector:
         assert isinstance(response, str)
 
     @staticmethod
-    @pytest.mark.parametrize('method_name, args, expected_type', (
+    @pytest.mark.parametrize(
+        'method_name, args, expected_type',
         (
-            'rpc_personal_new_account',
-            ['superstrong'],
-            str,
+            (
+                'rpc_personal_new_account',
+                ['superstrong'],
+                str,
+            ),
+            (
+                'rpc_eth_gas_price',
+                [],
+                str,
+            ),
+            (
+                'rpc_eth_estimate_gas',
+                [{
+                    'to': os.environ['GETH_IN_WALLET_ADDRESS'],
+                }],
+                str,
+            ),
+            (
+                'rpc_personal_send_transaction',
+                [
+                    {
+                        'from': os.environ['GETH_SEND_FROM_ADDRESS'],
+                        'to': os.environ['GETH_IN_WALLET_ADDRESS'],
+                        'value': utils.to_hex(utils.to_wei(0.01)),
+                    },
+                    'abc',
+                ],
+                str,
+            ),
         ),
-        (
-            'rpc_eth_gas_price',
-            [],
-            str,
-        ),
-        (
-            'rpc_eth_estimate_gas',
-            [{
-                'to': '0xe1082e71f1ced0efb0952edd23595e4f76840128',
-            }],
-            str,
-        ),
-    ))
+    )
     async def test_rpc(geth, method_name, args, expected_type):
         method = getattr(geth, method_name)
         response = await method(*args)

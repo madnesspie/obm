@@ -5,6 +5,7 @@ import pytest
 from obm import connectors
 
 # TODO: Check node balance before integration tests
+# TODO: Check testnet statuses before testing
 
 pytest_plugins = 'aiohttp.pytest_plugin'
 
