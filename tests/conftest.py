@@ -1,9 +1,11 @@
 # pylint: disable = redefined-outer-name
+import dotenv
 import pytest
 
 from obm import connectors
 
 # TODO: Check node balance before integration tests
+# TODO: Check testnet statuses before testing
 
 pytest_plugins = 'aiohttp.pytest_plugin'
 
@@ -37,6 +39,18 @@ def pytest_runtest_setup(item):
         pytest.skip('skipped integration test')
 
 
+def pytest_configure(config):  # pylint: disable=unused-argument
+    """Pytest hook that called before test session.
+
+    Docs:
+        https://docs.pytest.org/en/latest/reference.html#_pytest.hookspec.pytest_configure
+
+    Args:
+        config: Pytest config object.
+    """
+    dotenv.load_dotenv(dotenv_path='./.env')
+
+
 # fixtures
 
 
@@ -47,4 +61,11 @@ def bitcoin_core():
         rpc_port=18332,
         rpc_username='testnet_user',
         rpc_password='testnet_pass',
+    )
+
+@pytest.fixture
+def geth():
+    return connectors.GethConnector(
+        rpc_host='127.0.0.1',
+        rpc_port=8545,
     )
