@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 
@@ -34,7 +36,7 @@ class TestBitcoinCoreConnector:
             ),
             (
                 'rpc_send_to_address',
-                ['2NAmne8BsSXWbV5iStkVzL4vW7Z4F6a5o68', 0.00001],
+                [os.environ['BTC_IN_WALLET_ADDRESS'], 0.00001],
                 str,
             ),
         ),

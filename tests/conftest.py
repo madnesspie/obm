@@ -1,4 +1,5 @@
 # pylint: disable = redefined-outer-name
+import dotenv
 import pytest
 
 from obm import connectors
@@ -35,6 +36,18 @@ def pytest_runtest_setup(item):
     is_integration_test = bool(list(item.iter_markers(name='integration')))
     if not is_integration_session and is_integration_test:
         pytest.skip('skipped integration test')
+
+
+def pytest_configure(config):  # pylint: disable=unused-argument
+    """Pytest hook that called before test session.
+
+    Docs:
+        https://docs.pytest.org/en/latest/reference.html#_pytest.hookspec.pytest_configure
+
+    Args:
+        config: Pytest config object.
+    """
+    dotenv.load_dotenv(dotenv_path='./.env')
 
 
 # fixtures

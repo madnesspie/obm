@@ -13,11 +13,12 @@ setuptools.setup(
     name='obm',
     version=obm.__version__,
     packages=setuptools.find_packages(exclude=['tests*']),
-    install_requires=['aiohttp>=3.6,<4'],
+    install_requires=['aiohttp>=3.6,<4', 'web3>=5.7,<6'],
     extras_require={
         'dev': [
             'sphinx>=2.4,<3',
             'sphinx-rtd-theme',
+            'python-dotenv',
             'pytest',
             'pylint',
             'mypy',
@@ -25,7 +26,7 @@ setuptools.setup(
         ],
     },
     license='GNU Lesser General Public License v3 or later (LGPLv3+)',
-    description='Async blockchain node interacting tool with ORM-like api.',
+    description='Async blockchain nodes interacting tool with ORM-like api.',
     long_description=read('README.rst'),
     long_description_content_type='text/x-rst',
     url='https://github.com/madnesspie/obm',

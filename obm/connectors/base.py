@@ -69,5 +69,4 @@ class Connector(abc.ABC):
                 auth=self.auth,
         ) as session:
             async with session.post(self.url, json=payload) as response:
-                assert response.status == 200
                 return await response.json()
