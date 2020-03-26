@@ -20,7 +20,7 @@ class TestBitcoinCoreConnector:
         assert isinstance(response, list)
 
     @staticmethod
-    async def test_unified_list_transactions(bitcoin_core):
+    async def test_list_transactions(bitcoin_core):
         result = await bitcoin_core.list_transactions(count=1)
         assert len(result) == 1
 

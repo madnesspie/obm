@@ -1,6 +1,7 @@
 from typing import List, Union
 
 from obm.connectors import base, exceptions
+from obm import utils
 
 
 class GethConnector(base.Connector):
@@ -45,6 +46,10 @@ class GethConnector(base.Connector):
         except KeyError:
             raise exceptions.NodeInvalidResponceError(response)
 
+    async def get_latest_block_number(self):
+        block = await self.rpc_eth_get_block_by_number("latest", True)
+        return utils.to_int(block["number"])
+
     async def list_transactions(self, **kwargs) -> List[dict]:
-        blocks_count = (kwargs.get("blocks_count", 10),)
+        blocks_count = kwargs.get("blocks_count", 10)
         return

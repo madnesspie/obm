@@ -26,6 +26,11 @@ class TestGethConnector:
         assert isinstance(response, str)
 
     @staticmethod
+    async def test_get_latest_block_number(geth):
+        result = await geth.get_latest_block_number()
+        assert isinstance(result, int)
+
+    @staticmethod
     @pytest.mark.parametrize(
         "method_name, args, expected_type",
         (

@@ -7,3 +7,7 @@ def to_wei(value):
 
 def to_hex(value):
     return web3.Web3.toHex(value)
+
+
+def to_int(value):
+    return web3.Web3.toInt(hexstr=value)
