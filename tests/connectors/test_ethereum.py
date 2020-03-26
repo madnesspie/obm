@@ -7,53 +7,44 @@ from obm import utils
 
 @pytest.mark.integration
 class TestGethConnector:
-
     @staticmethod
     async def test_call(geth):
-        response = await geth.call({
-            'method': 'personal_newAccount',
-            'params': ['superstrong'],
-            'jsonrpc': '2.0',
-            'id': 1,
-        })
+        response = await geth.call(
+            {
+                "method": "personal_newAccount",
+                "params": ["superstrong"],
+                "jsonrpc": "2.0",
+                "id": 1,
+            }
+        )
         assert isinstance(response, dict)
-        assert 'result' in response
+        assert "result" in response
 
     @staticmethod
     async def test_call_via_getattribute(geth):
-        response = await geth.rpc_personal_new_account('superstrong')
+        response = await geth.rpc_personal_new_account("superstrong")
         assert isinstance(response, str)
 
     @staticmethod
     @pytest.mark.parametrize(
-        'method_name, args, expected_type',
+        "method_name, args, expected_type",
         (
+            ("rpc_personal_new_account", ["superstrong"], str,),
+            ("rpc_eth_gas_price", [], str,),
             (
-                'rpc_personal_new_account',
-                ['superstrong'],
+                "rpc_eth_estimate_gas",
+                [{"to": os.environ["GETH_IN_WALLET_ADDRESS"],}],
                 str,
             ),
             (
-                'rpc_eth_gas_price',
-                [],
-                str,
-            ),
-            (
-                'rpc_eth_estimate_gas',
-                [{
-                    'to': os.environ['GETH_IN_WALLET_ADDRESS'],
-                }],
-                str,
-            ),
-            (
-                'rpc_personal_send_transaction',
+                "rpc_personal_send_transaction",
                 [
                     {
-                        'from': os.environ['GETH_SEND_FROM_ADDRESS'],
-                        'to': os.environ['GETH_IN_WALLET_ADDRESS'],
-                        'value': utils.to_hex(utils.to_wei(0.01)),
+                        "from": os.environ["GETH_SEND_FROM_ADDRESS"],
+                        "to": os.environ["GETH_IN_WALLET_ADDRESS"],
+                        "value": utils.to_hex(utils.to_wei(0.01)),
                     },
-                    'abc',
+                    "abc",
                 ],
                 str,
             ),

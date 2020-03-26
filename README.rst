@@ -51,6 +51,7 @@ Features
 ========
 
 - BTC (bitcoin-core) and ETH (geth) support
+- Implemented :bash:`list-transactions` for ETH
 - Unified API for sending/receiving transactions, addresses creation and fee
 estimating
 
