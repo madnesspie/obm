@@ -20,11 +20,6 @@ class TestBitcoinCoreConnector:
         assert isinstance(response, list)
 
     @staticmethod
-    async def test_list_transactions(bitcoin_core):
-        result = await bitcoin_core.list_transactions(count=1)
-        assert len(result) == 1
-
-    @staticmethod
     @pytest.mark.parametrize(
         "method_name, args, expected_type",
         (
@@ -41,3 +36,8 @@ class TestBitcoinCoreConnector:
         method = getattr(bitcoin_core, method_name)
         result = await method(*args)
         assert isinstance(result, expected_type)
+
+    @staticmethod
+    async def test_list_transactions(bitcoin_core):
+        result = await bitcoin_core.list_transactions(count=1)
+        assert len(result) == 1

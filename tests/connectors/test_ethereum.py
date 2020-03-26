@@ -26,13 +26,14 @@ class TestGethConnector:
         result = await geth.rpc_personal_new_account("superstrong")
         assert isinstance(result, str)
 
+    # fmt: off
     @staticmethod
     async def test_get_last_blocks_range(geth):
         blocks_range = await geth.get_last_blocks_range(length=5)
         numbers = [utils.to_int(block["number"]) for block in blocks_range]
+        assert len(blocks_range) == 5
         assert not [
-            item
-            for item, count in collections.Counter(numbers).items()
+            item for item, count in collections.Counter(numbers).items()
             if count > 1
         ]
 
@@ -67,3 +68,9 @@ class TestGethConnector:
         method = getattr(geth, method_name)
         response = await method(*args)
         assert isinstance(response, expected_type)
+
+    @staticmethod
+    async def test_list_transaction(geth):
+        txs = await geth.list_transactions(blocks_count=500)
+        assert isinstance(txs, list)
+        assert len(txs) >= 1
