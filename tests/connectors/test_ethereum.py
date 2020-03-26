@@ -43,6 +43,7 @@ class TestGethConnector:
             ("rpc_personal_new_account", ["superstrong"], str,),
             ("rpc_eth_gas_price", [], str,),
             ("rpc_eth_get_block_by_number", ["latest", True], dict),
+            ("rpc_personal_list_accounts", [], list),
             (
                 "rpc_eth_estimate_gas",
                 [{"to": os.environ["GETH_IN_WALLET_ADDRESS"],}],

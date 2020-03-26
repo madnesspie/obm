@@ -16,6 +16,7 @@ class GethConnector(base.Connector):
         "rpc_personal_send_transaction": "personal_sendTransaction",
         "rpc_personal_unlock_account": "personal_unlockAccount",
         "rpc_eth_get_block_by_number": "eth_getBlockByNumber",
+        "rpc_personal_list_accounts": "personal_listAccounts",
     }
 
     def __init__(self, rpc_host, rpc_port, timeout=None):
@@ -57,8 +58,10 @@ class GethConnector(base.Connector):
         return last_blocks
 
     async def list_transactions(self, **kwargs) -> List[dict]:
+        list_transactions = []
         blocks_count = kwargs.get("blocks_count", 10)
-        block_range = self.get_last_blocks_range(length=blocks_count)
-        num = None
+        block_range = await self.get_last_blocks_range(length=blocks_count)
+        addresses = await self.rpc_personal_list_accounts()
         for block in block_range:
-            num = utils.to_int(block["number"])
+            for transaction in block['transactions']:
+                if transaction[]
