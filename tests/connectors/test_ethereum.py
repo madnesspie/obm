@@ -1,4 +1,5 @@
 import os
+import collections
 
 import pytest
 
@@ -22,13 +23,18 @@ class TestGethConnector:
 
     @staticmethod
     async def test_call_via_getattribute(geth):
-        response = await geth.rpc_personal_new_account("superstrong")
-        assert isinstance(response, str)
+        result = await geth.rpc_personal_new_account("superstrong")
+        assert isinstance(result, str)
 
     @staticmethod
-    async def test_get_latest_block_number(geth):
-        result = await geth.get_latest_block_number()
-        assert isinstance(result, int)
+    async def test_get_last_blocks_range(geth):
+        blocks_range = await geth.get_last_blocks_range(length=5)
+        numbers = [utils.to_int(block["number"]) for block in blocks_range]
+        assert not [
+            item
+            for item, count in collections.Counter(numbers).items()
+            if count > 1
+        ]
 
     @staticmethod
     @pytest.mark.parametrize(

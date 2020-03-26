@@ -46,10 +46,19 @@ class GethConnector(base.Connector):
         except KeyError:
             raise exceptions.NodeInvalidResponceError(response)
 
-    async def get_latest_block_number(self):
-        block = await self.rpc_eth_get_block_by_number("latest", True)
-        return utils.to_int(block["number"])
+    async def get_last_blocks_range(self, length):
+        latest_block = await self.rpc_eth_get_block_by_number("latest", True)
+        latest_block_number = utils.to_int(latest_block["number"])
+        last_blocks = [
+            await self.rpc_eth_get_block_by_number(utils.to_hex(n), True)
+            for n in range(latest_block_number, latest_block_number - length)
+        ]
+        last_blocks.append(latest_block)
+        return last_blocks
 
     async def list_transactions(self, **kwargs) -> List[dict]:
         blocks_count = kwargs.get("blocks_count", 10)
-        return
+        block_range = self.get_last_blocks_range(length=blocks_count)
+        num = None
+        for block in block_range:
+            num = utils.to_int(block["number"])
