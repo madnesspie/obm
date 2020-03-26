@@ -31,6 +31,7 @@ class TestGethConnector:
         (
             ("rpc_personal_new_account", ["superstrong"], str,),
             ("rpc_eth_gas_price", [], str,),
+            ("rpc_eth_get_block_by_number", ["latest", True], dict),
             (
                 "rpc_eth_estimate_gas",
                 [{"to": os.environ["GETH_IN_WALLET_ADDRESS"],}],
@@ -42,7 +43,7 @@ class TestGethConnector:
                     {
                         "from": os.environ["GETH_SEND_FROM_ADDRESS"],
                         "to": os.environ["GETH_IN_WALLET_ADDRESS"],
-                        "value": utils.to_hex(utils.to_wei(0.01)),
+                        "value": utils.to_hex(utils.to_wei(0.0000001)),
                     },
                     "abc",
                 ],

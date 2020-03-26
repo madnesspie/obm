@@ -14,6 +14,7 @@ class GethConnector(base.Connector):
         "rpc_eth_gas_price": "eth_gasPrice",
         "rpc_personal_send_transaction": "personal_sendTransaction",
         "rpc_personal_unlock_account": "personal_unlockAccount",
+        "rpc_eth_get_block_by_number": "eth_getBlockByNumber",
     }
 
     def __init__(self, rpc_host, rpc_port, timeout=None):
@@ -45,4 +46,5 @@ class GethConnector(base.Connector):
             raise exceptions.NodeInvalidResponceError(response)
 
     async def list_transactions(self, **kwargs) -> List[dict]:
+        blocks_count = (kwargs.get("blocks_count", 10),)
         return
