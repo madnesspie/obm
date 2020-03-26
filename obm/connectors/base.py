@@ -1,6 +1,7 @@
 import abc
 import functools
 from typing import List, Union
+from obm.connectors import exceptions
 
 import aiohttp
 
@@ -51,6 +52,15 @@ class Connector(abc.ABC):
             async with session.post(self.url, json=payload) as response:
                 return await response.json()
 
+    @staticmethod
+    async def validate(response: dict) -> Union[dict, list]:
+        try:
+            if error := response.get("error"):
+                raise exceptions.NodeError(error)
+            return response["result"]
+        except KeyError:
+            raise exceptions.NodeInvalidResponceError(response)
+
     @property
     @abc.abstractmethod
     def node(self) -> str:
@@ -59,11 +69,6 @@ class Connector(abc.ABC):
     @property
     @abc.abstractmethod
     def currency(self) -> str:
-        ...
-
-    @staticmethod
-    @abc.abstractmethod
-    async def validate(response: dict) -> Union[dict, list]:
         ...
 
     @abc.abstractmethod

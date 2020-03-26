@@ -2,7 +2,7 @@ from typing import List, Union
 
 import aiohttp
 
-from obm.connectors import base, exceptions, serializers
+from obm.connectors import base, serializers
 
 
 class BitcoinCoreConnector(base.Connector):
@@ -37,15 +37,6 @@ class BitcoinCoreConnector(base.Connector):
         assert method is not None
         response = await self.call(payload={"method": method, "params": args,})
         return await self.validate(response)
-
-    @staticmethod
-    async def validate(response: dict) -> Union[dict, list]:
-        try:
-            if error := response["error"]:
-                raise exceptions.NodeError(error)
-            return response["result"]
-        except KeyError:
-            raise exceptions.NodeInvalidResponceError(response)
 
     async def list_transactions(self, **kwargs) -> List[dict]:
         transactions = await self.rpc_list_transactions(

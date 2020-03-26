@@ -1,6 +1,6 @@
 from typing import List, Union
 
-from obm.connectors import base, exceptions
+from obm.connectors import base
 from obm import utils
 
 
@@ -37,15 +37,6 @@ class GethConnector(base.Connector):
             }
         )
         return await self.validate(response)
-
-    @staticmethod
-    async def validate(response: dict) -> Union[dict, list]:
-        try:
-            if error := response.get("error"):
-                raise exceptions.NodeError(error)
-            return response["result"]
-        except KeyError:
-            raise exceptions.NodeInvalidResponceError(response)
 
     async def get_last_blocks_range(self, length):
         latest_block = await self.rpc_eth_get_block_by_number("latest", True)
