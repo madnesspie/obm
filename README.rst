@@ -34,45 +34,37 @@ Welcome to Object Blockchain Mapping!
 
 .. - Documentation: https://django-cryptocurrency-framework.readthedocs.io
 
-.. Installation
-.. ============
+Installation
+============
 
-.. See `Installation <https://django-cryptocurrency-framework.readthedocs.io/en/latest/installation.html>`_ for complete instructions.
+.. code-block:: bash
 
-.. .. code-block:: bash
+    pip install obm
 
-..     pip install django-cryptocurrency-framework
+Requirements
+============
+- Python 3.8 or higher.
+- (optional) `bitcoin-core <https://bitcoincore.org/en/download/>`_ node
+- (optional) `geth <https://geth.ethereum.org/downloads/>`_ node
 
-.. Requirements
-.. ============
-.. - Python 3.6 or higher.
-.. - `bitcoin-core <https://bitcoincore.org/en/download/>`_ node
+Features
+========
 
-.. Features
-.. ========
-
-.. - BTC (bitcoin-core) support
-.. - sending/receiving transactions and confirmation
-.. - unique addresses creation
-.. - fee estimating
-.. - REST API for actions above
-
-.. Future features
-.. ---------------
-
-.. - support of: ETH, ETC, DASH, BCHABC, BCHSV, LTC, ZEC, XEM, XRP, etc.
-.. - :bash:`cc_framework.wallet` app witch help in implementation of multi
-..   cryptocurrency wallet
+- BTC (bitcoin-core) and ETH (geth) support
+- Implemented :bash:`list-transactions` for ETH
+- Unified API for sending/receiving transactions, addresses creation and fee
+estimating
 
 
-.. Is django-cryptocurrency-framework production ready?
-.. ====================================================
-.. The project is now under active development. Use at your own risk.
+Future features
+---------------
 
-.. Example
-.. =======
-.. You can find the example project in this repo
-.. `example folder <https://github.com/madnesspie/django-cryptocurrency-framework/tree/master/example>`_.
+- support of: ETH, ETC, DASH, BCH, LTC, ZEC, XEM, XRP, etc.
+
+Is OMB production ready?
+========================
+The project is now under active development. Use at your own risk.
+
 
 Contributing
 ============

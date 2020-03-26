@@ -7,17 +7,17 @@ from obm import connectors
 # TODO: Check node balance before integration tests
 # TODO: Check testnet statuses before testing
 
-pytest_plugins = 'aiohttp.pytest_plugin'
+pytest_plugins = "aiohttp.pytest_plugin"
 
 # console options
 
 
 def pytest_addoption(parser):
     parser.addoption(
-        '--integration',
-        action='store_true',
-        default='',
-        help='Run integration tests with main test suite.',
+        "--integration",
+        action="store_true",
+        default="",
+        help="Run integration tests with main test suite.",
     )
 
 
@@ -33,10 +33,10 @@ def pytest_runtest_setup(item):
     Args:
         item: Pytest item object (conceptually is test).
     """
-    is_integration_session = item.config.getoption('--integration')
-    is_integration_test = bool(list(item.iter_markers(name='integration')))
+    is_integration_session = item.config.getoption("--integration")
+    is_integration_test = bool(list(item.iter_markers(name="integration")))
     if not is_integration_session and is_integration_test:
-        pytest.skip('skipped integration test')
+        pytest.skip("skipped integration test")
 
 
 def pytest_configure(config):  # pylint: disable=unused-argument
@@ -48,7 +48,7 @@ def pytest_configure(config):  # pylint: disable=unused-argument
     Args:
         config: Pytest config object.
     """
-    dotenv.load_dotenv(dotenv_path='./.env')
+    dotenv.load_dotenv(dotenv_path="./.env")
 
 
 # fixtures
@@ -57,15 +57,13 @@ def pytest_configure(config):  # pylint: disable=unused-argument
 @pytest.fixture
 def bitcoin_core():
     return connectors.BitcoinCoreConnector(
-        rpc_host='127.0.0.1',
+        rpc_host="127.0.0.1",
         rpc_port=18332,
-        rpc_username='testnet_user',
-        rpc_password='testnet_pass',
+        rpc_username="testnet_user",
+        rpc_password="testnet_pass",
     )
+
 
 @pytest.fixture
 def geth():
-    return connectors.GethConnector(
-        rpc_host='127.0.0.1',
-        rpc_port=8545,
-    )
+    return connectors.GethConnector(rpc_host="127.0.0.1", rpc_port=8545,)

@@ -2,7 +2,7 @@
 Welcome and thank you for your interest in contributing to the this open source project. This documentation aims to document how contributors and collaborators should work when using Git, GitHub and the development workflow. This Git workflow is inspired greatly by the [QuantConnect Lean Contributors Guide](https://github.com/QuantConnect/Lean/blob/master/CONTRIBUTING.md).
 
 ## Style Guide
-The project was written following [Google Python Style Guide](https://github.com/google/styleguide/blob/gh-pages/pyguide.md) and reviewers will be expecting to see code that follow it as well. Please make sure, that your linter (pylint) and formatter (yapf) are using configs form repo's root.
+The project was written following [Google Python Style Guide](https://github.com/google/styleguide/blob/gh-pages/pyguide.md) and reviewers will be expecting to see code that follow it as well. But you should to use `black` instread of obsolete `yapf`. Please make sure, that your linter (pylint) and formatter (black) are using configs form repo's root.
 
 ## Testing
 All pull requests must be accompanied by units tests. If it is a new feature, the tests should highlight expected use cases as well as edge cases, if applicable. If it is a bugfix, there should be tests that expose the bug in question.
