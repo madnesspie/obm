@@ -38,8 +38,7 @@ class GethConnector(base.Connector):
     @staticmethod
     async def validate(response: dict) -> Union[dict, list]:
         try:
-            error = response.get("error")
-            if error:
+            if error := response.get("error"):
                 raise exceptions.NodeError(error)
             return response["result"]
         except KeyError:

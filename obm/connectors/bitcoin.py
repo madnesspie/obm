@@ -2,7 +2,7 @@ from typing import List, Union
 
 import aiohttp
 
-from obm.connectors import base, exceptions
+from obm.connectors import base, exceptions, serializers
 
 
 class BitcoinCoreConnector(base.Connector):
@@ -27,6 +27,7 @@ class BitcoinCoreConnector(base.Connector):
         super().__init__(rpc_host, rpc_port, timeout)
         if rpc_username is not None and rpc_password is not None:
             self.auth = aiohttp.BasicAuth(rpc_username, rpc_password)
+        self.serializer = serializers.Transaction()
         self.headers = {
             "content-type": "application/json",
             "cache-control": "no-cache",
@@ -40,12 +41,17 @@ class BitcoinCoreConnector(base.Connector):
     @staticmethod
     async def validate(response: dict) -> Union[dict, list]:
         try:
-            error = response["error"]
-            if error:
+            if error := response["error"]:
                 raise exceptions.NodeError(error)
             return response["result"]
         except KeyError:
             raise exceptions.NodeInvalidResponceError(response)
 
     async def list_transactions(self, **kwargs) -> List[dict]:
-        return
+        transactions = await self.rpc_list_transactions(
+            kwargs.get("label", "*"),
+            kwargs.get("count", 10),
+            kwargs.get("skip", 0),
+            kwargs.get("include_watchonly", False),
+        )
+        return self.serializer.load(data=transactions, many=True)
