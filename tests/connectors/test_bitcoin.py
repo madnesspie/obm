@@ -13,11 +13,38 @@
 # limitations under the License.
 import os
 
+import aiohttp
 import pytest
+
+from obm.connectors import exceptions
+
+
+class TestBitcoinCoreConnector:
+    @staticmethod
+    @pytest.mark.parametrize(
+        "origin_error, expected_error",
+        (
+            (aiohttp.ServerTimeoutError, exceptions.NetworkTimeoutError),
+            (aiohttp.ClientPayloadError, exceptions.NetworkError),
+        ),
+        ids=["timeout", "network error",],
+    )
+    async def test_call_wrap_errors(
+        monkeypatch, origin_error, expected_error, bitcoin_core
+    ):
+        def mock(*_, **__):
+            raise origin_error()
+
+        monkeypatch.setattr(aiohttp.ClientSession, "post", mock)
+
+        with pytest.raises(expected_error):
+            await bitcoin_core.call(
+                payload={"method": "listtransactions", "params": ["*", 1000]}
+            )
 
 
 @pytest.mark.integration
-class TestBitcoinCoreConnector:
+class TestIntegrationBitcoinCoreConnector:
     @staticmethod
     async def test_call(bitcoin_core):
         result = await bitcoin_core.call(

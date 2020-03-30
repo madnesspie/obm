@@ -16,27 +16,27 @@
 import abc
 import functools
 from typing import List, Union
-from obm.connectors import exceptions
 
 import aiohttp
 
-# from obm.connectors import exceptions
+from obm.connectors import exceptions
 
-# def catch_errors(func):
 
-#     @functools.wraps(func)
-#     def wrapper(*args, **kwargs):
-#         try:
-#             return func(*args, **kwargs)
-#         except requests.exceptions.Timeout:
-#             self = args[0]
-#             raise exceptions.NetworkTimeoutError(
-#                 f'The request to node was longer '
-#                 f'than timeout: {self.timeout}')
-#         except requests.exceptions.RequestException as exc:
-#             raise exceptions.NetworkError(exc)
+def _catch_network_errors(func):
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except aiohttp.ServerTimeoutError:
+            self = args[0]
+            raise exceptions.NetworkTimeoutError(
+                f"The request to node was longer "
+                f"than timeout: {self.timeout}"
+            )
+        except aiohttp.ClientError as exc:
+            raise exceptions.NetworkError(exc)
 
-#     return wrapper
+    return wrapper
 
 
 class Connector(abc.ABC):
@@ -60,7 +60,9 @@ class Connector(abc.ABC):
             return functools.partial(self.wrapper, method=self.METHODS[item])
         return super().__getattribute__(item)
 
+    @_catch_network_errors
     async def call(self, payload: dict) -> dict:
+        # TODO: Add custom session
         async with aiohttp.ClientSession(
             headers=self.headers, auth=self.auth,
         ) as session:
