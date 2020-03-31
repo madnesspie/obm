@@ -62,6 +62,11 @@ class GethConnector(base.Connector):
 
     # Geth-specific interface
 
+    @property
+    async def latest_block_number(self):
+        latest_block = await self.rpc_eth_get_block_by_number("latest", True)
+        return utils.to_int(latest_block["number"])
+
     async def fetch_blocks_range(
         self,
         start: int,
@@ -69,11 +74,11 @@ class GethConnector(base.Connector):
         bunch_size: int = 1000,
         delay: Union[int, float] = 1,
     ) -> List[dict]:
-        """Fetches blocks range from start param to end param inclusive.
+        """Fetches blocks range between start and end bounds.
 
         Args:
-            start: Block number for start fetching (inclusive).
-            end: Block number for start fetching (inclusive). Defaults to
+            start: Start fetching bound.
+            end: End fetching bound (not inclusive). Defaults to
                 latest block number.
             bunch_size: Concurrent RPC request number. Defaults to 1000.
             delay: Delay in seconds between concurrent request bunches.
@@ -97,10 +102,10 @@ class GethConnector(base.Connector):
 
         # TODO: Add validation
 
-        end = end or await self.latest_block_number
+        end = end or await self.latest_block_number + 1
         get_block_coros = [
             retry(self.rpc_eth_get_block_by_number(utils.to_hex(n), True))
-            for n in range(start, end + 1)
+            for n in range(start, end)
         ]
         blocks_range = []
         for bunch in to_bunches(get_block_coros, bunch_size):
@@ -108,12 +113,15 @@ class GethConnector(base.Connector):
             await asyncio.sleep(delay)
         return blocks_range
 
-    # Unified interface
+    async def fetch_recent_blocks_range(
+        self, length: int, bunch_size: int = 1000, delay: Union[int, float] = 1,
+    ):
+        latest = await self.latest_block_number
+        return await self.fetch_blocks_range(
+            latest - length, latest + 1, bunch_size, delay
+        )
 
-    @property
-    async def latest_block_number(self):
-        latest_block = await self.rpc_eth_get_block_by_number("latest", True)
-        return utils.to_int(latest_block["number"])
+    # Unified interface
 
     async def list_transactions(self, **kwargs) -> List[dict]:
         blocks_count = kwargs.get("blocks_count", 10)

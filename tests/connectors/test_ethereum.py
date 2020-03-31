@@ -21,6 +21,15 @@ from obm import utils
 @pytest.mark.integration
 class TestGethConnector:
     @staticmethod
+    def is_ordered(numbers):
+        prev_number = numbers[0]
+        for number in numbers[1:]:
+            if number != prev_number + 1:
+                return False
+            prev_number = number
+        return True
+
+    @staticmethod
     async def test_call(geth):
         response = await geth.call(
             {
@@ -38,31 +47,35 @@ class TestGethConnector:
         result = await geth.rpc_personal_new_account("superstrong")
         assert isinstance(result, str)
 
-    @staticmethod
-    async def test_fetch_blocks_range(geth):
+    async def test_fetch_blocks_range(self, geth):
         latest = await geth.latest_block_number
         blocks_range = await geth.fetch_blocks_range(
-            start=latest - 49, end=latest, bunch_size=5, delay=0.1
+            start=latest - 50, end=latest, bunch_size=5, delay=0.1
         )
         numbers = [utils.to_int(block["number"]) for block in blocks_range]
+        assert latest not in numbers
         assert len(blocks_range) == 50
-        prev_number = numbers[0]
-        for number in numbers[1:]:
-            assert number == prev_number + 1
-            prev_number = number
+        assert self.is_ordered(numbers)
 
-    @staticmethod
-    async def test_fetch_blocks_range_with_default_end(geth):
+    async def test_fetch_blocks_range_with_default_end(self, geth):
         latest = await geth.latest_block_number
         blocks_range = await geth.fetch_blocks_range(
-            start=latest - 99, bunch_size=10, delay=0.1
+            start=latest - 100, bunch_size=10, delay=0.1
         )
         numbers = [utils.to_int(block["number"]) for block in blocks_range]
-        assert len(blocks_range) == 100
-        prev_number = numbers[0]
-        for number in numbers[1:]:
-            assert number == prev_number + 1
-            prev_number = number
+        assert latest in numbers
+        assert len(blocks_range) == 101
+        assert self.is_ordered(numbers)
+
+    async def test_fetch_recent_blocks_range(self, geth):
+        latest = await geth.latest_block_number
+        blocks_range = await geth.fetch_recent_blocks_range(
+            length=100, bunch_size=10, delay=0.1
+        )
+        numbers = [utils.to_int(block["number"]) for block in blocks_range]
+        assert latest in numbers
+        assert len(blocks_range) == 101
+        assert self.is_ordered(numbers)
 
     @staticmethod
     @pytest.mark.parametrize(
