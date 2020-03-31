@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import os
 import collections
+import os
 
 import pytest
 
@@ -42,9 +42,11 @@ class TestGethConnector:
     # fmt: off
     @staticmethod
     async def test_get_last_blocks_range(geth):
-        blocks_range = await geth.get_last_blocks_range(length=5)
+        blocks_range = await geth.get_last_blocks_range(
+            length=50, bunch_size=10, delay=0.5
+        )
         numbers = [utils.to_int(block["number"]) for block in blocks_range]
-        assert len(blocks_range) == 5
+        assert len(blocks_range) == 50
         assert not [
             item for item, count in collections.Counter(numbers).items()
             if count > 1
@@ -84,6 +86,6 @@ class TestGethConnector:
 
     @staticmethod
     async def test_list_transaction(geth):
-        txs = await geth.list_transactions(blocks_count=500)
+        txs = await geth.list_transactions(blocks_count=5000)
         assert isinstance(txs, list)
         assert len(txs) >= 1
