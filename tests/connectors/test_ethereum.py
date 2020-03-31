@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import collections
 import os
 
 import pytest
@@ -39,18 +38,31 @@ class TestGethConnector:
         result = await geth.rpc_personal_new_account("superstrong")
         assert isinstance(result, str)
 
-    # fmt: off
     @staticmethod
-    async def test_get_last_blocks_range(geth):
-        blocks_range = await geth.get_last_blocks_range(
-            length=50, bunch_size=10, delay=0.5
+    async def test_fetch_blocks_range(geth):
+        latest = await geth.latest_block_number
+        blocks_range = await geth.fetch_blocks_range(
+            start=latest - 49, end=latest, bunch_size=5, delay=0.1
         )
         numbers = [utils.to_int(block["number"]) for block in blocks_range]
         assert len(blocks_range) == 50
-        assert not [
-            item for item, count in collections.Counter(numbers).items()
-            if count > 1
-        ]
+        prev_number = numbers[0]
+        for number in numbers[1:]:
+            assert number == prev_number + 1
+            prev_number = number
+
+    @staticmethod
+    async def test_fetch_blocks_range_with_default_end(geth):
+        latest = await geth.latest_block_number
+        blocks_range = await geth.fetch_blocks_range(
+            start=latest - 99, bunch_size=10, delay=0.1
+        )
+        numbers = [utils.to_int(block["number"]) for block in blocks_range]
+        assert len(blocks_range) == 100
+        prev_number = numbers[0]
+        for number in numbers[1:]:
+            assert number == prev_number + 1
+            prev_number = number
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -84,8 +96,8 @@ class TestGethConnector:
         response = await method(*args)
         assert isinstance(response, expected_type)
 
-    @staticmethod
-    async def test_list_transaction(geth):
-        txs = await geth.list_transactions(blocks_count=5000)
-        assert isinstance(txs, list)
-        assert len(txs) >= 1
+    # @staticmethod
+    # async def test_list_transaction(geth):
+    #     txs = await geth.list_transactions(blocks_count=5000)
+    #     assert isinstance(txs, list)
+    #     assert len(txs) >= 1

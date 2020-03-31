@@ -52,27 +52,41 @@ class GethConnector(base.Connector):
         )
         return await self.validate(response)
 
-    # fmt: off
     @staticmethod
     def find_transactions_in(block: dict, addresses: List[str]) -> List[dict]:
         return [
-            tx for tx in block["transactions"]
+            tx
+            for tx in block["transactions"]
             if tx["from"] in addresses or tx["to"] in addresses
         ]
 
     # Geth-specific interface
 
-    async def get_last_blocks_range(
+    async def fetch_blocks_range(
         self,
-        length: int,
+        start: int,
+        end: int = None,
         bunch_size: int = 1000,
         delay: Union[int, float] = 1,
-    ):
+    ) -> List[dict]:
+        """Fetches blocks range from start param to end param inclusive.
+
+        Args:
+            start: Block number for start fetching (inclusive).
+            end: Block number for start fetching (inclusive). Defaults to
+                latest block number.
+            bunch_size: Concurrent RPC request number. Defaults to 1000.
+            delay: Delay in seconds between concurrent request bunches.
+                Defaults to 1.
+
+        Returns:
+            List that contains block range.
+        """
+
         async def retry(coro):
             try:
                 return await coro
-            except exceptions.NetworkError as e:
-                print(f"RETRY with {e}")
+            except exceptions.NetworkError:
                 return await coro
 
         def to_bunches(coros, bunch_size):
@@ -81,24 +95,25 @@ class GethConnector(base.Connector):
                 yield coros[bunch_start : bunch_start + bunch_size]
                 bunch_start += bunch_size
 
-        latest_block = await self.rpc_eth_get_block_by_number("latest", True)
-        latest_block_number = utils.to_int(latest_block["number"])
+        # TODO: Add validation
 
-        # Because connector has just requested one block
-        length -= 1
-        get_last_block_coros = [
+        end = end or await self.latest_block_number
+        get_block_coros = [
             retry(self.rpc_eth_get_block_by_number(utils.to_hex(n), True))
-            for n in range(latest_block_number - length, latest_block_number)
+            for n in range(start, end + 1)
         ]
-
-        last_blocks = []
-        for bunch in to_bunches(get_last_block_coros, bunch_size):
-            last_blocks += await asyncio.gather(*bunch, return_exceptions=True)
+        blocks_range = []
+        for bunch in to_bunches(get_block_coros, bunch_size):
+            blocks_range += await asyncio.gather(*bunch, return_exceptions=True)
             await asyncio.sleep(delay)
-        last_blocks.append(latest_block)
-        return last_blocks
+        return blocks_range
 
     # Unified interface
+
+    @property
+    async def latest_block_number(self):
+        latest_block = await self.rpc_eth_get_block_by_number("latest", True)
+        return utils.to_int(latest_block["number"])
 
     async def list_transactions(self, **kwargs) -> List[dict]:
         blocks_count = kwargs.get("blocks_count", 10)
