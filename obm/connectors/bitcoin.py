@@ -35,9 +35,10 @@ class BitcoinCoreConnector(base.Connector):
         rpc_port: int = 18332,
         rpc_username: str = None,
         rpc_password: str = None,
+        loop=None,
+        session=None,
         timeout: int = None,
     ):
-        super().__init__(rpc_host, rpc_port, timeout)
         if rpc_username is not None and rpc_password is not None:
             self.auth = aiohttp.BasicAuth(rpc_username, rpc_password)
         self.serializer = serializers.Transaction()
@@ -45,6 +46,8 @@ class BitcoinCoreConnector(base.Connector):
             "content-type": "application/json",
             "cache-control": "no-cache",
         }
+        super().__init__(rpc_host, rpc_port, loop, session, timeout)
+
 
     async def wrapper(self, *args, method: str = None) -> Union[dict, list]:
         assert method is not None

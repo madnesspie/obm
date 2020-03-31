@@ -109,8 +109,18 @@ class TestGethConnector:
         response = await method(*args)
         assert isinstance(response, expected_type)
 
-    # @staticmethod
-    # async def test_list_transaction(geth):
-    #     txs = await geth.list_transactions(blocks_count=5000)
-    #     assert isinstance(txs, list)
-    #     assert len(txs) >= 1
+    @staticmethod
+    async def test_list_transaction(geth):
+        txs = await geth.list_transactions(count=10)
+        assert isinstance(txs, list)
+        assert len(txs) == 10
+
+    # async def test_fucking_geth(self, geth):
+    #     latest = await geth.latest_block_number
+    #     blocks_range = await geth.fetch_blocks_range(
+    #         start=0, end=10000, bunch_size=100, delay=0.1
+    #     )
+    #     numbers = [utils.to_int(block["number"]) for block in blocks_range]
+    #     # assert latest in numbers
+    #     assert self.is_ordered(numbers)
+    #     # assert len(blocks_range) == 101

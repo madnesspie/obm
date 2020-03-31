@@ -14,6 +14,7 @@
 
 
 import abc
+import asyncio
 import functools
 from typing import List, Union
 
@@ -43,7 +44,9 @@ class Connector(abc.ABC):
 
     DEFAULT_TIMEOUT = 3
 
-    def __init__(self, rpc_host, rpc_port, timeout=None):
+    def __init__(
+        self, rpc_host, rpc_port, loop, session, timeout=DEFAULT_TIMEOUT
+    ):
         # TODO: validate url
         if timeout is not None:
             if not isinstance(timeout, float):
@@ -53,21 +56,32 @@ class Connector(abc.ABC):
 
         url = f"{rpc_host}:{rpc_port}"
         self.url = url if url.startswith("http") else "http://" + url
-        self.timeout = timeout or self.DEFAULT_TIMEOUT
+        self.timeout = timeout
+        self.loop = loop or asyncio.get_event_loop()
+        # TODO: Add timeout
+        self.session = session or aiohttp.ClientSession(
+            loop=self.loop, headers=self.headers, auth=self.auth,
+        )
 
     def __getattribute__(self, item):
         if item != "METHODS" and item in self.METHODS:
             return functools.partial(self.wrapper, method=self.METHODS[item])
         return super().__getattribute__(item)
 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.close()
+
+    async def close(self):
+        if self.session is not None:
+            await self.session.close()
+
     @_catch_network_errors
     async def call(self, payload: dict) -> dict:
-        # TODO: Add custom session
-        async with aiohttp.ClientSession(
-            headers=self.headers, auth=self.auth,
-        ) as session:
-            async with session.post(self.url, json=payload) as response:
-                return await response.json()
+        async with self.session.post(self.url, json=payload) as response:
+            return await response.json()
 
     @staticmethod
     async def validate(response: dict) -> Union[dict, list]:

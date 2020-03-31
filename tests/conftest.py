@@ -69,15 +69,22 @@ def pytest_configure(config):  # pylint: disable=unused-argument
 
 
 @pytest.fixture
-def bitcoin_core():
-    return connectors.BitcoinCoreConnector(
+async def bitcoin_core(loop):
+    connector = connectors.BitcoinCoreConnector(
         rpc_host="127.0.0.1",
         rpc_port=18332,
         rpc_username="testnet_user",
         rpc_password="testnet_pass",
+        loop=loop,
     )
+    yield connector
+    await connector.close()
 
 
 @pytest.fixture
-def geth():
-    return connectors.GethConnector(rpc_host="127.0.0.1", rpc_port=8545,)
+async def geth(loop):
+    connector = connectors.GethConnector(
+        rpc_host="127.0.0.1", rpc_port=8545, loop=loop,
+    )
+    yield connector
+    await connector.close()

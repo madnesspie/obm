@@ -33,12 +33,14 @@ class GethConnector(base.Connector):
         "rpc_personal_list_accounts": "personal_listAccounts",
     }
 
-    def __init__(self, rpc_host, rpc_port, timeout=None):
-        super().__init__(rpc_host, rpc_port, timeout)
+    def __init__(
+        self, rpc_host, rpc_port, loop=None, session=None, timeout=None
+    ):
         self.auth = None
         self.headers = {
             "content-type": "application/json",
         }
+        super().__init__(rpc_host, rpc_port, loop, session, timeout)
 
     async def wrapper(self, *args, method: str = None) -> Union[dict, list]:
         assert method is not None
@@ -72,7 +74,7 @@ class GethConnector(base.Connector):
         start: int,
         end: int = None,
         bunch_size: int = 1000,
-        delay: Union[int, float] = 1,
+        delay: Union[int, float] = 0.1,
     ) -> List[dict]:
         """Fetches blocks range between start and end bounds.
 
@@ -88,11 +90,17 @@ class GethConnector(base.Connector):
             List that contains block range.
         """
 
-        async def retry(coro):
-            try:
-                return await coro
-            except exceptions.NetworkError:
-                return await coro
+        async def retry(callback, args):
+            for i in range(4):
+                try:
+                    return await callback(*args)
+                except exceptions.NetworkError:
+                    if i == 3:
+                        raise
+                    # print(f"retry {i + 1}")
+                    await asyncio.sleep(delay)
+                    continue
+            # raise exceptions.NetworkError("Too many attempts")
 
         def to_bunches(coros, bunch_size):
             bunch_start = 0
@@ -104,12 +112,15 @@ class GethConnector(base.Connector):
 
         end = end or await self.latest_block_number + 1
         get_block_coros = [
-            retry(self.rpc_eth_get_block_by_number(utils.to_hex(n), True))
+            retry(
+                callback=self.rpc_eth_get_block_by_number,
+                args=(utils.to_hex(n), True),
+            )
             for n in range(start, end)
         ]
         blocks_range = []
         for bunch in to_bunches(get_block_coros, bunch_size):
-            blocks_range += await asyncio.gather(*bunch, return_exceptions=True)
+            blocks_range += await asyncio.gather(*bunch)
             await asyncio.sleep(delay)
         return blocks_range
 
@@ -124,19 +135,19 @@ class GethConnector(base.Connector):
     # Unified interface
 
     async def list_transactions(self, **kwargs) -> List[dict]:
-        blocks_count = kwargs.get("blocks_count", 10)
-        block_range = await self.get_last_blocks_range(length=blocks_count)
+        count = kwargs.get("count", 10)
+        latest_block_number = await self.latest_block_number
         addresses = await self.rpc_personal_list_accounts()
+        start = latest_block_number - 999
+        end = latest_block_number + 1
+        step = 1000
         txs = []
-        for block in block_range:
-            txs += self.find_transactions_in(block, addresses)
-        return txs
-
-        # count = kwargs.get("count", 10)
-        # txs = []
-        # while True:
-        #     # get blocks range
-        #     # txs += new_txs
-        #     if len(txs) >= count:
-        #         break
-        # return txs[count]
+        while True:
+            print(f"{start=}, {end=}, {len(txs)}")
+            blocks_range = await self.fetch_blocks_range(start, end)
+            for block in blocks_range[::-1]:
+                txs += self.find_transactions_in(block, addresses)
+                if len(txs) >= count:
+                    return txs[:count]
+            start -= step
+            end -= step
