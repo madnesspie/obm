@@ -34,7 +34,14 @@ class GethConnector(base.Connector):
     }
 
     def __init__(
-        self, rpc_host, rpc_port, loop=None, session=None, timeout=None
+        self,
+        rpc_host: str = "localhost",
+        rpc_port: int = 18332,
+        rpc_username: str = None,  # pylint: disable=unused-argument
+        rpc_password: str = None,  # pylint: disable=unused-argument
+        loop=None,
+        session=None,
+        timeout: int = None,
     ):
         self.auth = None
         self.headers = {

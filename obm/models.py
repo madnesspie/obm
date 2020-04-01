@@ -21,8 +21,9 @@ class Currency:
         self.symbol = symbol
 
     @classmethod
-    def create_for(cls, currency_name: str):
-        return cls(name=currency_name)
+    def create_for(cls, connector_name: str):
+        return cls(name=connectors.MAPPING[connector_name].currency)
+
 
 class Node:
     def __init__(
@@ -31,16 +32,18 @@ class Node:
         rpc_port: int,
         currency: Currency = None,
         rpc_host: str = "127.0.0.1",
-        rpc_user: str = None,
+        rpc_username: str = None,
         rpc_password: str = None,
     ):
         self.name = self.validate_name(name)
         self.currency = currency or Currency.create_for(name)
         self.rpc_port = rpc_port
         self.rpc_host = rpc_host
-        self.rpc_user = rpc_user
+        self.rpc_username = rpc_username
         self.rpc_password = rpc_password
-        # self.connector = connectors.MAPPING[name]()
+        self.connector = connectors.MAPPING[name](
+            rpc_host, rpc_port, rpc_username, rpc_password
+        )
 
     @staticmethod
     def validate_name(name):
