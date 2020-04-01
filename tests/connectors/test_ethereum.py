@@ -15,7 +15,7 @@ import os
 
 import pytest
 
-from obm import utils
+from obm import connectors, utils
 
 
 @pytest.mark.integration
@@ -111,16 +111,20 @@ class TestGethConnector:
 
     @staticmethod
     async def test_list_transaction(geth):
+        txs = await geth.list_transactions(count=5)
+        assert isinstance(txs, list)
+        assert len(txs) == 5
+
+    @staticmethod
+    async def test_list_transaction_analyse_only_before_genesis_block(
+        monkeypatch, geth
+    ):
+        async def mock(*_):
+            return 1500
+
+        monkeypatch.setattr(
+            connectors.GethConnector, "latest_block_number", property(mock),
+        )
         txs = await geth.list_transactions(count=10)
         assert isinstance(txs, list)
-        assert len(txs) == 10
-
-    # async def test_fucking_geth(self, geth):
-    #     latest = await geth.latest_block_number
-    #     blocks_range = await geth.fetch_blocks_range(
-    #         start=0, end=10000, bunch_size=100, delay=0.1
-    #     )
-    #     numbers = [utils.to_int(block["number"]) for block in blocks_range]
-    #     # assert latest in numbers
-    #     assert self.is_ordered(numbers)
-    #     # assert len(blocks_range) == 101
+        assert len(txs) == 0

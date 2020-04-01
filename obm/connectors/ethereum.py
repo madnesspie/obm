@@ -134,20 +134,24 @@ class GethConnector(base.Connector):
 
     # Unified interface
 
-    async def list_transactions(self, **kwargs) -> List[dict]:
+    async def list_transactions(
+        self, bunch_size: int = 1000, **kwargs
+    ) -> List[dict]:
         count = kwargs.get("count", 10)
         latest_block_number = await self.latest_block_number
         addresses = await self.rpc_personal_list_accounts()
-        start = latest_block_number - 999
+        start = latest_block_number - bunch_size - 1
         end = latest_block_number + 1
-        step = 1000
         txs = []
         while True:
-            print(f"{start=}, {end=}, {len(txs)}")
-            blocks_range = await self.fetch_blocks_range(start, end)
+            blocks_range = await self.fetch_blocks_range(start, end, bunch_size)
             for block in blocks_range[::-1]:
                 txs += self.find_transactions_in(block, addresses)
                 if len(txs) >= count:
                     return txs[:count]
-            start -= step
-            end -= step
+            if start == 0:
+                return txs
+            start -= bunch_size
+            end -= bunch_size
+            if start < 0:
+                start = 0
