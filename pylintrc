@@ -58,6 +58,7 @@ disable=
     too-few-public-methods,
     fixme,
     too-many-ancestors,
+    bad-continuation,
     R0801, # Stupid similar lines in 2 files :)
 
 

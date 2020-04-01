@@ -59,7 +59,7 @@ class Connector(abc.ABC):
         self.timeout = aiohttp.ClientTimeout(total=timeout)
         self.loop = loop or asyncio.get_event_loop()
         self.session = session
-        self.open()
+        asyncio.ensure_future(self.open())
 
     def __getattribute__(self, item):
         if item != "METHODS" and item in self.METHODS:
@@ -67,13 +67,13 @@ class Connector(abc.ABC):
         return super().__getattribute__(item)
 
     async def __aenter__(self):
-        self.open()
+        await self.open()
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
         await self.close()
 
-    def open(self):
+    async def open(self):
         if self.session is None:
             self.session = aiohttp.ClientSession(
                 loop=self.loop, headers=self.headers, auth=self.auth,
