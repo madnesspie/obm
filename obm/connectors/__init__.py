@@ -13,3 +13,8 @@
 # limitations under the License.
 from obm.connectors.bitcoin import BitcoinCoreConnector
 from obm.connectors.ethereum import GethConnector
+
+MAPPING = {
+    "bitcoin-core": BitcoinCoreConnector,
+    "geth": GethConnector,
+}
