@@ -54,10 +54,10 @@ class BitcoinCoreConnector(base.Connector):
         response = await self.call(payload={"method": method, "params": args,})
         return await self.validate(response)
 
-    async def list_transactions(self, **kwargs) -> List[dict]:
+    async def list_transactions(self, count=10, **kwargs) -> List[dict]:
         transactions = await self.rpc_list_transactions(
             kwargs.get("label", "*"),
-            kwargs.get("count", 10),
+            count,
             kwargs.get("skip", 0),
             kwargs.get("include_watchonly", False),
         )

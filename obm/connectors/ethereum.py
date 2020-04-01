@@ -141,10 +141,8 @@ class GethConnector(base.Connector):
 
     # Unified interface
 
-    async def list_transactions(
-        self, bunch_size: int = 1000, **kwargs
-    ) -> List[dict]:
-        count = kwargs.get("count", 10)
+    async def list_transactions(self, count=10, **kwargs) -> List[dict]:
+        bunch_size = kwargs.get("bunch_size", 1000)
         latest_block_number = await self.latest_block_number
         addresses = await self.rpc_personal_list_accounts()
         start = latest_block_number - bunch_size - 1

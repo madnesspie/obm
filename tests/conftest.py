@@ -16,7 +16,7 @@
 import dotenv
 import pytest
 
-from obm import connectors
+from obm import connectors, models
 
 # TODO: Check node balance before integration tests
 # TODO: Check testnet statuses before testing
@@ -86,3 +86,37 @@ async def geth(loop):
     connector = connectors.GethConnector(rpc_port=8545, loop=loop,)
     yield connector
     await connector.close()
+
+
+@pytest.fixture
+async def bitcoin_core_node(loop):
+    node = models.Node(
+        name="bitcoin-core",
+        rpc_host="127.0.0.1",
+        rpc_port=18332,
+        rpc_username="testnet_user",
+        rpc_password="testnet_pass",
+        loop=loop,
+    )
+    yield node
+    await node.close()
+
+
+@pytest.fixture
+async def geth_node(loop):
+    node = models.Node(name="geth", rpc_port=8545, loop=loop)
+    yield node
+    await node.close()
+
+
+@pytest.fixture
+def nodes_mapping(bitcoin_core_node, geth_node):
+    return {
+        "bitcoin-core": bitcoin_core_node,
+        "geth": geth_node,
+    }
+
+
+@pytest.fixture(params=["bitcoin-core", "geth"])
+def node(request, nodes_mapping):
+    return nodes_mapping[request.param]

@@ -114,5 +114,5 @@ class Connector(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def list_transactions(self, **kwargs) -> List[dict]:
+    async def list_transactions(self, count=10, **kwargs) -> List[dict]:
         ...

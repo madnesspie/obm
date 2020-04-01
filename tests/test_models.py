@@ -1,4 +1,7 @@
+import pytest
+
 from obm import models
+from obm.connectors import serializers
 
 
 class TestNode:
@@ -15,3 +18,17 @@ class TestNode:
         assert node.connector.node == node.name
         assert node.connector.currency == 'bitcoin'
         assert node.connector.currency == node.currency.name
+
+
+@pytest.mark.integration
+class TestIntegrationNode:
+
+    @staticmethod
+    async def test_list_transactions(node):
+        txs = await node.list_transactions()
+        assert isinstance(txs, list)
+        import pprint
+        pprint.pp(
+            txs[0]
+        )
+        assert serializers.Transaction().validate(txs, many=True) == {}

@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import asyncio
 
 from obm import connectors
 
@@ -34,6 +35,7 @@ class Node:
         rpc_host: str = "127.0.0.1",
         rpc_username: str = None,
         rpc_password: str = None,
+        loop=None,
     ):
         self.name = self.validate_name(name)
         self.currency = currency or Currency.create_for(name)
@@ -42,9 +44,24 @@ class Node:
         self.rpc_username = rpc_username
         self.rpc_password = rpc_password
         self.connector = connectors.MAPPING[name](
-            rpc_host, rpc_port, rpc_username, rpc_password
+            rpc_host, rpc_port, rpc_username, rpc_password, loop
         )
 
     @staticmethod
-    def validate_name(name):
+    def validate_name(name: str) -> str:
         return name
+
+    async def close(self):
+        await self.connector.close()
+
+    async def list_transactions(self, count=10):
+        return await self.connector.list_transactions(count)
+
+    async def estimate_fee(self):
+        pass
+
+    async def send_transaction(self):
+        pass
+
+    async def create_address(self):
+        pass
