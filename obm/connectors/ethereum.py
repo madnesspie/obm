@@ -127,6 +127,22 @@ class GethConnector(base.Connector):
     # Unified interface
 
     async def list_transactions(self, count=10, **kwargs) -> List[dict]:
+        def _format(tx):
+            return {
+                'txid': tx['hash'],
+                'from_address': tx["from"],
+                'to_address': tx["to"],
+                'amount': utils.from_wei(utils.to_int(tx['value'])),
+                # TODO: calc fee
+                'fee': None,
+                # TODO: analyse category
+                'category': None,
+                # TODO: calc confirmations
+                'confirmations': None,
+                'timestamp': None,
+                'info': tx,
+            }
+
         bunch_size = kwargs.get("bunch_size", 1000)
         latest_block_number = await self.latest_block_number
         addresses = await self.rpc_personal_list_accounts()
@@ -138,9 +154,9 @@ class GethConnector(base.Connector):
             for block in blocks_range[::-1]:
                 txs += self.find_transactions_in(block, addresses)
                 if len(txs) >= count:
-                    return txs[:count]
+                    return [_format(tx) for tx in txs[:count]]
             if start == 0:
-                return txs
+                return [_format(tx) for tx in txs]
             start -= bunch_size
             end -= bunch_size
             if start < 0:

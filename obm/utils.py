@@ -18,6 +18,10 @@ def to_wei(value):
     return web3.Web3.toWei(value, "ether")
 
 
+def from_wei(value):
+    return web3.Web3.fromWei(value, "ether")
+
+
 def to_hex(value):
     return web3.Web3.toHex(value)
 

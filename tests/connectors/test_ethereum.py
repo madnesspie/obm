@@ -114,6 +114,7 @@ class TestGethConnector:
         txs = await geth.list_transactions(count=5)
         assert isinstance(txs, list)
         assert len(txs) == 5
+        # TODO: Test transaction order
 
     @staticmethod
     async def test_list_transaction_analyse_only_before_genesis_block(
