@@ -56,12 +56,10 @@ class Connector(abc.ABC):
 
         url = f"{rpc_host}:{rpc_port}"
         self.url = url if url.startswith("http") else "http://" + url
-        self.timeout = timeout
+        self.timeout = aiohttp.ClientTimeout(total=timeout)
         self.loop = loop or asyncio.get_event_loop()
-        # TODO: Add timeout
-        self.session = session or aiohttp.ClientSession(
-            loop=self.loop, headers=self.headers, auth=self.auth,
-        )
+        self.session = session
+        self.open()
 
     def __getattribute__(self, item):
         if item != "METHODS" and item in self.METHODS:
@@ -69,10 +67,17 @@ class Connector(abc.ABC):
         return super().__getattribute__(item)
 
     async def __aenter__(self):
+        self.open()
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
         await self.close()
+
+    def open(self):
+        if self.session is None:
+            self.session = aiohttp.ClientSession(
+                loop=self.loop, headers=self.headers, auth=self.auth,
+            )
 
     async def close(self):
         if self.session is not None:
@@ -80,7 +85,9 @@ class Connector(abc.ABC):
 
     @_catch_network_errors
     async def call(self, payload: dict) -> dict:
-        async with self.session.post(self.url, json=payload) as response:
+        async with self.session.post(
+            url=self.url, json=payload, timeout=self.timeout
+        ) as response:
             return await response.json()
 
     @staticmethod
