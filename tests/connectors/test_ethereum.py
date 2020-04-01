@@ -87,15 +87,15 @@ class TestGethConnector:
             ("rpc_personal_list_accounts", [], list),
             (
                 "rpc_eth_estimate_gas",
-                [{"to": os.environ["GETH_IN_WALLET_ADDRESS"],}],
+                [{"to": os.environ.get("GETH_IN_WALLET_ADDRESS"),}],
                 str,
             ),
             (
                 "rpc_personal_send_transaction",
                 [
                     {
-                        "from": os.environ["GETH_SEND_FROM_ADDRESS"],
-                        "to": os.environ["GETH_IN_WALLET_ADDRESS"],
+                        "from": os.environ.get("GETH_SEND_FROM_ADDRESS"),
+                        "to": os.environ.get("GETH_IN_WALLET_ADDRESS"),
                         "value": utils.to_hex(utils.to_wei(0.0000001)),
                     },
                     "abc",

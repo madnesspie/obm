@@ -66,7 +66,7 @@ class TestIntegrationBitcoinCoreConnector:
             ("rpc_estimate_smart_fee", [1], dict,),
             (
                 "rpc_send_to_address",
-                [os.environ["BITCOIN_CORE_IN_WALLET_ADDRESS"], 0.00001],
+                [os.environ.get("BITCOIN_CORE_IN_WALLET_ADDRESS"), 0.00001],
                 str,
             ),
         ),

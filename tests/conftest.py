@@ -83,8 +83,6 @@ async def bitcoin_core(loop):
 
 @pytest.fixture
 async def geth(loop):
-    connector = connectors.GethConnector(
-        rpc_host="127.0.0.1", rpc_port=8545, loop=loop,
-    )
+    connector = connectors.GethConnector(rpc_port=8545, loop=loop,)
     yield connector
     await connector.close()
