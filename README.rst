@@ -5,12 +5,15 @@
 Welcome to Object Blockchain Mapping!
 ===========================================
 
-|pypi-version|
+|travis| |pypi-version|
 
 .. |pypi-version| image:: https://badge.fury.io/py/obm.svg
     :target: hhttps://badge.fury.io/py/obm
     :alt: PyPI
 
+.. |travis| image:: https://travis-ci.org/madnesspie/obm.svg?branch=master
+    :target: https://travis-ci.org/madnesspie/obm
+    :alt: travis
 
 .. Rationale
 .. =========
