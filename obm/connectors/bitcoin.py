@@ -15,7 +15,7 @@ from typing import List, Union
 
 import aiohttp
 
-from obm.connectors import base, serializers
+from obm.connectors import base
 
 
 class BitcoinCoreConnector(base.Connector):
@@ -41,24 +41,40 @@ class BitcoinCoreConnector(base.Connector):
     ):
         if rpc_username is not None and rpc_password is not None:
             self.auth = aiohttp.BasicAuth(rpc_username, rpc_password)
-        self.serializer = serializers.Transaction()
+        # self.serializer = serializers.BitcoinCoreTransaction()
         self.headers = {
             "content-type": "application/json",
             "cache-control": "no-cache",
         }
         super().__init__(rpc_host, rpc_port, loop, session, timeout)
 
-
     async def wrapper(self, *args, method: str = None) -> Union[dict, list]:
         assert method is not None
         response = await self.call(payload={"method": method, "params": args,})
         return await self.validate(response)
 
+    # Unified interface
+
     async def list_transactions(self, count=10, **kwargs) -> List[dict]:
-        transactions = await self.rpc_list_transactions(
+        def _format(tx):
+            from_addr = tx["address"] if tx["category"] == "send" else None
+            to_addr = tx["address"] if tx["category"] == "receive" else None
+            return {
+                "txid": tx["txid"],
+                "from_address": from_addr,
+                "to_address": to_addr,
+                "amount": tx["amount"],
+                "fee": tx.get("fee"),
+                "category": tx["category"],
+                "confirmations": tx["confirmations"],
+                "timestamp": tx["time"],
+                "info": tx,
+            }
+
+        txs = await self.rpc_list_transactions(
             kwargs.get("label", "*"),
             count,
             kwargs.get("skip", 0),
             kwargs.get("include_watchonly", False),
         )
-        return self.serializer.load(data=transactions, many=True)
+        return [_format(tx) for tx in txs]

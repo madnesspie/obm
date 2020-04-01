@@ -15,7 +15,7 @@ import asyncio
 from typing import List, Union
 
 from obm import utils
-from obm.connectors import base, exceptions
+from obm.connectors import base
 
 
 class GethConnector(base.Connector):
@@ -97,18 +97,6 @@ class GethConnector(base.Connector):
             List that contains block range.
         """
 
-        async def retry(callback, args):
-            for i in range(4):
-                try:
-                    return await callback(*args)
-                except exceptions.NetworkError:
-                    if i == 3:
-                        raise
-                    # print(f"retry {i + 1}")
-                    await asyncio.sleep(delay)
-                    continue
-            # raise exceptions.NetworkError("Too many attempts")
-
         def to_bunches(coros, bunch_size):
             bunch_start = 0
             while bunch_start < len(coros):
@@ -119,10 +107,7 @@ class GethConnector(base.Connector):
 
         end = end or await self.latest_block_number + 1
         get_block_coros = [
-            retry(
-                callback=self.rpc_eth_get_block_by_number,
-                args=(utils.to_hex(n), True),
-            )
+            self.rpc_eth_get_block_by_number(utils.to_hex(n), True)
             for n in range(start, end)
         ]
         blocks_range = []

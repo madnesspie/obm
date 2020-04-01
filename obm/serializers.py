@@ -16,12 +16,12 @@ from marshmallow import fields
 
 
 class Transaction(marshmallow.Schema):
-    txid = fields.String()
-    address = fields.String()
-    amount = fields.Float()
-    category = fields.String()
-    confirmations = fields.Integer()
+    txid = fields.String(required=True)
+    from_address = fields.String(allow_none=True, required=True)
+    to_address = fields.String(allow_none=True, required=True)
+    amount = fields.Float(required=True)
+    category = fields.String(required=True)
+    confirmations = fields.Integer(required=True)
     timestamp = fields.Integer(data_key="time")
-
-    class Meta:
-        unknown = marshmallow.EXCLUDE
+    fee = fields.Float(allow_none=True, required=True)
+    info = fields.Dict(required=True)
