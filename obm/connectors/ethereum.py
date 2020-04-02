@@ -124,14 +124,13 @@ class GethConnector(base.Connector):
 
     async def list_transactions(self, count=10, **kwargs) -> List[dict]:
         def _format(tx):
-            # print(latest_block_number)
             return {
                 "txid": tx["hash"],
                 "from_address": tx["from"],
                 "to_address": tx["to"],
                 "amount": utils.from_wei(utils.to_int(tx["value"])),
                 "fee": self.calc_ether_fee(tx["gas"], tx["gasPrice"]),
-                'block_number':tx['blockNumber'],
+                'block_number': utils.to_int(tx['blockNumber']),
                 # TODO: analyse category
                 "category": None,
                 "timestamp": None,
