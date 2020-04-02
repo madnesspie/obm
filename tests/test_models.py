@@ -25,6 +25,6 @@ class TestIntegrationNode:
     async def test_list_transactions(node):
         txs = await node.list_transactions()
         assert isinstance(txs, list)
-        # import pprint
-        # pprint.pp(txs[0])
+        import pprint
+        pprint.pp(txs)
         assert serializers.Transaction().validate(txs, many=True) == {}

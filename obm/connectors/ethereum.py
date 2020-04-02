@@ -62,19 +62,10 @@ class GethConnector(base.Connector):
         return await self.validate(response)
 
     @staticmethod
-    def find_transactions_in(block: dict, addresses: List[str]) -> List[dict]:
-        return [
-            tx
-            for tx in block["transactions"]
-            if tx["from"] in addresses or tx["to"] in addresses
-        ]
+    def calc_ether_fee(gas, gas_price):
+        return utils.from_wei(utils.to_int(gas) * utils.to_int(gas_price))
 
     # Geth-specific interface
-
-    @property
-    async def latest_block_number(self):
-        latest_block = await self.rpc_eth_get_block_by_number("latest", True)
-        return utils.to_int(latest_block["number"])
 
     async def fetch_blocks_range(
         self,
@@ -126,22 +117,32 @@ class GethConnector(base.Connector):
 
     # Unified interface
 
+    @property
+    async def latest_block_number(self):
+        latest_block = await self.rpc_eth_get_block_by_number("latest", True)
+        return utils.to_int(latest_block["number"])
+
     async def list_transactions(self, count=10, **kwargs) -> List[dict]:
         def _format(tx):
+            print(latest_block_number)
             return {
-                'txid': tx['hash'],
-                'from_address': tx["from"],
-                'to_address': tx["to"],
-                'amount': utils.from_wei(utils.to_int(tx['value'])),
-                # TODO: calc fee
-                'fee': None,
+                "txid": tx["hash"],
+                "from_address": tx["from"],
+                "to_address": tx["to"],
+                "amount": utils.from_wei(utils.to_int(tx["value"])),
+                "fee": self.calc_ether_fee(tx["gas"], tx["gasPrice"]),
                 # TODO: analyse category
-                'category': None,
-                # TODO: calc confirmations
-                'confirmations': None,
-                'timestamp': None,
-                'info': tx,
+                "category": None,
+                "timestamp": None,
+                "info": tx,
             }
+
+        def find_transactions_in(block, addresses):
+            return [
+                tx
+                for tx in block["transactions"]
+                if tx["from"] in addresses or tx["to"] in addresses
+            ]
 
         bunch_size = kwargs.get("bunch_size", 1000)
         latest_block_number = await self.latest_block_number
@@ -152,7 +153,7 @@ class GethConnector(base.Connector):
         while True:
             blocks_range = await self.fetch_blocks_range(start, end, bunch_size)
             for block in blocks_range[::-1]:
-                txs += self.find_transactions_in(block, addresses)
+                txs += find_transactions_in(block, addresses)
                 if len(txs) >= count:
                     return [_format(tx) for tx in txs[:count]]
             if start == 0:
