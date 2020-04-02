@@ -131,6 +131,7 @@ class GethConnector(base.Connector):
                 "to_address": tx["to"],
                 "amount": utils.from_wei(utils.to_int(tx["value"])),
                 "fee": self.calc_ether_fee(tx["gas"], tx["gasPrice"]),
+                'block_number':tx['blockNumber'],
                 # TODO: analyse category
                 "category": None,
                 "timestamp": None,

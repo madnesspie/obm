@@ -79,5 +79,14 @@ class TestIntegrationBitcoinCoreConnector:
 
     @staticmethod
     async def test_list_transactions(bitcoin_core):
-        result = await bitcoin_core.list_transactions(count=1)
-        assert len(result) == 1
+        txs = await bitcoin_core.list_transactions(count=15)
+        block_number_checked = False
+        assert len(txs) == 15
+        for tx in txs:
+            if tx["info"]["confirmations"] <= 0:
+                # Tx out of main chain or still in mempool
+                continue
+            block_number_checked = True
+            block = await bitcoin_core.rpc_get_block(tx["info"]["blockhash"])
+            assert block["height"] == tx["block_number"]
+        assert block_number_checked

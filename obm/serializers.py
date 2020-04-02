@@ -21,7 +21,7 @@ class Transaction(marshmallow.Schema):
     to_address = fields.String(allow_none=True, required=True)
     amount = fields.Decimal(required=True)
     category = fields.String(allow_none=True, required=True)
-    confirmations = fields.Integer(allow_none=True, required=True)
+    block_number = fields.Integer(required=True)
     timestamp = fields.Integer(allow_none=True, required=True)
     fee = fields.Decimal(allow_none=True, required=True)
     info = fields.Dict(required=True)

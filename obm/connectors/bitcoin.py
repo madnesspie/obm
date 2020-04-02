@@ -29,6 +29,9 @@ class BitcoinCoreConnector(base.Connector):
         "rpc_estimate_smart_fee": "estimatesmartfee",
         "rpc_send_to_address": "sendtoaddress",
         "rpc_get_block_count": "getblockcount",
+        "rpc_get_block": "getblock",
+        "rpc_get_transaction": "gettransaction",
+        "rpc_get_raw_transaction": "getrawtransaction",
     }
 
     def __init__(
@@ -65,6 +68,12 @@ class BitcoinCoreConnector(base.Connector):
         def _format(tx):
             from_addr = tx["address"] if tx["category"] == "send" else None
             to_addr = tx["address"] if tx["category"] == "receive" else None
+            if tx["confirmations"] == -1:
+                # This mean that tx out of the main chain
+                block_number = -1
+            else:
+                number_from_end = tx["confirmations"] - 1
+                block_number = latest_block_number - number_from_end
             return {
                 "txid": tx["txid"],
                 "from_address": from_addr,
@@ -72,11 +81,12 @@ class BitcoinCoreConnector(base.Connector):
                 "amount": Decimal(str(tx["amount"])),
                 "fee": Decimal(str(tx.get("fee", 0))),
                 "category": tx["category"],
-                "confirmations": tx["confirmations"],
+                "block_number": block_number,
                 "timestamp": tx["time"],
                 "info": tx,
             }
 
+        latest_block_number = await self.latest_block_number
         txs = await self.rpc_list_transactions(
             kwargs.get("label", "*"),
             count,
