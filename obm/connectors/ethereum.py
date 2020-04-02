@@ -133,6 +133,7 @@ class GethConnector(base.Connector):
         """
 
         def _format(tx):
+            # TODO: check the amount
             return {
                 "txid": tx["hash"],
                 "from_address": tx["from"],
@@ -159,6 +160,7 @@ class GethConnector(base.Connector):
         start = latest_block_number - bunch_size - 1
         end = latest_block_number + 1
         txs = []
+        # TODO: To sort result
         while True:
             blocks_range = await self.fetch_blocks_range(start, end, bunch_size)
             for block in blocks_range[::-1]:
