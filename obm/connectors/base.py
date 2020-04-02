@@ -113,6 +113,12 @@ class Connector(abc.ABC):
     async def wrapper(self, *args, method: str = None) -> Union[dict, list]:
         ...
 
+    # Unified interface
+
+    @property
+    async def latest_block_number(self) -> int:
+        ...
+
     @abc.abstractmethod
     async def list_transactions(self, count=10, **kwargs) -> List[dict]:
         ...

@@ -63,6 +63,7 @@ class TestIntegrationBitcoinCoreConnector:
         "method_name, args, expected_type",
         (
             ("rpc_list_transactions", ["*", 1000], list,),
+            ("rpc_get_block_count", [], int,),
             ("rpc_estimate_smart_fee", [1], dict,),
             (
                 "rpc_send_to_address",

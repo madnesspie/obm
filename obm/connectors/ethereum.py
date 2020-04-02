@@ -118,13 +118,13 @@ class GethConnector(base.Connector):
     # Unified interface
 
     @property
-    async def latest_block_number(self):
+    async def latest_block_number(self) -> int:
         latest_block = await self.rpc_eth_get_block_by_number("latest", True)
         return utils.to_int(latest_block["number"])
 
     async def list_transactions(self, count=10, **kwargs) -> List[dict]:
         def _format(tx):
-            print(latest_block_number)
+            # print(latest_block_number)
             return {
                 "txid": tx["hash"],
                 "from_address": tx["from"],

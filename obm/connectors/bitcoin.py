@@ -28,6 +28,7 @@ class BitcoinCoreConnector(base.Connector):
         "rpc_list_transactions": "listtransactions",
         "rpc_estimate_smart_fee": "estimatesmartfee",
         "rpc_send_to_address": "sendtoaddress",
+        "rpc_get_block_count": "getblockcount",
     }
 
     def __init__(
@@ -55,6 +56,10 @@ class BitcoinCoreConnector(base.Connector):
         return await self.validate(response)
 
     # Unified interface
+
+    @property
+    async def latest_block_number(self) -> int:
+        return await self.rpc_get_block_count()
 
     async def list_transactions(self, count=10, **kwargs) -> List[dict]:
         def _format(tx):
