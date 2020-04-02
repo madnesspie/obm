@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from decimal import Decimal
 from typing import List, Union
 
 import aiohttp
@@ -63,8 +64,8 @@ class BitcoinCoreConnector(base.Connector):
                 "txid": tx["txid"],
                 "from_address": from_addr,
                 "to_address": to_addr,
-                "amount": tx["amount"],
-                "fee": tx.get("fee"),
+                "amount": Decimal(str(tx["amount"])),
+                "fee": Decimal(str(tx.get("fee", 0))),
                 "category": tx["category"],
                 "confirmations": tx["confirmations"],
                 "timestamp": tx["time"],
