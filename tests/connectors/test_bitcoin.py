@@ -68,6 +68,8 @@ class TestIntegrationBitcoinCoreConnector:
             (
                 "rpc_send_to_address",
                 [os.environ.get("BITCOIN_CORE_IN_WALLET_ADDRESS"), 0.00001],
+                # Faucet address
+                # ["2NGZrVvZG92qGYqzTLjCAewvPZ7JE8S8VxE", 0.00001],
                 str,
             ),
         ),
@@ -80,13 +82,21 @@ class TestIntegrationBitcoinCoreConnector:
     @staticmethod
     async def test_list_transactions(bitcoin_core):
         txs = await bitcoin_core.list_transactions(count=15)
-        block_number_checked = False
         assert len(txs) == 15
+
+        # Tests block_number calculation
+        block_number_checked = False
         for tx in txs:
             if tx["info"]["confirmations"] <= 0:
-                # Tx out of main chain or still in mempool
+                # Tx out of main chain or still in mempool.
                 continue
             block_number_checked = True
             block = await bitcoin_core.rpc_get_block(tx["info"]["blockhash"])
             assert block["height"] == tx["block_number"]
         assert block_number_checked
+
+        # Tests txs order
+        prev_ts = txs[0]["timestamp"]
+        for tx in txs:
+            assert tx["timestamp"] <= prev_ts
+            prev_ts = tx["timestamp"]

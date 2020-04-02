@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from collections import defaultdict
 from decimal import Decimal
 from typing import List, Union
 
@@ -65,32 +66,85 @@ class BitcoinCoreConnector(base.Connector):
         return await self.rpc_get_block_count()
 
     async def list_transactions(self, count=10, **kwargs) -> List[dict]:
+        """Lists most recent transactions.
+
+        Args:
+            count: The number of transactions to return. Defaults to 10.
+
+        Returns:
+            Recent transactions list.
+        """
+
+        def combine_duplicates(txs):
+            """Combines doubles that is transaction self-sending outcome."""
+            txs_by_txid = defaultdict(list)
+            for tx in txs:
+                txs_by_txid[tx["txid"]].append(tx)
+            duplicate_txids = [
+                txid
+                for txid, tx_or_txs in txs_by_txid.items()
+                if len(tx_or_txs) == 2
+            ]
+            txs = [tx for tx in txs if tx["txid"] not in duplicate_txids]
+            for duplicate_txid in duplicate_txids:
+                duplicate_txs = {
+                    tx["category"]: tx for tx in txs_by_txid[duplicate_txid]
+                }
+                assert "send" in duplicate_txs and "receive" in duplicate_txs
+                del duplicate_txs["send"]["category"]
+                txs.append({
+                    # "from" and "to" addresses are always the same.
+                    "from_address": duplicate_txs["send"]["address"],
+                    "to_address": duplicate_txs["send"].pop("address"),
+                    "category": "oneself",
+                    # Unpack send tx rather than receive because it has info
+                    # about the fee.
+                    **duplicate_txs["send"],
+                })
+            return txs
+
         def _format(tx):
-            from_addr = tx["address"] if tx["category"] == "send" else None
-            to_addr = tx["address"] if tx["category"] == "receive" else None
+            if tx["category"] != "oneself":
+                address = tx.pop("address")
+                tx["from_address"] = (
+                    address if tx["category"] == "send" else None
+                )
+                tx["to_address"] = (
+                    address if tx["category"] == "receive" else None
+                )
             if tx["confirmations"] == -1:
-                # This mean that tx out of the main chain
+                # This mean that tx out of the main chain.
+                # Reference: https://bitcoin.org/en/developer-reference#listtransactions
                 block_number = -1
             else:
                 number_from_end = tx["confirmations"] - 1
                 block_number = latest_block_number - number_from_end
             return {
                 "txid": tx["txid"],
-                "from_address": from_addr,
-                "to_address": to_addr,
+                "from_address": tx["from_address"],
+                "to_address": tx["to_address"],
                 "amount": Decimal(str(tx["amount"])),
                 "fee": Decimal(str(tx.get("fee", 0))),
-                "category": tx["category"],
                 "block_number": block_number,
+                "category": tx["category"],
                 "timestamp": tx["time"],
                 "info": tx,
             }
 
+        # Double increase the transactions number for feching to prevent cases
+        # when transaction was sent on in-wallet address and is present in
+        # bitcoin core list tansaction twice with different categories.
+        inner_count = count * 2
         latest_block_number = await self.latest_block_number
         txs = await self.rpc_list_transactions(
             kwargs.get("label", "*"),
-            count,
+            inner_count,
             kwargs.get("skip", 0),
             kwargs.get("include_watchonly", False),
         )
-        return [_format(tx) for tx in txs]
+        sorted_txs = sorted(
+            [_format(tx) for tx in combine_duplicates(txs)],
+            key=lambda x: x["timestamp"],
+            reverse=True,
+        )
+        return sorted_txs[:count]
