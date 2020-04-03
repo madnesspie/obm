@@ -43,7 +43,7 @@ class BitcoinCoreConnector(base.Connector):
         rpc_username: str = None,
         rpc_password: str = None,
         loop=None,
-        session=None,
+        session: aiohttp.ClientSession = None,
         timeout: int = None,
     ):
         if rpc_username is not None and rpc_password is not None:
@@ -66,7 +66,9 @@ class BitcoinCoreConnector(base.Connector):
     async def latest_block_number(self) -> int:
         return await self.rpc_get_block_count()
 
-    async def create_address(self, password: str = "") -> str:  # pylint: disable=unused-argument
+    async def create_address(
+        self, password: str = ""
+    ) -> str:  # pylint: disable=unused-argument
         # TODO: Add args
         return await self.rpc_get_new_address()
 

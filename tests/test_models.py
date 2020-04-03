@@ -39,3 +39,8 @@ class TestIntegrationNode:
         txs = await node.list_transactions()
         assert isinstance(txs, list)
         assert serializers.Transaction().validate(txs, many=True) == {}
+
+    @staticmethod
+    async def test_create_address(node):
+        txs = await node.create_address()
+        assert isinstance(txs, str)

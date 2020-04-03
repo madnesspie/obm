@@ -15,6 +15,8 @@ import asyncio
 from decimal import Decimal
 from typing import List, Union
 
+import aiohttp
+
 from obm import utils
 from obm.connectors import base
 
@@ -41,7 +43,7 @@ class GethConnector(base.Connector):
         rpc_username: str = None,  # pylint: disable=unused-argument
         rpc_password: str = None,  # pylint: disable=unused-argument
         loop=None,
-        session=None,
+        session: aiohttp.ClientSession = None,
         timeout: int = None,
     ):
         self.auth = None

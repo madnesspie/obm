@@ -11,6 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import asyncio
+
+import aiohttp
+
 from obm import connectors
 
 
@@ -34,6 +38,7 @@ class Node:
         rpc_username: str = None,
         rpc_password: str = None,
         loop=None,
+        session: aiohttp.ClientSession = None,
     ):
         self.name = self.validate_name(name)
         self.currency = currency or Currency.create_for(name)
@@ -42,24 +47,36 @@ class Node:
         self.rpc_username = rpc_username
         self.rpc_password = rpc_password
         self.connector = connectors.MAPPING[name](
-            rpc_host, rpc_port, rpc_username, rpc_password, loop
+            rpc_host, rpc_port, rpc_username, rpc_password, loop, session
         )
+        asyncio.ensure_future(self.connector.open())
+        asyncio.get_event_loop()
+
+    async def __aenter__(self):
+        await self.open()
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.close()
+
+    async def open(self):
+        await self.connector.open()
+
+    async def close(self):
+        await self.connector.close()
 
     @staticmethod
     def validate_name(name: str) -> str:
         return name
 
-    async def close(self):
-        await self.connector.close()
-
-    async def list_transactions(self, count: int = 10):
-        return await self.connector.list_transactions(count)
+    async def create_address(self, password: str = ""):
+        return await self.connector.create_address(password)
 
     async def estimate_fee(self, transaction: dict = None):
         return await self.connector.estimate_fee(transaction)
 
-    async def send_transaction(self):
-        pass
+    async def list_transactions(self, count: int = 10):
+        return await self.connector.list_transactions(count)
 
-    async def create_address(self):
+    async def send_transaction(self):
         pass
