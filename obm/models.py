@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import asyncio
+from decimal import Decimal
+from typing import List, Union
 
 import aiohttp
 
@@ -69,14 +71,23 @@ class Node:
     def validate_name(name: str) -> str:
         return name
 
-    async def create_address(self, password: str = ""):
+    async def create_address(self, password: str = "") -> str:
         return await self.connector.create_address(password)
 
-    async def estimate_fee(self, transaction: dict = None):
+    async def estimate_fee(self, transaction: dict = None) -> Decimal:
         return await self.connector.estimate_fee(transaction)
 
-    async def list_transactions(self, count: int = 10):
+    async def list_transactions(self, count: int = 10) -> List[dict]:
         return await self.connector.list_transactions(count)
 
-    async def send_transaction(self):
-        pass
+    async def send_transaction(
+        self,
+        amount: Decimal,
+        to_address: str,
+        from_address: str = None,
+        fee: Union[dict, Decimal] = None,
+        password: str = "",
+    ) -> dict:
+        return await self.connector.send_transaction(
+            amount, to_address, from_address, fee, password
+        )

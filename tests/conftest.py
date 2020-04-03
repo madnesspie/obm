@@ -90,23 +90,21 @@ async def geth(loop):
 
 @pytest.fixture
 async def bitcoin_core_node(loop):
-    node = models.Node(
+    async with models.Node(
         name="bitcoin-core",
         rpc_host="127.0.0.1",
         rpc_port=18332,
         rpc_username="testnet_user",
         rpc_password="testnet_pass",
         loop=loop,
-    )
-    yield node
-    await node.close()
+    ) as node:
+        yield node
 
 
 @pytest.fixture
 async def geth_node(loop):
-    node = models.Node(name="geth", rpc_port=8545, loop=loop)
-    yield node
-    await node.close()
+    async with models.Node(name="geth", rpc_port=8545, loop=loop) as node:
+        yield node
 
 
 @pytest.fixture

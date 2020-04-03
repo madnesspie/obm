@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
+
 import pytest
 
 from obm import models, serializers
@@ -44,3 +46,20 @@ class TestIntegrationNode:
     async def test_create_address(node):
         txs = await node.create_address()
         assert isinstance(txs, str)
+
+    @staticmethod
+    async def test_send_transaction(node):
+        tx_data = {
+            "bitcoin-core": {
+                "amount": 0.00001,
+                "to_address": os.environ.get("BITCOIN_CORE_IN_WALLET_ADDRESS"),
+            },
+            "geth": {
+                "amount": 0.0000001,
+                "from_address": os.environ.get("GETH_SEND_FROM_ADDRESS"),
+                "to_address": os.environ.get("GETH_IN_WALLET_ADDRESS"),
+                "password": "abc",
+            },
+        }
+        txs = await node.send_transaction(**tx_data[node.name])
+        assert isinstance(txs, dict)
