@@ -111,5 +111,5 @@ async def node(
 ):  # pylint: disable=unused-argument
     if request.param == "geth":
         return geth_node
-    elif request.param == "bitcoin-core":
+    if request.param == "bitcoin-core":
         return bitcoin_core_node

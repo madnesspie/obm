@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import asyncio
 from decimal import Decimal
 from typing import List, Union
 
@@ -51,18 +50,12 @@ class Node:
         self.connector = connectors.MAPPING[name](
             rpc_host, rpc_port, rpc_username, rpc_password, loop, session
         )
-        asyncio.ensure_future(self.connector.open())
-        asyncio.get_event_loop()
 
     async def __aenter__(self):
-        await self.open()
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
         await self.close()
-
-    async def open(self):
-        await self.connector.open()
 
     async def close(self):
         await self.connector.close()
