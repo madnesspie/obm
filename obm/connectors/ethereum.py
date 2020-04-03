@@ -108,7 +108,10 @@ class GethConnector(base.Connector):
         return blocks_range
 
     async def fetch_recent_blocks_range(
-        self, length: int, bunch_size: int = 1000, delay: Union[int, float] = 1,
+        self,
+        length: int,
+        bunch_size: int = 1000,
+        delay: Union[int, float] = 0.1,
     ):
         latest = await self.latest_block_number
         return await self.fetch_blocks_range(
@@ -133,6 +136,14 @@ class GethConnector(base.Connector):
         """
 
         def _format(tx):
+            if tx["from"] in addresses and tx["to"] in addresses:
+                category = "oneself"
+            elif tx["from"] in addresses:
+                category = "send"
+            elif tx["to"] in addresses:
+                category = "receive"
+            else:
+                assert False, "Unrecognized category"
             return {
                 "txid": tx["hash"],
                 "from_address": tx["from"],
@@ -140,8 +151,7 @@ class GethConnector(base.Connector):
                 "amount": utils.from_wei(utils.to_int(tx["value"])),
                 "fee": self.calc_ether_fee(tx["gas"], tx["gasPrice"]),
                 "block_number": utils.to_int(tx["blockNumber"]),
-                # TODO: analyse category
-                "category": None,
+                "category": category,
                 "timestamp": None,
                 "info": tx,
             }

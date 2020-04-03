@@ -39,6 +39,6 @@ class TestIntegrationNode:
         txs = await node.list_transactions()
         assert isinstance(txs, list)
         import pprint
-        pprint.pp(txs[1])
+        pprint.pp(txs)
         assert serializers.Transaction().validate(txs, many=True) == {}
         # TODO: Test transactions ordering by timestamp
