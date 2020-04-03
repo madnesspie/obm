@@ -163,10 +163,9 @@ class GethConnector(base.Connector):
             "to": to_address,
             "value": utils.to_hex(utils.to_wei(amount)),
         }
+        # TODO: Validate
         if isinstance(fee, dict):
             tx_data["gas"], tx_data["gasPrice"] = fee["gas"], fee["gas_price"]
-        # else:
-        #     tx_data["gas"], tx_data["gasPrice"] = None, None
         txid = await self.rpc_personal_send_transaction(tx_data, password)
         tx = await self.rpc_eth_get_transaction_by_hash(txid)
         return tx

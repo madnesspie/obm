@@ -83,14 +83,22 @@ class TestIntegrationBitcoinCoreConnector:
     # Test unified interface
 
     @staticmethod
+    async def test_create_address(bitcoin_core):
+        address = await bitcoin_core.create_address()
+        assert isinstance(address, str)
+
+    @staticmethod
     async def test_estimate_fee(bitcoin_core):
         fee = await bitcoin_core.estimate_fee()
         assert isinstance(fee, Decimal)
 
     @staticmethod
-    async def test_create_address(bitcoin_core):
-        address = await bitcoin_core.create_address()
-        assert isinstance(address, str)
+    async def test_send_transaction(bitcoin_core):
+        fee = await bitcoin_core.send_transaction(
+            amount=0.00001,
+            to_address=os.environ.get("BITCOIN_CORE_IN_WALLET_ADDRESS"),
+        )
+        assert isinstance(fee, dict)
 
     @staticmethod
     async def test_list_transactions(bitcoin_core):

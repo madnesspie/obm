@@ -66,19 +66,30 @@ class BitcoinCoreConnector(base.Connector):
     async def latest_block_number(self) -> int:
         return await self.rpc_get_block_count()
 
-    async def create_address(
+    async def create_address(  # pylint: disable=unused-argument
         self, password: str = ""
-    ) -> str:  # pylint: disable=unused-argument
+    ) -> str:
         # TODO: Add args
         return await self.rpc_get_new_address()
 
-    async def estimate_fee(
-        self,  # pylint: disable=unused-argument
-        transaction: dict = None,
-        conf_target: int = 1,
+    async def estimate_fee(  # pylint: disable=unused-argument
+        self, transaction: dict = None, conf_target: int = 1,
     ) -> Decimal:
         fee_estimate = await self.rpc_estimate_smart_fee(conf_target)
         return Decimal(str(fee_estimate["feerate"]))
+
+    async def send_transaction(  # pylint: disable=unused-argument
+        self,
+        amount: Decimal,
+        to_address: str,
+        from_address: str = None,
+        fee: Union[dict, Decimal] = None,
+        password: str = "",
+    ) -> dict:
+        # TODO: Validate
+        txid = await self.rpc_send_to_address(to_address, amount)
+        tx = await self.rpc_get_transaction(txid)
+        return tx
 
     async def list_transactions(self, count: int = 10, **kwargs) -> List[dict]:
         """Lists most recent transactions.
