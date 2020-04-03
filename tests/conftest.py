@@ -70,22 +70,20 @@ def pytest_configure(config):  # pylint: disable=unused-argument
 
 @pytest.fixture
 async def bitcoin_core(loop):
-    connector = connectors.BitcoinCoreConnector(
+    async with connectors.BitcoinCoreConnector(
         rpc_host="127.0.0.1",
         rpc_port=18332,
         rpc_username="testnet_user",
         rpc_password="testnet_pass",
         loop=loop,
-    )
-    yield connector
-    await connector.close()
+    ) as connector:
+        yield connector
 
 
 @pytest.fixture
 async def geth(loop):
-    connector = connectors.GethConnector(rpc_port=8545, loop=loop,)
-    yield connector
-    await connector.close()
+    async with connectors.GethConnector(rpc_port=8545, loop=loop) as connector:
+        yield connector
 
 
 @pytest.fixture
@@ -107,14 +105,11 @@ async def geth_node(loop):
         yield node
 
 
-@pytest.fixture
-def nodes_mapping(bitcoin_core_node, geth_node):
-    return {
-        "bitcoin-core": bitcoin_core_node,
-        "geth": geth_node,
-    }
-
-
-@pytest.fixture(params=["bitcoin-core", "geth"])
-def node(request, nodes_mapping):
-    return nodes_mapping[request.param]
+@pytest.fixture(params=["geth", "bitcoin-core"])
+async def node(
+    request, geth_node, bitcoin_core_node, loop
+):  # pylint: disable=unused-argument
+    if request.param == "geth":
+        return geth_node
+    elif request.param == "bitcoin-core":
+        return bitcoin_core_node

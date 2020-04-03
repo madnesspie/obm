@@ -19,8 +19,9 @@ from obm import models, serializers
 
 
 class TestNode:
+
     @staticmethod
-    def test_init_connector_during_init():
+    async def test_init_connector_during_init():
         node = models.Node(
             name="bitcoin-core",
             rpc_host="127.0.0.1",
@@ -32,6 +33,7 @@ class TestNode:
         assert node.connector.node == node.name
         assert node.connector.currency == "bitcoin"
         assert node.connector.currency == node.currency.name
+        await node.close()
 
 
 @pytest.mark.integration
@@ -61,5 +63,8 @@ class TestIntegrationNode:
                 "password": "abc",
             },
         }
-        txs = await node.send_transaction(**tx_data[node.name])
-        assert isinstance(txs, dict)
+        tx = await node.send_transaction(**tx_data[node.name])
+        import pprint
+
+        pprint.pp(tx)
+        assert isinstance(tx, dict)

@@ -83,6 +83,7 @@ class Connector(abc.ABC):
     async def close(self):
         if self.session is not None:
             await self.session.close()
+            self.session = None
 
     @_catch_network_errors
     async def call(self, payload: dict) -> dict:
