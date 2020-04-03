@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
+from decimal import Decimal
 
 import aiohttp
 import pytest
@@ -78,6 +79,14 @@ class TestIntegrationBitcoinCoreConnector:
         method = getattr(bitcoin_core, method_name)
         result = await method(*args)
         assert isinstance(result, expected_type)
+
+    # Test unified interface
+
+    @staticmethod
+    async def test_estimate_fee(bitcoin_core):
+        fee = await bitcoin_core.estimate_fee()
+        assert isinstance(fee, Decimal)
+
 
     @staticmethod
     async def test_list_transactions(bitcoin_core):

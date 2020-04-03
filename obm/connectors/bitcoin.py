@@ -65,6 +65,12 @@ class BitcoinCoreConnector(base.Connector):
     async def latest_block_number(self) -> int:
         return await self.rpc_get_block_count()
 
+    async def estimate_fee(self, **kwargs):
+        conf_target = kwargs.get("conf_target", 1)
+        fee_estimate = await self.rpc_estimate_smart_fee(conf_target)
+        return Decimal(str(fee_estimate["feerate"]))
+
+
     async def list_transactions(self, count=10, **kwargs) -> List[dict]:
         """Lists most recent transactions.
 
