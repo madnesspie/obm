@@ -133,7 +133,6 @@ class GethConnector(base.Connector):
         """
 
         def _format(tx):
-            # TODO: check the amount
             return {
                 "txid": tx["hash"],
                 "from_address": tx["from"],

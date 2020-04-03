@@ -123,7 +123,7 @@ class BitcoinCoreConnector(base.Connector):
                 "txid": tx["txid"],
                 "from_address": tx["from_address"],
                 "to_address": tx["to_address"],
-                "amount": Decimal(str(tx["amount"])),
+                "amount": Decimal(str(abs(tx["amount"]))),
                 "fee": Decimal(str(tx.get("fee", 0))),
                 "block_number": block_number,
                 "category": tx["category"],
