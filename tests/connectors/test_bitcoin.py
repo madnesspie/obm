@@ -87,6 +87,10 @@ class TestIntegrationBitcoinCoreConnector:
         fee = await bitcoin_core.estimate_fee()
         assert isinstance(fee, Decimal)
 
+    @staticmethod
+    async def test_create_address(bitcoin_core):
+        address = await bitcoin_core.create_address()
+        assert isinstance(address, str)
 
     @staticmethod
     async def test_list_transactions(bitcoin_core):

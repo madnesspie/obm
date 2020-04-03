@@ -126,8 +126,11 @@ class GethConnector(base.Connector):
         latest_block = await self.rpc_eth_get_block_by_number("latest", True)
         return utils.to_int(latest_block["number"])
 
+    async def create_address(self, password: str = "") -> str:
+        return await self.rpc_personal_new_account(password)
+
     async def estimate_fee(
-        self,  # pytest: disable=unused-argument
+        self,  # pylint: disable=unused-argument
         transaction: dict = None,
         conf_target: int = 1,
     ) -> Decimal:

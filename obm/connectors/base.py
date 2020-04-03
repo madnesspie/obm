@@ -122,6 +122,10 @@ class Connector(abc.ABC):
         ...
 
     @abc.abstractmethod
+    async def create_address(self, password: str = "") -> str:
+        return await self.rpc_personal_new_account(password)
+
+    @abc.abstractmethod
     async def estimate_fee(
         self, transaction: dict = None, conf_target: int = 1
     ) -> Decimal:

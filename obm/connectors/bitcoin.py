@@ -29,6 +29,7 @@ class BitcoinCoreConnector(base.Connector):
         "rpc_list_transactions": "listtransactions",
         "rpc_estimate_smart_fee": "estimatesmartfee",
         "rpc_send_to_address": "sendtoaddress",
+        "rpc_get_new_address": "getnewaddress",
         "rpc_get_block_count": "getblockcount",
         "rpc_get_block": "getblock",
         "rpc_get_transaction": "gettransaction",
@@ -65,8 +66,12 @@ class BitcoinCoreConnector(base.Connector):
     async def latest_block_number(self) -> int:
         return await self.rpc_get_block_count()
 
+    async def create_address(self, password: str = "") -> str:  # pylint: disable=unused-argument
+        # TODO: Add args
+        return await self.rpc_get_new_address()
+
     async def estimate_fee(
-        self,  # pytest: disable=unused-argument
+        self,  # pylint: disable=unused-argument
         transaction: dict = None,
         conf_target: int = 1,
     ) -> Decimal:

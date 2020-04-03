@@ -118,6 +118,11 @@ class TestGethConnector:
         assert isinstance(fee, Decimal)
 
     @staticmethod
+    async def test_create_address(geth):
+        address = await geth.create_address()
+        assert isinstance(address, str)
+
+    @staticmethod
     async def test_list_transaction(geth):
         txs = await geth.list_transactions(count=5)
         assert isinstance(txs, list)
