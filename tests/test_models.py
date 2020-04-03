@@ -64,7 +64,5 @@ class TestIntegrationNode:
             },
         }
         tx = await node.send_transaction(**tx_data[node.name])
-        import pprint
-
-        pprint.pp(tx)
         assert isinstance(tx, dict)
+        assert serializers.Transaction().validate(tx) == {}

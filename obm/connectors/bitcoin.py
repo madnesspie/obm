@@ -60,6 +60,54 @@ class BitcoinCoreConnector(base.Connector):
         response = await self.call(payload={"method": method, "params": args,})
         return await self.validate(response)
 
+    # BitcoinCore specific interface
+
+    @staticmethod
+    def format_transaction(tx, latest_block_number):
+        category = tx.get("category")
+        if category is None:
+            # Tx is send_transaction output.
+            details = {detail["category"]: detail for detail in tx["details"]}
+            fee = details["send"]["fee"]
+            amount = details["send"]["amount"]
+            to_address = details["receive"]["address"]
+            from_address = details["send"]["address"]
+            category = "send" if from_address != to_address else "oneself"
+        else:
+            # Tx is list_transactions output.
+            if category == "oneself":
+                from_address = to_address = tx["address"]
+                # Recover original category to prevent lie in info key.
+                tx["category"] = 'send'
+            else:
+                to_address = tx["address"]
+                from_address = None
+            amount = tx["amount"]
+            fee = tx.get("fee", 0)
+
+        if tx["confirmations"] == -1:
+            # This mean that tx out of the main chain.
+            # Reference: https://bitcoin.org/en/developer-reference#listtransactions
+            block_number = -1
+        elif tx["confirmations"] == 0:
+            # Transaction  still in mempool.
+            block_number = None
+        else:
+            number_from_end = tx["confirmations"] - 1
+            block_number = latest_block_number - number_from_end
+
+        return {
+            "txid": tx["txid"],
+            "from_address": from_address,
+            "to_address": to_address,
+            "amount": Decimal(str(abs(amount))),
+            "fee": Decimal(str(abs(fee))),
+            "block_number": block_number,
+            "category": category,
+            "timestamp": tx["time"],
+            "info": tx,
+        }
+
     # Unified interface
 
     @property
@@ -87,9 +135,10 @@ class BitcoinCoreConnector(base.Connector):
         password: str = "",
     ) -> dict:
         # TODO: Validate
+        latest_block_number = await self.latest_block_number
         txid = await self.rpc_send_to_address(to_address, amount)
         tx = await self.rpc_get_transaction(txid)
-        return tx
+        return self.format_transaction(tx, latest_block_number)
 
     async def list_transactions(self, count: int = 10, **kwargs) -> List[dict]:
         """Lists most recent transactions.
@@ -117,47 +166,9 @@ class BitcoinCoreConnector(base.Connector):
                     tx["category"]: tx for tx in txs_by_txid[duplicate_txid]
                 }
                 assert "send" in duplicate_txs and "receive" in duplicate_txs
-                del duplicate_txs["send"]["category"]
-                txs.append(
-                    {
-                        # "from" and "to" addresses are always the same.
-                        "from_address": duplicate_txs["send"]["address"],
-                        "to_address": duplicate_txs["send"].pop("address"),
-                        "category": "oneself",
-                        # Unpack send tx rather than receive because it has info
-                        # about the fee.
-                        **duplicate_txs["send"],
-                    }
-                )
+                duplicate_txs["send"]["category"] = "oneself"
+                txs.append(duplicate_txs["send"])
             return txs
-
-        def _format(tx):
-            if tx["category"] != "oneself":
-                address = tx.pop("address")
-                tx["from_address"] = (
-                    address if tx["category"] == "send" else None
-                )
-                tx["to_address"] = (
-                    address if tx["category"] == "receive" else None
-                )
-            if tx["confirmations"] == -1:
-                # This mean that tx out of the main chain.
-                # Reference: https://bitcoin.org/en/developer-reference#listtransactions
-                block_number = -1
-            else:
-                number_from_end = tx["confirmations"] - 1
-                block_number = latest_block_number - number_from_end
-            return {
-                "txid": tx["txid"],
-                "from_address": tx["from_address"],
-                "to_address": tx["to_address"],
-                "amount": Decimal(str(abs(tx["amount"]))),
-                "fee": Decimal(str(abs(tx.get("fee", 0)))),
-                "block_number": block_number,
-                "category": tx["category"],
-                "timestamp": tx["time"],
-                "info": tx,
-            }
 
         # Double increase the transactions number for feching to prevent cases
         # when transaction was sent on in-wallet address and is present in
@@ -171,7 +182,10 @@ class BitcoinCoreConnector(base.Connector):
             kwargs.get("include_watchonly", False),
         )
         sorted_txs = sorted(
-            [_format(tx) for tx in combine_duplicates(txs)],
+            [
+                self.format_transaction(tx, latest_block_number)
+                for tx in combine_duplicates(txs)
+            ],
             key=lambda x: x["timestamp"],
             reverse=True,
         )

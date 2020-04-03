@@ -65,11 +65,38 @@ class GethConnector(base.Connector):
         )
         return await self.validate(response)
 
+    # Geth specific interface
+
     @staticmethod
     def calc_ether_fee(gas, gas_price):
         return utils.from_wei(utils.to_int(gas) * utils.to_int(gas_price))
 
-    # Geth-specific interface
+    def format_transaction(self, tx, addresses):
+        if tx["from"] in addresses and tx["to"] in addresses:
+            category = "oneself"
+        elif tx["from"] in addresses:
+            category = "send"
+        elif tx["to"] in addresses:
+            category = "receive"
+        else:
+            assert False, "Unrecognized category"
+
+        if tx["blockNumber"] is None:
+            block_number = None
+        else:
+            block_number = utils.to_int(tx["blockNumber"])
+
+        return {
+            "txid": tx["hash"],
+            "from_address": tx["from"],
+            "to_address": tx["to"],
+            "amount": utils.from_wei(utils.to_int(tx["value"])),
+            "fee": self.calc_ether_fee(tx["gas"], tx["gasPrice"]),
+            "block_number": block_number,
+            "category": category,
+            "timestamp": None,
+            "info": tx,
+        }
 
     async def fetch_blocks_range(
         self,
@@ -166,9 +193,11 @@ class GethConnector(base.Connector):
         # TODO: Validate
         if isinstance(fee, dict):
             tx_data["gas"], tx_data["gasPrice"] = fee["gas"], fee["gas_price"]
+        # TODO Execute in bunch
+        addresses = await self.rpc_personal_list_accounts()
         txid = await self.rpc_personal_send_transaction(tx_data, password)
         tx = await self.rpc_eth_get_transaction_by_hash(txid)
-        return tx
+        return self.format_transaction(tx, addresses)
 
     async def list_transactions(self, count: int = 10, **kwargs) -> List[dict]:
         """Lists most recent transactions.
@@ -179,27 +208,6 @@ class GethConnector(base.Connector):
         Returns:
             Recent transactions list.
         """
-
-        def _format(tx):
-            if tx["from"] in addresses and tx["to"] in addresses:
-                category = "oneself"
-            elif tx["from"] in addresses:
-                category = "send"
-            elif tx["to"] in addresses:
-                category = "receive"
-            else:
-                assert False, "Unrecognized category"
-            return {
-                "txid": tx["hash"],
-                "from_address": tx["from"],
-                "to_address": tx["to"],
-                "amount": utils.from_wei(utils.to_int(tx["value"])),
-                "fee": self.calc_ether_fee(tx["gas"], tx["gasPrice"]),
-                "block_number": utils.to_int(tx["blockNumber"]),
-                "category": category,
-                "timestamp": None,
-                "info": tx,
-            }
 
         def find_transactions_in(block, addresses):
             return [
@@ -219,9 +227,12 @@ class GethConnector(base.Connector):
             for block in blocks_range[::-1]:
                 txs += find_transactions_in(block, addresses)
                 if len(txs) >= count:
-                    return [_format(tx) for tx in txs[:count]]
+                    return [
+                        self.format_transaction(tx, addresses)
+                        for tx in txs[:count]
+                    ]
             if start == 0:
-                return [_format(tx) for tx in txs]
+                return [self.format_transaction(tx, addresses) for tx in txs]
             start -= bunch_size
             end -= bunch_size
             if start < 0:

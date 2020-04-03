@@ -105,11 +105,11 @@ async def geth_node(loop):
         yield node
 
 
-@pytest.fixture(params=["geth", "bitcoin-core"])
+@pytest.fixture(params=["bitcoin-core", "geth"])
 async def node(
     request, geth_node, bitcoin_core_node, loop
 ):  # pylint: disable=unused-argument
-    if request.param == "geth":
-        return geth_node
     if request.param == "bitcoin-core":
         return bitcoin_core_node
+    if request.param == "geth":
+        return geth_node
