@@ -82,7 +82,7 @@ class TestGethConnector:
     @pytest.mark.parametrize(
         "method_name, args, expected_type",
         (
-            ("rpc_personal_new_account", ["superstrong"], str,),
+            ("rpc_personal_new_account", [""], str,),
             ("rpc_eth_gas_price", [], str,),
             ("rpc_eth_get_block_by_number", ["latest", True], dict),
             ("rpc_personal_list_accounts", [], list),
@@ -111,6 +111,11 @@ class TestGethConnector:
         assert isinstance(response, expected_type)
 
     @staticmethod
+    async def test_create_address(geth):
+        address = await geth.create_address()
+        assert isinstance(address, str)
+
+    @staticmethod
     async def test_estimate_fee(geth):
         fee = await geth.estimate_fee(
             transaction={"to": os.environ.get("GETH_IN_WALLET_ADDRESS"),}
@@ -118,9 +123,14 @@ class TestGethConnector:
         assert isinstance(fee, Decimal)
 
     @staticmethod
-    async def test_create_address(geth):
-        address = await geth.create_address()
-        assert isinstance(address, str)
+    async def test_send_transaction(geth):
+        fee = await geth.send_transaction(
+            amount=0.0000001,
+            from_address=os.environ.get("GETH_SEND_FROM_ADDRESS"),
+            to_address=os.environ.get("GETH_IN_WALLET_ADDRESS"),
+            password="abc"
+        )
+        assert isinstance(fee, dict)
 
     @staticmethod
     async def test_list_transaction(geth):

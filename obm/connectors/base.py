@@ -131,6 +131,16 @@ class Connector(abc.ABC):
     ) -> Decimal:
         ...
 
+    # @abc.abstractmethod
+    # async def send_transaction(
+    #     self,
+    #     amount: Decimal,
+    #     to_address: str,
+    #     from_address: str = None,
+    #     fee: Union[dict, Decimal] = None,
+    # ) -> dict:
+    #     ...
+
     @abc.abstractmethod
     async def list_transactions(self, count: int = 10, **kwargs) -> List[dict]:
         ...

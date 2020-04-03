@@ -34,6 +34,7 @@ class GethConnector(base.Connector):
         "rpc_personal_unlock_account": "personal_unlockAccount",
         "rpc_eth_get_block_by_number": "eth_getBlockByNumber",
         "rpc_personal_list_accounts": "personal_listAccounts",
+        "rpc_eth_get_transaction_by_hash": "eth_getTransactionByHash",
     }
 
     def __init__(
@@ -148,6 +149,27 @@ class GethConnector(base.Connector):
         gas_price = await self.rpc_eth_gas_price()
         estimated_gas = await self.rpc_eth_estimate_gas(transaction)
         return self.calc_ether_fee(estimated_gas, gas_price)
+
+    async def send_transaction(
+        self,
+        amount: Decimal,
+        to_address: str,
+        from_address: str = None,
+        fee: Union[dict, Decimal] = None,
+        password: str = "",
+    ) -> dict:
+        tx_data = {
+            "from": from_address,
+            "to": to_address,
+            "value": utils.to_hex(utils.to_wei(amount)),
+        }
+        if isinstance(fee, dict):
+            tx_data["gas"], tx_data["gasPrice"] = fee["gas"], fee["gas_price"]
+        # else:
+        #     tx_data["gas"], tx_data["gasPrice"] = None, None
+        txid = await self.rpc_personal_send_transaction(tx_data, password)
+        tx = await self.rpc_eth_get_transaction_by_hash(txid)
+        return tx
 
     async def list_transactions(self, count: int = 10, **kwargs) -> List[dict]:
         """Lists most recent transactions.
