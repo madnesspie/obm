@@ -1,33 +1,53 @@
+# Copyright 2020 Alexander Polishchuk
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
 import abc
+import asyncio
 import functools
+from decimal import Decimal
 from typing import List, Union
 
 import aiohttp
 
-# from obm.connectors import exceptions
+from obm.connectors import exceptions
 
-# def catch_errors(func):
 
-#     @functools.wraps(func)
-#     def wrapper(*args, **kwargs):
-#         try:
-#             return func(*args, **kwargs)
-#         except requests.exceptions.Timeout:
-#             self = args[0]
-#             raise exceptions.NetworkTimeoutError(
-#                 f'The request to node was longer '
-#                 f'than timeout: {self.timeout}')
-#         except requests.exceptions.RequestException as exc:
-#             raise exceptions.NetworkError(exc)
+def _catch_network_errors(func):
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except aiohttp.ServerTimeoutError:
+            self = args[0]
+            raise exceptions.NetworkTimeoutError(
+                f"The request to node was longer "
+                f"than timeout: {self.timeout}"
+            )
+        except aiohttp.ClientError as exc:
+            raise exceptions.NetworkError(exc)
 
-#     return wrapper
+    return wrapper
 
 
 class Connector(abc.ABC):
 
     DEFAULT_TIMEOUT = 3
 
-    def __init__(self, rpc_host, rpc_port, timeout=None):
+    def __init__(
+        self, rpc_host, rpc_port, loop, session, timeout=DEFAULT_TIMEOUT
+    ):
         # TODO: validate url
         if timeout is not None:
             if not isinstance(timeout, float):
@@ -37,19 +57,43 @@ class Connector(abc.ABC):
 
         url = f"{rpc_host}:{rpc_port}"
         self.url = url if url.startswith("http") else "http://" + url
-        self.timeout = timeout or self.DEFAULT_TIMEOUT
+        self.timeout = aiohttp.ClientTimeout(total=timeout)
+        self.loop = loop or asyncio.get_event_loop()
+        self.session = session or aiohttp.ClientSession(
+            loop=self.loop, headers=self.headers, auth=self.auth,
+        )
 
     def __getattribute__(self, item):
         if item != "METHODS" and item in self.METHODS:
             return functools.partial(self.wrapper, method=self.METHODS[item])
         return super().__getattribute__(item)
 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.close()
+
+    async def close(self):
+        if self.session is not None:
+            await self.session.close()
+            self.session = None
+
+    @_catch_network_errors
     async def call(self, payload: dict) -> dict:
-        async with aiohttp.ClientSession(
-            headers=self.headers, auth=self.auth,
-        ) as session:
-            async with session.post(self.url, json=payload) as response:
-                return await response.json()
+        async with self.session.post(
+            url=self.url, json=payload, timeout=self.timeout
+        ) as response:
+            return await response.json()
+
+    @staticmethod
+    async def validate(response: dict) -> Union[dict, list]:
+        try:
+            if error := response.get("error"):
+                raise exceptions.NodeError(error)
+            return response["result"]
+        except KeyError:
+            raise exceptions.NodeInvalidResponceError(response)
 
     @property
     @abc.abstractmethod
@@ -61,15 +105,38 @@ class Connector(abc.ABC):
     def currency(self) -> str:
         ...
 
-    @staticmethod
-    @abc.abstractmethod
-    async def validate(response: dict) -> Union[dict, list]:
-        ...
-
     @abc.abstractmethod
     async def wrapper(self, *args, method: str = None) -> Union[dict, list]:
         ...
 
+    # Unified interface
+
+    @property
     @abc.abstractmethod
-    async def list_transactions(self, **kwargs) -> List[dict]:
+    async def latest_block_number(self) -> int:
+        ...
+
+    @abc.abstractmethod
+    async def create_address(self, password: str = "") -> str:
+        return await self.rpc_personal_new_account(password)
+
+    @abc.abstractmethod
+    async def estimate_fee(
+        self, transaction: dict = None, conf_target: int = 1,
+    ) -> Decimal:
+        ...
+
+    @abc.abstractmethod
+    async def send_transaction(
+        self,
+        amount: Decimal,
+        to_address: str,
+        from_address: str = None,
+        fee: Union[dict, Decimal] = None,
+        password: str = "",
+    ) -> dict:
+        ...
+
+    @abc.abstractmethod
+    async def list_transactions(self, count: int = 10, **kwargs) -> List[dict]:
         ...

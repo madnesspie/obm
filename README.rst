@@ -5,20 +5,15 @@
 Welcome to Object Blockchain Mapping!
 ===========================================
 
-.. |travis| |pypi-version| |readthedocs|
+|travis| |pypi-version|
 
-.. .. |travis| image:: https://travis-ci.org/madnesspie/django-cryptocurrency-framework.svg?branch=master
-..     :target: https://travis-ci.org/madnesspie/django-cryptocurrency-framework
-..     :alt: Travis CI
+.. |pypi-version| image:: https://badge.fury.io/py/obm.svg
+    :target: hhttps://badge.fury.io/py/obm
+    :alt: PyPI
 
-.. .. |pypi-version| image:: https://badge.fury.io/py/django-cryptocurrency-framework.svg
-..     :target: https://badge.fury.io/py/django-cryptocurrency-framework
-..     :alt: PyPI
-
-.. .. |readthedocs| image:: https://readthedocs.org/projects/django-cryptocurrency-framework/badge/?version=latest
-..     :target: https://django-cryptocurrency-framework.readthedocs.io/en/latest/?badge=latest
-..     :alt: Documentation Status
-
+.. |travis| image:: https://travis-ci.org/madnesspie/obm.svg?branch=master
+    :target: https://travis-ci.org/madnesspie/obm
+    :alt: travis
 
 .. Rationale
 .. =========
@@ -47,13 +42,14 @@ Requirements
 - (optional) `bitcoin-core <https://bitcoincore.org/en/download/>`_ node
 - (optional) `geth <https://geth.ethereum.org/downloads/>`_ node
 
+
 Features
 ========
 
 - BTC (bitcoin-core) and ETH (geth) support
 - Implemented :bash:`list-transactions` for ETH
 - Unified API for sending/receiving transactions, addresses creation and fee
-estimating
+  estimating
 
 
 Future features
