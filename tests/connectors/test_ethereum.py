@@ -114,7 +114,13 @@ class TestGethConnector:
         txs = await geth.list_transactions(count=5)
         assert isinstance(txs, list)
         assert len(txs) == 5
-        # TODO: Test transaction order
+
+        # Tests txs order
+        prev_block = txs[0]["block_number"]
+        for tx in txs:
+            assert tx["block_number"] <= prev_block
+            prev_block = tx["block_number"]
+
 
     @staticmethod
     async def test_list_transaction_analyse_only_before_genesis_block(
