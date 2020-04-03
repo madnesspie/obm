@@ -122,9 +122,11 @@ class Connector(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def estimate_fee(self, **kwargs) -> Decimal:
+    async def estimate_fee(
+        self, transaction: dict = None, conf_target: int = 1
+    ) -> Decimal:
         ...
 
     @abc.abstractmethod
-    async def list_transactions(self, count=10, **kwargs) -> List[dict]:
+    async def list_transactions(self, count: int = 10, **kwargs) -> List[dict]:
         ...

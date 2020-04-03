@@ -52,11 +52,11 @@ class Node:
     async def close(self):
         await self.connector.close()
 
-    async def list_transactions(self, count=10):
+    async def list_transactions(self, count: int = 10):
         return await self.connector.list_transactions(count)
 
-    async def estimate_fee(self):
-        pass
+    async def estimate_fee(self, transaction: dict = None):
+        return await self.connector.estimate_fee(transaction)
 
     async def send_transaction(self):
         pass

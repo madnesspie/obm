@@ -65,13 +65,15 @@ class BitcoinCoreConnector(base.Connector):
     async def latest_block_number(self) -> int:
         return await self.rpc_get_block_count()
 
-    async def estimate_fee(self, **kwargs) -> Decimal:
-        conf_target = kwargs.get("conf_target", 1)
+    async def estimate_fee(
+        self,  # pytest: disable=unused-argument
+        transaction: dict = None,
+        conf_target: int = 1,
+    ) -> Decimal:
         fee_estimate = await self.rpc_estimate_smart_fee(conf_target)
         return Decimal(str(fee_estimate["feerate"]))
 
-
-    async def list_transactions(self, count=10, **kwargs) -> List[dict]:
+    async def list_transactions(self, count: int = 10, **kwargs) -> List[dict]:
         """Lists most recent transactions.
 
         Args:
@@ -98,15 +100,17 @@ class BitcoinCoreConnector(base.Connector):
                 }
                 assert "send" in duplicate_txs and "receive" in duplicate_txs
                 del duplicate_txs["send"]["category"]
-                txs.append({
-                    # "from" and "to" addresses are always the same.
-                    "from_address": duplicate_txs["send"]["address"],
-                    "to_address": duplicate_txs["send"].pop("address"),
-                    "category": "oneself",
-                    # Unpack send tx rather than receive because it has info
-                    # about the fee.
-                    **duplicate_txs["send"],
-                })
+                txs.append(
+                    {
+                        # "from" and "to" addresses are always the same.
+                        "from_address": duplicate_txs["send"]["address"],
+                        "to_address": duplicate_txs["send"].pop("address"),
+                        "category": "oneself",
+                        # Unpack send tx rather than receive because it has info
+                        # about the fee.
+                        **duplicate_txs["send"],
+                    }
+                )
             return txs
 
         def _format(tx):

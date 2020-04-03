@@ -126,8 +126,11 @@ class GethConnector(base.Connector):
         latest_block = await self.rpc_eth_get_block_by_number("latest", True)
         return utils.to_int(latest_block["number"])
 
-    async def estimate_fee(self, **kwargs) -> Decimal:
-        transaction = kwargs.get("transaction", None)
+    async def estimate_fee(
+        self,  # pytest: disable=unused-argument
+        transaction: dict = None,
+        conf_target: int = 1,
+    ) -> Decimal:
         if not transaction:
             raise TypeError(
                 "Missing value for required keyword argument transaction"
@@ -141,7 +144,7 @@ class GethConnector(base.Connector):
         estimated_gas = await self.rpc_eth_estimate_gas(transaction)
         return self.calc_ether_fee(estimated_gas, gas_price)
 
-    async def list_transactions(self, count=10, **kwargs) -> List[dict]:
+    async def list_transactions(self, count: int = 10, **kwargs) -> List[dict]:
         """Lists most recent transactions.
 
         Args:
