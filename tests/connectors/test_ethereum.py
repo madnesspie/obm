@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
+from decimal import Decimal
 
 import pytest
 
@@ -110,6 +111,13 @@ class TestGethConnector:
         assert isinstance(response, expected_type)
 
     @staticmethod
+    async def test_estimate_fee(geth):
+        fee = await geth.estimate_fee(
+            transaction={"to": os.environ.get("GETH_IN_WALLET_ADDRESS"),}
+        )
+        assert isinstance(fee, Decimal)
+
+    @staticmethod
     async def test_list_transaction(geth):
         txs = await geth.list_transactions(count=5)
         assert isinstance(txs, list)
@@ -120,7 +128,6 @@ class TestGethConnector:
         for tx in txs:
             assert tx["block_number"] <= prev_block
             prev_block = tx["block_number"]
-
 
     @staticmethod
     async def test_list_transaction_analyse_only_before_genesis_block(

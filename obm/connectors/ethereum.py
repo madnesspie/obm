@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import asyncio
+from decimal import Decimal
 from typing import List, Union
 
 from obm import utils
@@ -124,6 +125,21 @@ class GethConnector(base.Connector):
     async def latest_block_number(self) -> int:
         latest_block = await self.rpc_eth_get_block_by_number("latest", True)
         return utils.to_int(latest_block["number"])
+
+    async def estimate_fee(self, **kwargs) -> Decimal:
+        transaction = kwargs.get("transaction", None)
+        if not transaction:
+            raise TypeError(
+                "Missing value for required keyword argument transaction"
+            )
+        if not isinstance(transaction, dict):
+            raise TypeError(
+                f"Transaction keyword argument must be a dict, "
+                f"not '{type(transaction)}'"
+            )
+        gas_price = await self.rpc_eth_gas_price()
+        estimated_gas = await self.rpc_eth_estimate_gas(transaction)
+        return self.calc_ether_fee(estimated_gas, gas_price)
 
     async def list_transactions(self, count=10, **kwargs) -> List[dict]:
         """Lists most recent transactions.

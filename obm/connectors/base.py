@@ -16,6 +16,7 @@
 import abc
 import asyncio
 import functools
+from decimal import Decimal
 from typing import List, Union
 
 import aiohttp
@@ -116,7 +117,12 @@ class Connector(abc.ABC):
     # Unified interface
 
     @property
+    @abc.abstractmethod
     async def latest_block_number(self) -> int:
+        ...
+
+    @abc.abstractmethod
+    async def estimate_fee(self, **kwargs) -> Decimal:
         ...
 
     @abc.abstractmethod
