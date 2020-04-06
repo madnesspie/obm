@@ -24,6 +24,8 @@ import inspect
 
 from obm import models
 
+__all__ = ["models"]
+
 
 def _syncify_wrap(_type, method_name):
     method = getattr(_type, method_name)
@@ -42,7 +44,7 @@ def _syncify_wrap(_type, method_name):
 
 
 def syncify(*types):
-    """Converts all methods in given types into synchronous.
+    """Converts all async methods in given types into synchronous.
 
     Converted methods return either the coroutine or the result
     based on whether asyncio's event loop is running.
@@ -55,6 +57,3 @@ def syncify(*types):
 
 
 syncify(models.Node)
-
-
-__all__ = ["models"]

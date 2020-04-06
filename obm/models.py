@@ -18,6 +18,11 @@ import aiohttp
 
 from obm import connectors
 
+__all__ = [
+    "Currency",
+    "Node",
+]
+
 
 class Currency:
     def __init__(self, name: str, symbol: str = None):
@@ -84,9 +89,3 @@ class Node:
         return await self.connector.send_transaction(
             amount, to_address, from_address, fee, password
         )
-
-
-__all__ = [
-    "Currency",
-    "Node",
-]

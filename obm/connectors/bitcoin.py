@@ -19,6 +19,10 @@ import aiohttp
 
 from obm.connectors import base
 
+__all__ = [
+    "BitcoinCoreConnector",
+]
+
 
 class BitcoinCoreConnector(base.Connector):
     node = "bitcoin-core"
@@ -190,8 +194,3 @@ class BitcoinCoreConnector(base.Connector):
             reverse=True,
         )
         return sorted_txs[:count]
-
-
-__all__ = [
-    "BitcoinCoreConnector",
-]

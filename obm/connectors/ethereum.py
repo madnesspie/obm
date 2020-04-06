@@ -20,6 +20,10 @@ import aiohttp
 from obm import utils
 from obm.connectors import base
 
+__all__ = [
+    "GethConnector",
+]
+
 
 class GethConnector(base.Connector):
     node = "geth"
@@ -237,8 +241,3 @@ class GethConnector(base.Connector):
             end -= bunch_size
             if start < 0:
                 start = 0
-
-
-__all__ = [
-    "GethConnector",
-]
