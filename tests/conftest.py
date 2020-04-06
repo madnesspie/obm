@@ -33,6 +33,12 @@ def pytest_addoption(parser):
         default="",
         help="Run integration tests with main test suite.",
     )
+    # parser.addoption(
+    #     "--run-only",
+    #     action="store",
+    #     default=None,
+    #     help="Run tests only for specified currency.",
+    # )
 
 
 # pytest hooks
@@ -47,11 +53,10 @@ def pytest_runtest_setup(item):
     Args:
         item: Pytest item object (conceptually is test).
     """
-    is_integration_session = item.config.getoption("--integration")
-    is_integration_test = bool(list(item.iter_markers(name="integration")))
-    if not is_integration_session and is_integration_test:
+    markers = list(item.iter_markers())
+    is_integration_test_session = item.config.getoption("--integration")
+    if not is_integration_test_session and 'integration' in markers:
         pytest.skip("skipped integration test")
-
 
 def pytest_configure(config):  # pylint: disable=unused-argument
     """Pytest hook that called before test session.

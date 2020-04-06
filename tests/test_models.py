@@ -19,7 +19,6 @@ from obm import models, serializers
 
 
 class TestNode:
-
     @staticmethod
     async def test_init_connector_during_init():
         node = models.Node(
@@ -40,7 +39,7 @@ class TestNode:
 class TestIntegrationNode:
     @staticmethod
     async def test_list_transactions(node):
-        txs = await node.list_transactions()
+        txs = await node.list_transactions(count=2)
         assert isinstance(txs, list)
         assert serializers.Transaction().validate(txs, many=True) == {}
 
