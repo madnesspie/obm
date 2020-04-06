@@ -59,6 +59,7 @@ disable=
     fixme,
     too-many-ancestors,
     bad-continuation,
+    inconsistent-return-statements,
     R0801, # Stupid similar lines in 2 files :)
 
 

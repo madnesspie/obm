@@ -42,13 +42,12 @@ def sync_geth_node():
 
 
 @pytest.fixture(params=["bitcoin-core", "geth"])
-def sync_node(
-    request, sync_geth_node, sync_bitcoin_core_node
-):  # pylint: disable=unused-argument
-    if request.param == "bitcoin-core":
-        return sync_bitcoin_core_node
-    if request.param == "geth":
-        return sync_geth_node
+def sync_node(request, sync_geth_node, sync_bitcoin_core_node):
+    node_mapping = {
+        "bitcoin-core": sync_bitcoin_core_node,
+        "geth": sync_geth_node,
+    }
+    return node_mapping[request.param]
 
 
 @pytest.mark.integration
