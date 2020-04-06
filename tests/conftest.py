@@ -53,7 +53,7 @@ def pytest_runtest_setup(item):
     Args:
         item: Pytest item object (conceptually is test).
     """
-    markers = list(item.iter_markers())
+    markers = [marker.name for marker in item.iter_markers()]
     is_integration_test_session = item.config.getoption("--integration")
     if not is_integration_test_session and 'integration' in markers:
         pytest.skip("skipped integration test")
