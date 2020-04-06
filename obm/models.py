@@ -18,6 +18,11 @@ import aiohttp
 
 from obm import connectors
 
+__all__ = [
+    "Currency",
+    "Node",
+]
+
 
 class Currency:
     def __init__(self, name: str, symbol: str = None):

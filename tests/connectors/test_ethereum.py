@@ -20,7 +20,7 @@ from obm import connectors, utils
 
 
 @pytest.mark.integration
-class TestGethConnector:
+class TestIntegrationGethConnector:
     @staticmethod
     def is_ordered(numbers):
         prev_number = numbers[0]
@@ -128,7 +128,7 @@ class TestGethConnector:
             amount=0.0000001,
             from_address=os.environ.get("GETH_SEND_FROM_ADDRESS"),
             to_address=os.environ.get("GETH_IN_WALLET_ADDRESS"),
-            password="abc"
+            password="abc",
         )
         assert isinstance(fee, dict)
 

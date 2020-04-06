@@ -11,45 +11,60 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# pylint: disable = redefined-outer-name
 import os
 
 import pytest
 
-from obm import models, serializers
+from obm import serializers
+from obm.sync import models
 
 
-class TestNode:
-    @staticmethod
-    async def test_init_connector_during_init():
-        node = models.Node(
-            name="bitcoin-core",
-            rpc_host="127.0.0.1",
-            rpc_port=18332,
-            rpc_username="testnet_user",
-            rpc_password="testnet_pass",
-        )
-        assert node.connector.node == "bitcoin-core"
-        assert node.connector.node == node.name
-        assert node.connector.currency == "bitcoin"
-        assert node.connector.currency == node.currency.name
-        await node.close()
+@pytest.fixture
+def sync_bitcoin_core_node():
+    _node = models.Node(
+        name="bitcoin-core",
+        rpc_host="127.0.0.1",
+        rpc_port=18332,
+        rpc_username="testnet_user",
+        rpc_password="testnet_pass",
+    )
+    yield _node
+    _node.close()
+
+
+@pytest.fixture
+def sync_geth_node():
+    _node = models.Node(name="geth", rpc_port=8545)
+    yield _node
+    _node.close()
+
+
+@pytest.fixture(params=["bitcoin-core", "geth"])
+def sync_node(request, sync_geth_node, sync_bitcoin_core_node):
+    node_mapping = {
+        "bitcoin-core": sync_bitcoin_core_node,
+        "geth": sync_geth_node,
+    }
+    return node_mapping[request.param]
 
 
 @pytest.mark.integration
 class TestIntegrationNode:
     @staticmethod
-    async def test_list_transactions(node):
-        txs = await node.list_transactions(count=2)
+    def test_list_transactions(node):
+        txs = node.list_transactions()
         assert isinstance(txs, list)
         assert serializers.Transaction().validate(txs, many=True) == {}
 
     @staticmethod
-    async def test_create_address(node):
-        txs = await node.create_address()
+    def test_create_address(node):
+        txs = node.create_address()
         assert isinstance(txs, str)
 
     @staticmethod
-    async def test_send_transaction(node):
+    def test_send_transaction(node):
         tx_data = {
             "bitcoin-core": {
                 "amount": 0.00001,
@@ -62,6 +77,6 @@ class TestIntegrationNode:
                 "password": "abc",
             },
         }
-        tx = await node.send_transaction(**tx_data[node.name])
+        tx = node.send_transaction(**tx_data[node.name])
         assert isinstance(tx, dict)
         assert serializers.Transaction().validate(tx) == {}

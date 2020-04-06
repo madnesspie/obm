@@ -20,6 +20,10 @@ import aiohttp
 from obm import utils
 from obm.connectors import base
 
+__all__ = [
+    "GethConnector",
+]
+
 
 class GethConnector(base.Connector):
     node = "geth"

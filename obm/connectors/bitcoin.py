@@ -19,6 +19,10 @@ import aiohttp
 
 from obm.connectors import base
 
+__all__ = [
+    "BitcoinCoreConnector",
+]
+
 
 class BitcoinCoreConnector(base.Connector):
     node = "bitcoin-core"
@@ -78,7 +82,7 @@ class BitcoinCoreConnector(base.Connector):
             if category == "oneself":
                 from_address = to_address = tx["address"]
                 # Recover original category to prevent lie in info key.
-                tx["category"] = 'send'
+                tx["category"] = "send"
             else:
                 to_address = tx["address"]
                 from_address = None

@@ -15,6 +15,11 @@ from obm.connectors.base import Connector
 from obm.connectors.bitcoin import BitcoinCoreConnector
 from obm.connectors.ethereum import GethConnector
 
+__all__ = [
+    "BitcoinCoreConnector",
+    "GethConnector",
+]
+
 MAPPING = {
     "bitcoin-core": BitcoinCoreConnector,
     "geth": GethConnector,
