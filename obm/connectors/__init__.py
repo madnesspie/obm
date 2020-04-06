@@ -19,3 +19,9 @@ MAPPING = {
     "bitcoin-core": BitcoinCoreConnector,
     "geth": GethConnector,
 }
+
+
+__all__ = [
+    "BitcoinCoreConnector",
+    "GethConnector",
+]

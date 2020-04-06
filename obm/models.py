@@ -84,3 +84,9 @@ class Node:
         return await self.connector.send_transaction(
             amount, to_address, from_address, fee, password
         )
+
+
+__all__ = [
+    "Currency",
+    "Node",
+]

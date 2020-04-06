@@ -237,3 +237,8 @@ class GethConnector(base.Connector):
             end -= bunch_size
             if start < 0:
                 start = 0
+
+
+__all__ = [
+    "GethConnector",
+]
