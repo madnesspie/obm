@@ -115,3 +115,6 @@ example/.ethereum/*
 
 # Scripts
 predeploy.sh
+
+# Integrations
+django_ext/*

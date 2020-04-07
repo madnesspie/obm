@@ -11,12 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from decimal import Decimal
-from typing import List, Union
-
 import aiohttp
 
-from obm import connectors
+from obm import connectors, mixins
 
 __all__ = [
     "Currency",
@@ -34,7 +31,7 @@ class Currency:
         return cls(name=connectors.MAPPING[connector_name].currency)
 
 
-class Node:
+class Node(mixins.ConnectorMixin):
     def __init__(
         self,
         name: str,
@@ -46,46 +43,25 @@ class Node:
         loop=None,
         session: aiohttp.ClientSession = None,
     ):
-        self.name = self.validate_name(name)
+        self.name = name
         self.currency = currency or Currency.create_for(name)
         self.rpc_port = rpc_port
         self.rpc_host = rpc_host
         self.rpc_username = rpc_username
         self.rpc_password = rpc_password
-        self.connector = connectors.MAPPING[name](
-            rpc_host, rpc_port, rpc_username, rpc_password, loop, session
-        )
+        self.loop = loop
+        self.session = session
+        super().__init__()
 
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc, tb):
-        await self.close()
-
-    async def close(self):
-        await self.connector.close()
-
-    @staticmethod
-    def validate_name(name: str) -> str:
-        return name
-
-    async def create_address(self, password: str = "") -> str:
-        return await self.connector.create_address(password)
-
-    async def estimate_fee(self, transaction: dict = None) -> Decimal:
-        return await self.connector.estimate_fee(transaction)
-
-    async def list_transactions(self, count: int = 10) -> List[dict]:
-        return await self.connector.list_transactions(count)
-
-    async def send_transaction(
-        self,
-        amount: Decimal,
-        to_address: str,
-        from_address: str = None,
-        fee: Union[dict, Decimal] = None,
-        password: str = "",
-    ) -> dict:
-        return await self.connector.send_transaction(
-            amount, to_address, from_address, fee, password
-        )
+    # @staticmethod
+    # def validate_name(name: str) -> str:
+    #     if not isinstance(name, str):
+    #         raise TypeError(
+    #             f"Name argument must be a string, not '{type(name)}'"
+    #         )
+    #     supported_nodes = list(connectors.MAPPING)
+    #     if name not in supported_nodes:
+    #         raise ValueError(
+    #             f"Unsupported node. Available only: {supported_nodes}"
+    #         )
+    #     return name

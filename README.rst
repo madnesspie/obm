@@ -1,6 +1,11 @@
 .. role:: bash(code)
    :language: bash
 
+.. image:: ../logo.png
+    :width: 500px
+    :align: center
+
+
 ===========================================
 Welcome to Object Blockchain Mapping!
 ===========================================
