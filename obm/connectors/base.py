@@ -90,10 +90,10 @@ class Connector(abc.ABC):
     async def validate(response: dict) -> Union[dict, list]:
         try:
             if error := response.get("error"):
-                raise exceptions.NodeError(error)
+                raise exceptions.NConnectorErrorodeError(error)
             return response["result"]
         except KeyError:
-            raise exceptions.NodeInvalidResponceError(response)
+            raise exceptions.NConnectorInvalidResponceErrorodeInvalidResponceError(response)
 
     @property
     @abc.abstractmethod

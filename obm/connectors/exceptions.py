@@ -15,11 +15,11 @@ class BaseError(Exception):
     """Base connector error."""
 
 
-class NodeError(BaseError):
+class ConnectorError(BaseError):
     """Node returns an error."""
 
 
-class NodeInvalidResponceError(NodeError):
+class ConnectorInvalidResponceError(ConnectorError):
     """Node returns a invalid response."""
 
 
@@ -29,10 +29,3 @@ class NetworkError(BaseError):
 
 class NetworkTimeoutError(NetworkError):
     """Node request riches timeout."""
-
-
-# warnings
-
-
-class BaseWarning(Warning):
-    """Base connector warning."""
