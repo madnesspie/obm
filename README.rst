@@ -1,7 +1,7 @@
 .. role:: bash(code)
    :language: bash
 
-.. image:: ../logo.png
+.. image:: ./logo.png
     :width: 500px
     :align: center
 

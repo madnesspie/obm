@@ -57,4 +57,3 @@ def syncify(*types):
 
 
 syncify(mixins.ConnectorMixin)
-assert not inspect.iscoroutinefunction(mixins.ConnectorMixin.estimate_fee.__name__)
