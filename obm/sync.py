@@ -22,9 +22,9 @@ import asyncio
 import functools
 import inspect
 
-from obm import models
+from obm import mixins, models
 
-__all__ = ["models"]
+__all__ = ["models", "mixins"]
 
 
 def _syncify_wrap(_type, method_name):
@@ -56,4 +56,5 @@ def syncify(*types):
                     _syncify_wrap(_type, name)
 
 
-syncify(models.Node)
+syncify(mixins.ConnectorMixin)
+assert not inspect.iscoroutinefunction(mixins.ConnectorMixin.estimate_fee.__name__)
