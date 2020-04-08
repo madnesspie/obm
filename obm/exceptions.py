@@ -23,16 +23,13 @@ class NodeInvalidResponceError(NodeError):
     """Node returns a invalid response."""
 
 
+class NodeUnsupportedError(NodeError):
+    """Node unsupported error."""
+
+
 class NetworkError(BaseError):
     """Node network error."""
 
 
 class NetworkTimeoutError(NetworkError):
     """Node request riches timeout."""
-
-
-# warnings
-
-
-class BaseWarning(Warning):
-    """Base connector warning."""

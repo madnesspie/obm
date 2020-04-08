@@ -21,7 +21,7 @@ from typing import List, Union
 
 import aiohttp
 
-from obm.connectors import exceptions
+from obm import exceptions
 
 
 def _catch_network_errors(func):
