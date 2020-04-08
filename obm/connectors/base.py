@@ -21,7 +21,7 @@ from typing import List, Union
 
 import aiohttp
 
-from obm.connectors import exceptions
+from obm import exceptions
 
 
 def _catch_network_errors(func):
@@ -90,10 +90,10 @@ class Connector(abc.ABC):
     async def validate(response: dict) -> Union[dict, list]:
         try:
             if error := response.get("error"):
-                raise exceptions.NConnectorErrorodeError(error)
+                raise exceptions.NodeError(error)
             return response["result"]
         except KeyError:
-            raise exceptions.NConnectorInvalidResponceErrorodeInvalidResponceError(response)
+            raise exceptions.NodeInvalidResponceError(response)
 
     @property
     @abc.abstractmethod

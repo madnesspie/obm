@@ -15,12 +15,16 @@ class BaseError(Exception):
     """Base connector error."""
 
 
-class ConnectorError(BaseError):
+class NodeError(BaseError):
     """Node returns an error."""
 
 
-class ConnectorInvalidResponceError(ConnectorError):
+class NodeInvalidResponceError(NodeError):
     """Node returns a invalid response."""
+
+
+class NodeUnsupportedError(NodeError):
+    """Node unsupported error."""
 
 
 class NetworkError(BaseError):
