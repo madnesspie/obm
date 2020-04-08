@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import Union
+
 import aiohttp
 
 from obm import connectors, mixins
@@ -42,6 +44,7 @@ class Node(mixins.ConnectorMixin):
         rpc_password: str = None,
         loop=None,
         session: aiohttp.ClientSession = None,
+        timeout: Union[int, float] = connectors.base.DEFAULT_TIMEOUT,
     ):
         self.name = name
         self.currency = currency or Currency.create_for(name)
@@ -51,6 +54,7 @@ class Node(mixins.ConnectorMixin):
         self.rpc_password = rpc_password
         self.loop = loop
         self.session = session
+        self.timeout = timeout
         super().__init__()
 
     # @staticmethod

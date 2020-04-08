@@ -32,6 +32,7 @@ class ConnectorMixin:
             self.rpc_password,
             self.loop,
             self.session,
+            self.timeout,
         )
         return self.__connector
 

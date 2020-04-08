@@ -24,3 +24,4 @@ MAPPING = {
     "bitcoin-core": BitcoinCoreConnector,
     "geth": GethConnector,
 }
+SUPPORTED_CURRENCIES = list({node.currency for node in MAPPING.values()})
