@@ -17,7 +17,7 @@ from decimal import Decimal
 import aiohttp
 import pytest
 
-from obm.connectors import exceptions
+from obm import exceptions
 
 
 class TestBitcoinCoreConnector:
