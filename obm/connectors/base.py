@@ -59,9 +59,7 @@ class Connector(abc.ABC):
         self.url = url if url.startswith("http") else "http://" + url
         self.timeout = aiohttp.ClientTimeout(total=timeout)
         self.loop = loop or asyncio.get_event_loop()
-        self.session = session or aiohttp.ClientSession(
-            loop=self.loop, headers=self.headers, auth=self.auth,
-        )
+        self.session = session
 
     def __getattribute__(self, item):
         if item != "METHODS" and item in self.METHODS:
@@ -69,10 +67,17 @@ class Connector(abc.ABC):
         return super().__getattribute__(item)
 
     async def __aenter__(self):
+        await self.open()
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
         await self.close()
+
+    async def open(self):
+        if self.session is None:
+            self.session = aiohttp.ClientSession(
+                loop=self.loop, headers=self.headers, auth=self.auth,
+            )
 
     async def close(self):
         if self.session is not None:
@@ -81,6 +86,7 @@ class Connector(abc.ABC):
 
     @_catch_network_errors
     async def call(self, payload: dict) -> dict:
+        await self.open()
         async with self.session.post(
             url=self.url, json=payload, timeout=self.timeout
         ) as response:
