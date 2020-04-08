@@ -19,8 +19,13 @@ from obm import connectors
 
 class ConnectorMixin:
 
-    def __init__(self, *args, **kwargs):
-        self.connector = connectors.MAPPING[self.name](
+    __connector = None
+
+    @property
+    def connector(self):
+        if self.__connector:
+            return self.__connector
+        self.__connector = connectors.MAPPING[self.name](
             self.rpc_host,
             self.rpc_port,
             self.rpc_username,
@@ -28,13 +33,17 @@ class ConnectorMixin:
             self.loop,
             self.session,
         )
-        super().__init__(*args, **kwargs)
+        return self.__connector
 
     async def __aenter__(self):
+        await self.open()
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
         await self.close()
+
+    async def open(self):
+        await self.connector.close()
 
     async def close(self):
         await self.connector.close()
