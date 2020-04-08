@@ -23,6 +23,8 @@ import aiohttp
 
 from obm import exceptions
 
+DEFAULT_TIMEOUT = 3
+
 
 def _catch_network_errors(func):
     @functools.wraps(func)
@@ -42,15 +44,12 @@ def _catch_network_errors(func):
 
 
 class Connector(abc.ABC):
-
-    DEFAULT_TIMEOUT = 3
-
     def __init__(
         self, rpc_host, rpc_port, loop, session, timeout=DEFAULT_TIMEOUT
     ):
         # TODO: validate url
         if timeout is not None:
-            if not isinstance(timeout, float):
+            if not isinstance(timeout, float) and not isinstance(timeout, int):
                 raise TypeError("Timeout must be a number")
             if timeout <= 0:
                 raise ValueError("Timeout must be greater than zero")

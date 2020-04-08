@@ -48,7 +48,7 @@ class BitcoinCoreConnector(base.Connector):
         rpc_password: str = None,
         loop=None,
         session: aiohttp.ClientSession = None,
-        timeout: int = None,
+        timeout: Union[int, float] = None,
     ):
         if rpc_username is not None and rpc_password is not None:
             self.auth = aiohttp.BasicAuth(rpc_username, rpc_password)
