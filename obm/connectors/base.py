@@ -127,7 +127,13 @@ class Connector(abc.ABC):
 
     @abc.abstractmethod
     async def estimate_fee(
-        self, transaction: dict = None, conf_target: int = 1,
+        self,
+        from_address: str = None,
+        to_address: str = None,
+        amount: str = None,
+        fee: Union[dict, Decimal] = None,
+        data: str = None,
+        conf_target: int = 1,
     ) -> Decimal:
         ...
 
