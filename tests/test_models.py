@@ -54,6 +54,12 @@ class TestIntegrationNode:
         fee = await node.estimate_fee(
             from_address=os.environ.get("GETH_SEND_FROM_ADDRESS"),
             to_address=os.environ.get("GETH_IN_WALLET_ADDRESS"),
+            amount=10,
+            data=None,
+            fee={
+                "gas": None,
+                "gas_price": None,
+            },
         )
         assert isinstance(fee, Decimal)
 

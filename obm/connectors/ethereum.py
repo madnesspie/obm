@@ -176,15 +176,17 @@ class GethConnector(base.Connector):
             raise TypeError(
                 "Missing value for required keyword argument transaction"
             )
+
         if isinstance(fee, dict):
             gas_price = fee.get("gas_price")
             gas = fee.get("gas")
         elif fee is None:
-            gas_price = await self.rpc_eth_gas_price()
+            gas_price = None
             gas = None
         else:
             raise TypeError(f"Fee must be dict or None, not {type(fee)}")
 
+        gas_price = gas_price or await self.rpc_eth_gas_price()
         # Ethereum tx structure. All fields except 'to' are optional.
         # Reference: https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_estimategas
         estimated_gas = await self.rpc_eth_estimate_gas(
