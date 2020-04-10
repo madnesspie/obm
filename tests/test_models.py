@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
+from decimal import Decimal
 
 import pytest
 
@@ -47,6 +48,14 @@ class TestIntegrationNode:
     async def test_create_address(node):
         txs = await node.create_address()
         assert isinstance(txs, str)
+
+    @staticmethod
+    async def test_estimate_fee(node):
+        fee = await node.estimate_fee(
+            from_address=os.environ.get("GETH_SEND_FROM_ADDRESS"),
+            to_address=os.environ.get("GETH_IN_WALLET_ADDRESS"),
+        )
+        assert isinstance(fee, Decimal)
 
     @staticmethod
     async def test_send_transaction(node):

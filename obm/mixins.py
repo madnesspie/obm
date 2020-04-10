@@ -52,8 +52,18 @@ class ConnectorMixin:
     async def create_address(self, password: str = "") -> str:
         return await self.connector.create_address(password)
 
-    async def estimate_fee(self, transaction: dict = None) -> Decimal:
-        return await self.connector.estimate_fee(transaction)
+    async def estimate_fee(
+        self,
+        from_address: str = None,
+        to_address: str = None,
+        amount: str = None,
+        fee: Union[dict, Decimal] = None,
+        data: str = None,
+        conf_target: int = 1,
+    ) -> Decimal:
+        return await self.connector.estimate_fee(
+            from_address, to_address, amount, fee, data, conf_target,
+        )
 
     async def list_transactions(self, count: int = 10) -> List[dict]:
         return await self.connector.list_transactions(count)

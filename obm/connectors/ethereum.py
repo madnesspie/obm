@@ -185,6 +185,8 @@ class GethConnector(base.Connector):
         else:
             raise TypeError(f"Fee must be dict or None, not {type(fee)}")
 
+        # Ethereum tx structure. All fields except 'to' are optional.
+        # Reference: https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_estimategas
         estimated_gas = await self.rpc_eth_estimate_gas(
             {
                 "from": from_address,
