@@ -176,7 +176,7 @@ class GethConnector(base.Connector):
             raise TypeError(
                 "Missing value for required keyword argument transaction"
             )
-        elif isinstance(fee, dict):
+        if isinstance(fee, dict):
             gas_price = fee.get("gas_price")
             gas = fee.get("gas")
         elif fee is None:
