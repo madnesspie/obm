@@ -102,8 +102,8 @@ class TestIntegrationBitcoinCoreConnector:
 
     @staticmethod
     async def test_list_transactions(bitcoin_core):
-        txs = await bitcoin_core.list_transactions(count=15)
-        assert len(txs) == 15
+        txs = await bitcoin_core.list_transactions(count=30)
+        assert len(txs) == 30
 
         # Tests block_number calculation
         block_number_checked = False

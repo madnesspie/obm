@@ -33,12 +33,6 @@ def pytest_addoption(parser):
         default="",
         help="Run integration tests with main test suite.",
     )
-    # parser.addoption(
-    #     "--run-only",
-    #     action="store",
-    #     default=None,
-    #     help="Run tests only for specified currency.",
-    # )
 
 
 # pytest hooks

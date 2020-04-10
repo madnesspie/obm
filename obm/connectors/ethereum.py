@@ -163,22 +163,38 @@ class GethConnector(base.Connector):
     async def create_address(self, password: str = "") -> str:
         return await self.rpc_personal_new_account(password)
 
-    async def estimate_fee(
-        self,  # pylint: disable=unused-argument
-        transaction: dict = None,
+    async def estimate_fee(  # pylint: disable=unused-argument
+        self,
+        from_address: str = None,
+        to_address: str = None,
+        amount: str = None,
+        fee: Union[dict, Decimal] = None,
+        data: str = None,
         conf_target: int = 1,
     ) -> Decimal:
-        if not transaction:
+        if not to_address:
             raise TypeError(
                 "Missing value for required keyword argument transaction"
             )
-        if not isinstance(transaction, dict):
-            raise TypeError(
-                f"Transaction keyword argument must be a dict, "
-                f"not '{type(transaction)}'"
-            )
-        gas_price = await self.rpc_eth_gas_price()
-        estimated_gas = await self.rpc_eth_estimate_gas(transaction)
+        if isinstance(fee, dict):
+            gas_price = fee.get("gas_price")
+            gas = fee.get("gas")
+        elif fee is None:
+            gas_price = await self.rpc_eth_gas_price()
+            gas = None
+        else:
+            raise TypeError(f"Fee must be dict or None, not {type(fee)}")
+
+        estimated_gas = await self.rpc_eth_estimate_gas(
+            {
+                "from": from_address,
+                "to": to_address,
+                "gas": gas,
+                "gasPrice": gas_price,
+                "value": utils.to_hex(utils.to_wei(amount)) if amount else None,
+                "data": data,
+            }
+        )
         return self.calc_ether_fee(estimated_gas, gas_price)
 
     async def send_transaction(

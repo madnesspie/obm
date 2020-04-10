@@ -118,7 +118,7 @@ class TestIntegrationGethConnector:
     @staticmethod
     async def test_estimate_fee(geth):
         fee = await geth.estimate_fee(
-            transaction={"to": os.environ.get("GETH_IN_WALLET_ADDRESS"),}
+            to_address=os.environ.get("GETH_IN_WALLET_ADDRESS")
         )
         assert isinstance(fee, Decimal)
 
