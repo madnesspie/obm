@@ -176,12 +176,21 @@ class GethConnector(base.Connector):
             raise TypeError(
                 "Missing value for required keyword argument transaction"
             )
-        # TODO: Add gas estimating
-        gas_price = await self.rpc_eth_gas_price()
+        elif isinstance(fee, dict):
+            gas_price = fee.get("gas_price")
+            gas = fee.get("gas")
+        elif fee is None:
+            gas_price = await self.rpc_eth_gas_price()
+            gas = None
+        else:
+            raise TypeError(f"Fee must be dict or None, not {type(fee)}")
+
         estimated_gas = await self.rpc_eth_estimate_gas(
             {
                 "from": from_address,
                 "to": to_address,
+                "gas": gas,
+                "gasPrice": gas_price,
                 "value": utils.to_hex(utils.to_wei(amount)) if amount else None,
                 "data": data,
             }
