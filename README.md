@@ -1,7 +1,10 @@
 <p align="center">
+    <br>
+    <br>
     <a href="https://github.com/madnesspie/obm">
-        <img src="https://raw.githubusercontent.com/madnesspie/obm/master/logo.png" alt="OBM">
+        <img src="logo.svg" alt="OBM">
     </a>
+    <br>
     <br>
     <b>Async blockchain nodes interacting tool with ORM-like api</b>
     <br>
