@@ -2,7 +2,7 @@
     <br>
     <br>
     <a href="https://github.com/madnesspie/obm">
-        <img src="logo.svg" alt="OBM">
+        <img src="logo.svg" alt="OBM" width="70%">
     </a>
     <br>
     <br>
