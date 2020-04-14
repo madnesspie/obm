@@ -1,12 +1,11 @@
 <p align="center">
     <br>
-    <br>
     <a href="https://github.com/madnesspie/obm">
         <img src="logo.svg" alt="OBM" width="70%">
     </a>
     <br>
     <br>
-    <b>Async blockchain nodes interacting tool with ORM-like api</b>
+    <b>Async blockchain nodes interacting tool with ORM-like API</b>
     <br>
     <a href="https://obm.readthedocs.io/">
         Documentation
