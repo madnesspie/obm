@@ -70,12 +70,18 @@ class ConnectorMixin:
 
     async def send_transaction(
         self,
-        amount: Decimal,
+        amount: Union[Decimal, float],
         to_address: str,
         from_address: str = None,
         fee: Union[dict, Decimal] = None,
         password: str = "",
+        subtract_fee_from_amount: bool = False,
     ) -> dict:
         return await self.connector.send_transaction(
-            amount, to_address, from_address, fee, password
+            amount,
+            to_address,
+            from_address,
+            fee,
+            password,
+            subtract_fee_from_amount,
         )

@@ -203,11 +203,12 @@ class GethConnector(base.Connector):
 
     async def send_transaction(
         self,
-        amount: Decimal,
+        amount: Union[Decimal, float],
         to_address: str,
         from_address: str = None,
         fee: Union[dict, Decimal] = None,
         password: str = "",
+        subtract_fee_from_amount: bool = False,
     ) -> dict:
         tx_data = {
             "from": from_address,

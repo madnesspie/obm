@@ -100,7 +100,9 @@ class Connector(abc.ABC):
         async with self.session.post(
             url=self.url, json=payload, timeout=self.timeout
         ) as response:
-            return await response.json()
+            return await response.json(
+                loads=functools.partial(json.loads, parse_float=Decimal)
+            )
 
     @staticmethod
     async def validate(response: dict) -> Union[dict, list]:
