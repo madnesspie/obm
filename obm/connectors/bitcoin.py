@@ -17,6 +17,7 @@ from typing import List, Union
 
 import aiohttp
 
+from obm import exceptions
 from obm.connectors import base
 
 __all__ = [
@@ -133,8 +134,10 @@ class BitcoinCoreConnector(base.Connector):
         data: str = None,
         conf_target: int = 1,
     ) -> Decimal:
-        fee_estimate = await self.rpc_estimate_smart_fee(conf_target)
-        return fee_estimate["feerate"]
+        result = await self.rpc_estimate_smart_fee(conf_target)
+        if errors := result.get("errors"):
+            raise exceptions.NodeError(errors)
+        return result["feerate"]
 
     async def send_transaction(  # pylint: disable=unused-argument
         self,

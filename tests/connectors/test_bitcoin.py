@@ -17,7 +17,23 @@ from decimal import Decimal
 import aiohttp
 import pytest
 
-from obm import exceptions
+from obm import connectors, exceptions
+
+
+class TestBitcoinCoreConnector:
+    @staticmethod
+    async def test_estimate_fee_raise_error_when_errors_key_in_result(
+        monkeypatch, bitcoin_core
+    ):
+        error_1 = "Insufficient data or no feerate found"
+        monkeypatch.setattr(
+            connectors.BitcoinCoreConnector,
+            "rpc_estimate_smart_fee",
+            lambda *_, **__: {"errors": [error_1]},
+        )
+        with pytest.raises(exceptions.NetworkError) as exc_info:
+            fee = await bitcoin_core.estimate_fee()
+        assert exc_info.value.args[0] == [error_1]
 
 
 class TestBitcoinCoreConnector:
