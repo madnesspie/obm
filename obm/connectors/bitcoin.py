@@ -134,7 +134,7 @@ class BitcoinCoreConnector(base.Connector):
         conf_target: int = 1,
     ) -> Decimal:
         fee_estimate = await self.rpc_estimate_smart_fee(conf_target)
-        return Decimal(str(fee_estimate["feerate"]))
+        return fee_estimate["feerate"]
 
     async def send_transaction(  # pylint: disable=unused-argument
         self,
