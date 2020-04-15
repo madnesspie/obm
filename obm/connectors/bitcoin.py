@@ -147,7 +147,9 @@ class BitcoinCoreConnector(base.Connector):
     ) -> dict:
         # TODO: Validate
         latest_block_number = await self.latest_block_number
-        txid = await self.rpc_send_to_address(to_address, amount)
+        txid = await self.rpc_send_to_address(
+            to_address, amount, "", "", subtract_fee_from_amount
+        )
         tx = await self.rpc_get_transaction(txid)
         return self.format_transaction(tx, latest_block_number)
 

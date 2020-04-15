@@ -17,7 +17,7 @@ from typing import List, Union
 
 import aiohttp
 
-from obm import utils
+from obm import exceptions, utils
 from obm.connectors import base
 
 __all__ = [
@@ -210,15 +210,36 @@ class GethConnector(base.Connector):
         password: str = "",
         subtract_fee_from_amount: bool = False,
     ) -> dict:
-        tx_data = {
-            "from": from_address,
-            "to": to_address,
-            "value": utils.to_hex(utils.to_wei(amount)),
-        }
         # TODO: Validate
-        if isinstance(fee, dict):
-            tx_data["gas"], tx_data["gasPrice"] = fee["gas"], fee["gas_price"]
-        # TODO Execute in bunch
+        if not isinstance(fee, dict) and fee is not None:
+            raise TypeError(f"Fee must be dict or None, not {type(fee)}")
+
+        wei_amount = utils.to_wei(amount)
+        gas_price = fee.get("gas_price") if isinstance(fee, dict) else None
+        gas = fee.get("gas") if isinstance(fee, dict) else None
+        tx_data = {
+            "to": to_address,
+            "from": from_address,
+        }
+
+        if subtract_fee_from_amount:
+            # No matter that you pass in the estimate_gas the result gas amount
+            # depends only on addresses.
+            # Proof: tests.research.test_ethereum.py
+            gas = gas or await self.rpc_eth_estimate_gas(tx_data)
+            gas_price = gas_price or await self.rpc_eth_gas_price()
+            wei_fee = int(gas, 16) * int(gas_price, 16)
+            if wei_amount <= wei_fee:
+                raise exceptions.NodeTooSmallTransactionAmount(
+                    f"Insufficient transaction amount for substract fee. "
+                    f"Amount {amount} ETH, fee {utils.from_wei(wei_fee)} ETH."
+            )
+            tx_data['value'] = utils.to_hex(wei_amount - wei_fee)
+        else:
+            tx_data['value'] = utils.to_hex(utils.to_wei(amount))
+
+        tx_data['gasPrice'] = gas_price
+        tx_data['gas'] = gas
         addresses = await self.rpc_personal_list_accounts()
         txid = await self.rpc_personal_send_transaction(tx_data, password)
         tx = await self.rpc_eth_get_transaction_by_hash(txid)

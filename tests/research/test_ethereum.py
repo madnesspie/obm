@@ -11,6 +11,7 @@ async def test_estimate_gas_dependency_from_params(geth):
     How you can see, if we talk about non-contract addresses, estimated gas
     value depends only on the presence or absence of 'to' address.
     """
+    # TODO: Study contract addresses.
     addresses = {
         # In-wallet address
         "from": "0xe1082e71f1ced0efb0952edd23595e4f76840128",
