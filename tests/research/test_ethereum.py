@@ -1,6 +1,6 @@
 import pytest
 
-from obm import utils
+from obm.connectors import ethereum
 
 
 @pytest.mark.research
@@ -20,21 +20,21 @@ async def test_estimate_gas_dependency_from_params(geth):
     }
     params_sets = [
         addresses,
-        {**addresses, "value": utils.to_hex(utils.to_wei(0.00001))},
-        {**addresses, "value": utils.to_hex(utils.to_wei(10))},
+        {**addresses, "value": ethereum.to_hex(ethereum.to_wei(0.00001))},
+        {**addresses, "value": ethereum.to_hex(ethereum.to_wei(10))},
         {"to": addresses["to"]},
         {
             **addresses,
-            "value": utils.to_hex(utils.to_wei(10)),
+            "value": ethereum.to_hex(ethereum.to_wei(10)),
             "gasPrice": await geth.rpc_eth_gas_price(),
         },        {
             **addresses,
-            "value": utils.to_hex(utils.to_wei(10)),
+            "value": ethereum.to_hex(ethereum.to_wei(10)),
             "gas": '0x5208',  # 21000 wei or standard estimate
         },
         {
             **addresses,
-            "value": utils.to_hex(utils.to_wei(10)),
+            "value": ethereum.to_hex(ethereum.to_wei(10)),
             "gasPrice": await geth.rpc_eth_gas_price(),
             "gas": '0xcf08',  # 53000 wei or estimate without from address
         },

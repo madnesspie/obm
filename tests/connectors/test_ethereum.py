@@ -16,7 +16,7 @@ from decimal import Decimal
 
 import pytest
 
-from obm import connectors, utils
+from obm.connectors import ethereum
 
 
 @pytest.mark.integration
@@ -53,7 +53,7 @@ class TestIntegrationGethConnector:
         blocks_range = await geth.fetch_blocks_range(
             start=latest - 50, end=latest, bunch_size=5, delay=0.1
         )
-        numbers = [utils.to_int(block["number"]) for block in blocks_range]
+        numbers = [int(block["number"], 16) for block in blocks_range]
         assert latest not in numbers
         assert len(blocks_range) == 50
         assert self.is_ordered(numbers)
@@ -63,7 +63,7 @@ class TestIntegrationGethConnector:
         blocks_range = await geth.fetch_blocks_range(
             start=latest - 100, bunch_size=10, delay=0.1
         )
-        numbers = [utils.to_int(block["number"]) for block in blocks_range]
+        numbers = [int(block["number"], 16) for block in blocks_range]
         assert latest in numbers
         assert len(blocks_range) == 101
         assert self.is_ordered(numbers)
@@ -73,7 +73,7 @@ class TestIntegrationGethConnector:
         blocks_range = await geth.fetch_recent_blocks_range(
             length=100, bunch_size=10, delay=0.1
         )
-        numbers = [utils.to_int(block["number"]) for block in blocks_range]
+        numbers = [int(block["number"], 16) for block in blocks_range]
         assert latest in numbers
         assert len(blocks_range) == 101
         assert self.is_ordered(numbers)
@@ -97,7 +97,7 @@ class TestIntegrationGethConnector:
                     {
                         "from": os.environ.get("GETH_SEND_FROM_ADDRESS"),
                         "to": os.environ.get("GETH_IN_WALLET_ADDRESS"),
-                        "value": utils.to_hex(utils.to_wei(0.0000001)),
+                        "value": ethereum.to_hex(ethereum.to_wei(0.0000001)),
                     },
                     "abc",
                 ],
@@ -152,7 +152,7 @@ class TestIntegrationGethConnector:
             return 1500
 
         monkeypatch.setattr(
-            connectors.GethConnector, "latest_block_number", property(mock),
+            ethereum.GethConnector, "latest_block_number", property(mock),
         )
         txs = await geth.list_transactions(count=10)
         assert isinstance(txs, list)

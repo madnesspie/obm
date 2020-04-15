@@ -16,13 +16,35 @@ from decimal import Decimal
 from typing import List, Union
 
 import aiohttp
+import web3
 
-from obm import exceptions, utils
+from obm import exceptions
 from obm.connectors import base
 
 __all__ = [
     "GethConnector",
+    "to_wei",
+    "from_wei",
+    "to_hex",
+    "to_int",
 ]
+
+
+# TODO: Remove web3 from dependencies
+def to_wei(value):
+    return web3.Web3.toWei(value, "ether")
+
+
+def from_wei(value):
+    return web3.Web3.fromWei(value, "ether")
+
+
+def to_hex(value):
+    return web3.Web3.toHex(value)
+
+
+def to_int(value):
+    return int(value, 16)
 
 
 class GethConnector(base.Connector):
@@ -73,7 +95,7 @@ class GethConnector(base.Connector):
 
     @staticmethod
     def calc_ether_fee(gas, gas_price):
-        return utils.from_wei(utils.to_int(gas) * utils.to_int(gas_price))
+        return from_wei(to_int(gas) * to_int(gas_price))
 
     def format_transaction(self, tx, addresses):
         if tx["from"] in addresses and tx["to"] in addresses:
@@ -88,13 +110,13 @@ class GethConnector(base.Connector):
         if tx["blockNumber"] is None:
             block_number = None
         else:
-            block_number = utils.to_int(tx["blockNumber"])
+            block_number = to_int(tx["blockNumber"])
 
         return {
             "txid": tx["hash"],
             "from_address": tx["from"],
             "to_address": tx["to"],
-            "amount": utils.from_wei(utils.to_int(tx["value"])),
+            "amount": from_wei(to_int(tx["value"])),
             "fee": self.calc_ether_fee(tx["gas"], tx["gasPrice"]),
             "block_number": block_number,
             "category": category,
@@ -133,7 +155,7 @@ class GethConnector(base.Connector):
 
         end = end or await self.latest_block_number + 1
         get_block_coros = [
-            self.rpc_eth_get_block_by_number(utils.to_hex(n), True)
+            self.rpc_eth_get_block_by_number(to_hex(n), True)
             for n in range(start, end)
         ]
         blocks_range = []
@@ -158,7 +180,7 @@ class GethConnector(base.Connector):
     @property
     async def latest_block_number(self) -> int:
         latest_block = await self.rpc_eth_get_block_by_number("latest", True)
-        return utils.to_int(latest_block["number"])
+        return to_int(latest_block["number"])
 
     async def create_address(self, password: str = "") -> str:
         return await self.rpc_personal_new_account(password)
@@ -186,7 +208,7 @@ class GethConnector(base.Connector):
             "to": to_address,
             "gas": fee.get("gas") if isinstance(fee, dict) else None,
             "gasPrice": fee.get("gas_price") if isinstance(fee, dict) else None,
-            "value": utils.to_hex(utils.to_wei(amount)) if amount else None,
+            "value": to_hex(to_wei(amount)) if amount else None,
             "data": data,
         }
         estimated_gas = await self.rpc_eth_estimate_gas(tx_data)
@@ -206,7 +228,7 @@ class GethConnector(base.Connector):
         if not isinstance(fee, dict) and fee is not None:
             raise TypeError(f"Fee must be dict or None, not {type(fee)}")
 
-        wei_amount = utils.to_wei(amount)
+        wei_amount = to_wei(amount)
         gas_price = fee.get("gas_price") if isinstance(fee, dict) else None
         gas = fee.get("gas") if isinstance(fee, dict) else None
         tx_data = {
@@ -224,11 +246,11 @@ class GethConnector(base.Connector):
             if wei_amount <= wei_fee:
                 raise exceptions.NodeTooSmallTransactionAmount(
                     f"Insufficient transaction amount for substract fee. "
-                    f"Amount {amount} ETH, fee {utils.from_wei(wei_fee)} ETH."
+                    f"Amount {amount} ETH, fee {from_wei(wei_fee)} ETH."
                 )
-            tx_data["value"] = utils.to_hex(wei_amount - wei_fee)
+            tx_data["value"] = to_hex(wei_amount - wei_fee)
         else:
-            tx_data["value"] = utils.to_hex(utils.to_wei(amount))
+            tx_data["value"] = to_hex(to_wei(amount))
 
         tx_data["gasPrice"] = gas_price
         tx_data["gas"] = gas
