@@ -27,6 +27,10 @@ class NodeUnsupportedError(NodeError):
     """Node unsupported error."""
 
 
+class NodeTooSmallTransactionAmount(NodeError):
+    """Insufficient transaction amount for substract fee. """
+
+
 class NetworkError(BaseError):
     """Node network error."""
 

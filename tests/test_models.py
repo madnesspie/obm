@@ -79,4 +79,27 @@ class TestIntegrationNode:
         }
         tx = await node.send_transaction(**tx_data[node.name])
         assert isinstance(tx, dict)
+        assert tx["fee"] > Decimal('0')
         assert serializers.Transaction().validate(tx) == {}
+
+    @staticmethod
+    async def test_send_transaction_subtract_fee_from_amount(node):
+        tx_data = {
+            "bitcoin-core": {
+                "amount": Decimal('0.00001'),
+                "to_address": os.environ.get("BITCOIN_CORE_IN_WALLET_ADDRESS"),
+                "subtract_fee_from_amount": True,
+            },
+            "geth": {
+                "amount": Decimal('0.00003'),
+                "from_address": os.environ.get("GETH_SEND_FROM_ADDRESS"),
+                "to_address": os.environ.get("GETH_IN_WALLET_ADDRESS"),
+                "subtract_fee_from_amount": True,
+                "password": "abc",
+            },
+        }
+        tx = await node.send_transaction(**tx_data[node.name])
+        assert isinstance(tx, dict)
+        assert tx["fee"] > Decimal('0')
+        assert serializers.Transaction().validate(tx) == {}
+        assert tx_data[node.name]["amount"] - tx["fee"] == tx["amount"]

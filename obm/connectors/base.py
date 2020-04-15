@@ -11,11 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
 import abc
 import asyncio
 import functools
+import json
 from decimal import Decimal
 from typing import List, Union
 
@@ -41,6 +40,13 @@ def _catch_network_errors(func):
             raise exceptions.NetworkError(exc)
 
     return wrapper
+
+
+class _DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):  # pylint: disable=method-hidden, arguments-differ
+        if isinstance(obj, Decimal):
+            return str(obj)
+        return super().default(obj)
 
 
 class Connector(abc.ABC):
@@ -75,7 +81,12 @@ class Connector(abc.ABC):
     async def open(self):
         if self.session is None:
             self.session = aiohttp.ClientSession(
-                loop=self.loop, headers=self.headers, auth=self.auth,
+                loop=self.loop,
+                headers=self.headers,
+                auth=self.auth,
+                json_serialize=functools.partial(
+                    json.dumps, cls=_DecimalEncoder
+                ),
             )
 
     async def close(self):
@@ -89,7 +100,9 @@ class Connector(abc.ABC):
         async with self.session.post(
             url=self.url, json=payload, timeout=self.timeout
         ) as response:
-            return await response.json()
+            return await response.json(
+                loads=functools.partial(json.loads, parse_float=Decimal)
+            )
 
     @staticmethod
     async def validate(response: dict) -> Union[dict, list]:
@@ -140,11 +153,12 @@ class Connector(abc.ABC):
     @abc.abstractmethod
     async def send_transaction(
         self,
-        amount: Decimal,
+        amount: Union[Decimal, float],
         to_address: str,
         from_address: str = None,
         fee: Union[dict, Decimal] = None,
         password: str = "",
+        subtract_fee_from_amount: bool = False,
     ) -> dict:
         ...
 

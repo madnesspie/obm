@@ -32,6 +32,7 @@ setuptools.setup(
             "sphinx>=2.4,<3",
             "sphinx-rtd-theme",
             "python-dotenv",
+            "pytest-xdist",
             "pytest",
             "pylint",
             "mypy",

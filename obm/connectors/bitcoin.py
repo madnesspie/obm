@@ -17,6 +17,7 @@ from typing import List, Union
 
 import aiohttp
 
+from obm import exceptions
 from obm.connectors import base
 
 __all__ = [
@@ -104,8 +105,8 @@ class BitcoinCoreConnector(base.Connector):
             "txid": tx["txid"],
             "from_address": from_address,
             "to_address": to_address,
-            "amount": Decimal(str(abs(amount))),
-            "fee": Decimal(str(abs(fee))),
+            "amount": abs(amount),
+            "fee": abs(fee),
             "block_number": block_number,
             "category": category,
             "timestamp": tx["time"],
@@ -133,20 +134,25 @@ class BitcoinCoreConnector(base.Connector):
         data: str = None,
         conf_target: int = 1,
     ) -> Decimal:
-        fee_estimate = await self.rpc_estimate_smart_fee(conf_target)
-        return Decimal(str(fee_estimate["feerate"]))
+        result = await self.rpc_estimate_smart_fee(conf_target)
+        if errors := result.get("errors"):
+            raise exceptions.NodeError(errors)
+        return result["feerate"]
 
     async def send_transaction(  # pylint: disable=unused-argument
         self,
-        amount: Decimal,
+        amount: Union[Decimal, float],
         to_address: str,
         from_address: str = None,
         fee: Union[dict, Decimal] = None,
         password: str = "",
+        subtract_fee_from_amount: bool = False,
     ) -> dict:
         # TODO: Validate
         latest_block_number = await self.latest_block_number
-        txid = await self.rpc_send_to_address(to_address, amount)
+        txid = await self.rpc_send_to_address(
+            to_address, amount, "", "", subtract_fee_from_amount
+        )
         tx = await self.rpc_get_transaction(txid)
         return self.format_transaction(tx, latest_block_number)
 
