@@ -28,15 +28,18 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=["tests*"]),
     install_requires=["aiohttp>=3.6,<4", "web3>=5.7,<6", "marshmallow>=3.5,<4"],
     extras_require={
+        "test": [
+            "pytest",
+            "python-dotenv",
+            "pytest-xdist",
+        ],
         "dev": [
             "sphinx>=2.4,<3",
             "sphinx-rtd-theme",
-            "python-dotenv",
-            "pytest-xdist",
-            "pytest",
             "pylint",
             "mypy",
             "rope",
+            "tox",
         ],
     },
     license="GNU Lesser General Public License v3 or later (LGPLv3+)",
