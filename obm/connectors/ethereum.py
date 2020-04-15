@@ -176,29 +176,21 @@ class GethConnector(base.Connector):
             raise TypeError(
                 "Missing value for required keyword argument transaction"
             )
-
-        if isinstance(fee, dict):
-            gas_price = fee.get("gas_price")
-            gas = fee.get("gas")
-        elif fee is None:
-            gas_price = None
-            gas = None
-        else:
+        if not isinstance(fee, dict) and fee is not None:
             raise TypeError(f"Fee must be dict or None, not {type(fee)}")
 
-        gas_price = gas_price or await self.rpc_eth_gas_price()
-        # Ethereum tx structure. All fields except 'to' are optional.
+        # Ethereum tx structure. All fields are optional.
         # Reference: https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_estimategas
-        estimated_gas = await self.rpc_eth_estimate_gas(
-            {
-                "from": from_address,
-                "to": to_address,
-                "gas": gas,
-                "gasPrice": gas_price,
-                "value": utils.to_hex(utils.to_wei(amount)) if amount else None,
-                "data": data,
-            }
-        )
+        tx_data = {
+            "from": from_address,
+            "to": to_address,
+            "gas": fee.get("gas") if isinstance(fee, dict) else None,
+            "gasPrice": fee.get("gas_price") if isinstance(fee, dict) else None,
+            "value": utils.to_hex(utils.to_wei(amount)) if amount else None,
+            "data": data,
+        }
+        estimated_gas = await self.rpc_eth_estimate_gas(tx_data)
+        gas_price = tx_data["gasPrice"] or await self.rpc_eth_gas_price()
         return self.calc_ether_fee(estimated_gas, gas_price)
 
     async def send_transaction(
@@ -233,13 +225,13 @@ class GethConnector(base.Connector):
                 raise exceptions.NodeTooSmallTransactionAmount(
                     f"Insufficient transaction amount for substract fee. "
                     f"Amount {amount} ETH, fee {utils.from_wei(wei_fee)} ETH."
-            )
-            tx_data['value'] = utils.to_hex(wei_amount - wei_fee)
+                )
+            tx_data["value"] = utils.to_hex(wei_amount - wei_fee)
         else:
-            tx_data['value'] = utils.to_hex(utils.to_wei(amount))
+            tx_data["value"] = utils.to_hex(utils.to_wei(amount))
 
-        tx_data['gasPrice'] = gas_price
-        tx_data['gas'] = gas
+        tx_data["gasPrice"] = gas_price
+        tx_data["gas"] = gas
         addresses = await self.rpc_personal_list_accounts()
         txid = await self.rpc_personal_send_transaction(tx_data, password)
         tx = await self.rpc_eth_get_transaction_by_hash(txid)
