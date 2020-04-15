@@ -22,22 +22,6 @@ from obm import connectors, exceptions
 
 class TestBitcoinCoreConnector:
     @staticmethod
-    async def test_estimate_fee_raise_error_when_errors_key_in_result(
-        monkeypatch, bitcoin_core
-    ):
-        error_1 = "Insufficient data or no feerate found"
-        monkeypatch.setattr(
-            connectors.BitcoinCoreConnector,
-            "rpc_estimate_smart_fee",
-            lambda *_, **__: {"errors": [error_1]},
-        )
-        with pytest.raises(exceptions.NetworkError) as exc_info:
-            fee = await bitcoin_core.estimate_fee()
-        assert exc_info.value.args[0] == [error_1]
-
-
-class TestBitcoinCoreConnector:
-    @staticmethod
     @pytest.mark.parametrize(
         "origin_error, expected_error",
         (
@@ -59,9 +43,25 @@ class TestBitcoinCoreConnector:
                 payload={"method": "listtransactions", "params": ["*", 1000]}
             )
 
+    @staticmethod
+    async def test_estimate_fee_raise_error_when_errors_key_in_result(
+        monkeypatch, bitcoin_core
+    ):
+        error_1 = "Insufficient data or no feerate found"
+
+        async def mock(*_, **__):
+            return {"result": {"errors": [error_1]}}
+
+        monkeypatch.setattr(
+            connectors.BitcoinCoreConnector, "call", mock,
+        )
+        with pytest.raises(exceptions.NodeError) as exc_info:
+            await bitcoin_core.estimate_fee()
+        assert exc_info.value.args[0] == [error_1]
+
 
 @pytest.mark.integration
-class TestIntegrationBitcoinCoreConnector:
+class TestBitcoinCoreConnectorIntegration:
     @staticmethod
     async def test_call(bitcoin_core):
         result = await bitcoin_core.call(
