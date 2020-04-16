@@ -16,7 +16,7 @@ from typing import Optional, Union
 
 import aiohttp
 
-from obm import connectors, mixins
+from obm import connectors, mixins, validators
 
 __all__ = [
     "Currency",
@@ -46,7 +46,11 @@ class Node(mixins.ConnectorMixin):
         session: Optional[aiohttp.ClientSession] = None,
         timeout: Union[int, float] = connectors.DEFAULT_TIMEOUT,
     ):
-        self.name = name
+        if not isinstance(name, str):
+            raise TypeError(
+                f"Name must be a string, not '{type(name).__name__}'"
+            )
+        self.name = validators.validate_node_is_supported(name)
         self.currency = currency or Currency.create_for(name)
         self.rpc_port = rpc_port
         self.rpc_host = rpc_host
@@ -56,18 +60,5 @@ class Node(mixins.ConnectorMixin):
         self.session = session
         self.timeout = timeout
         # This statement is necessary to perform validation
-        assert self.connector.name == self.name
+        assert self.connector.node == self.name
         super().__init__()
-
-    # @staticmethod
-    # def validate_name(name: str) -> str:
-    #     if not isinstance(name, str):
-    #         raise TypeError(
-    #             f"Name argument must be a string, not '{type(name)}'"
-    #         )
-    #     supported_nodes = list(connectors.MAPPING)
-    #     if name not in supported_nodes:
-    #         raise ValueError(
-    #             f"Unsupported node. Available only: {supported_nodes}"
-    #         )
-    #     return name

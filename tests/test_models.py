@@ -58,9 +58,34 @@ class TestNode:
             "wrong timeout value",
         ),
     )
-    def test_init_validation(node_name, kwargs, error, error_msg):
+    def test_init_connector_validation(node_name, kwargs, error, error_msg):
         with pytest.raises(error) as exc_info:
             models.Node(name=node_name, **kwargs)
+        assert exc_info.value.args[0] == error_msg
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "kwargs, error, error_msg",
+        (
+            (
+                {"name": 111},
+                TypeError,
+                "Name must be a string, not 'int'",
+            ),
+            (
+                {"name": 'fuckfinex'},
+                ValueError,
+                "Unsupported node. Available only: ['bitcoin-core', 'geth']",
+            ),
+        ),
+        ids=(
+            "wrong name type",
+            "unsupported node",
+        ),
+    )
+    def test_init_validation(kwargs, error, error_msg):
+        with pytest.raises(error) as exc_info:
+            models.Node(**kwargs)
         assert exc_info.value.args[0] == error_msg
 
     @staticmethod
