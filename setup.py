@@ -15,6 +15,14 @@ import setuptools
 
 import obm
 
+EXTRAS_REQUIRE = {
+    "tests": ["pytest", "python-dotenv", "pytest-xdist"],
+    "lint": ["pylint", "mypy"],
+    "docs": ["sphinx>=2.4,<3", "sphinx-rtd-theme"],
+    "dev": ["tox", "rope"],
+}
+EXTRAS_REQUIRE["dev"] += EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["lint"]
+
 
 def read(file_name):
     with open(file_name) as f:
@@ -27,18 +35,7 @@ setuptools.setup(
     version=obm.__version__,
     packages=setuptools.find_packages(exclude=["tests*"]),
     install_requires=["aiohttp>=3.6,<4", "web3>=5.7,<6", "marshmallow>=3.5,<4"],
-    extras_require={
-        "dev": [
-            "sphinx>=2.4,<3",
-            "sphinx-rtd-theme",
-            "python-dotenv",
-            "pytest-xdist",
-            "pytest",
-            "pylint",
-            "mypy",
-            "rope",
-        ],
-    },
+    extras_require=EXTRAS_REQUIRE,
     license="GNU Lesser General Public License v3 or later (LGPLv3+)",
     description="Async blockchain nodes interacting tool with ORM-like api.",
     long_description=read("README.md"),

@@ -16,13 +16,13 @@ import asyncio
 import functools
 import json
 from decimal import Decimal
-from typing import List, Union
+from typing import List, Optional, Union
 
 import aiohttp
 
 from obm import exceptions
 
-DEFAULT_TIMEOUT = 3
+DEFAULT_TIMEOUT = 5*60
 
 
 def _catch_network_errors(func):
@@ -51,16 +51,38 @@ class _DecimalEncoder(json.JSONEncoder):
 
 class Connector(abc.ABC):
     def __init__(
-        self, rpc_host, rpc_port, loop, session, timeout=DEFAULT_TIMEOUT
+        self,
+        rpc_host: str,
+        rpc_port: int,
+        loop: Optional[asyncio.AbstractEventLoop] = None,
+        session: Optional[aiohttp.ClientSession] = None,
+        timeout: Union[int, float] = DEFAULT_TIMEOUT,
     ):
-        # TODO: validate url
+        if not isinstance(rpc_host, str):
+            raise TypeError(
+                f"PRC host must be a string, not '{type(rpc_host).__name__}'"
+            )
+        if not isinstance(rpc_port, int):
+            raise TypeError(
+                f"PRC port must be an integer, not '{type(rpc_port).__name__}'"
+            )
+        if session is not None:
+            if not isinstance(session, aiohttp.ClientTimeout):
+                raise TypeError(
+                    f"Session must be a aiohttp.ClientSession, "
+                    f"not '{type(session).__name__}'"
+                )
         if timeout is not None:
             if not isinstance(timeout, float) and not isinstance(timeout, int):
-                raise TypeError("Timeout must be a number")
+                raise TypeError(
+                    f"Timeout must be a number, not '{type(timeout).__name__}'"
+                )
             if timeout <= 0:
                 raise ValueError("Timeout must be greater than zero")
 
         url = f"{rpc_host}:{rpc_port}"
+        self.rpc_host = rpc_host
+        self.rpc_port = rpc_port
         self.url = url if url.startswith("http") else "http://" + url
         self.timeout = aiohttp.ClientTimeout(total=timeout)
         self.loop = loop or asyncio.get_event_loop()
@@ -81,6 +103,7 @@ class Connector(abc.ABC):
     async def open(self):
         if self.session is None:
             self.session = aiohttp.ClientSession(
+                connector=aiohttp.TCPConnector(limit=300),
                 loop=self.loop,
                 headers=self.headers,
                 auth=self.auth,
@@ -97,7 +120,7 @@ class Connector(abc.ABC):
     @_catch_network_errors
     async def call(self, payload: dict) -> dict:
         await self.open()
-        async with self.session.post(
+        async with self.session.post(  # type: ignore
             url=self.url, json=payload, timeout=self.timeout
         ) as response:
             return await response.json(

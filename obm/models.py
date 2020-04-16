@@ -11,11 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Union
+import asyncio
+from typing import Optional, Union
 
 import aiohttp
 
-from obm import connectors, mixins
+from obm import connectors, mixins, validators
 
 __all__ = [
     "Currency",
@@ -24,9 +25,8 @@ __all__ = [
 
 
 class Currency:
-    def __init__(self, name: str, symbol: str = None):
+    def __init__(self, name: str):
         self.name = name
-        self.symbol = symbol
 
     @classmethod
     def create_for(cls, connector_name: str):
@@ -37,16 +37,20 @@ class Node(mixins.ConnectorMixin):
     def __init__(
         self,
         name: str,
-        rpc_port: int,
         currency: Currency = None,
-        rpc_host: str = "127.0.0.1",
-        rpc_username: str = None,
-        rpc_password: str = None,
-        loop=None,
-        session: aiohttp.ClientSession = None,
-        timeout: Union[int, float] = connectors.base.DEFAULT_TIMEOUT,
+        rpc_host: str = "localhost",
+        rpc_port: Optional[int] = None,
+        rpc_username: Optional[str] = None,
+        rpc_password: Optional[str] = None,
+        loop: Optional[asyncio.AbstractEventLoop] = None,
+        session: Optional[aiohttp.ClientSession] = None,
+        timeout: Union[int, float] = connectors.DEFAULT_TIMEOUT,
     ):
-        self.name = name
+        if not isinstance(name, str):
+            raise TypeError(
+                f"Name must be a string, not '{type(name).__name__}'"
+            )
+        self.name = validators.validate_node_is_supported(name)
         self.currency = currency or Currency.create_for(name)
         self.rpc_port = rpc_port
         self.rpc_host = rpc_host
@@ -55,17 +59,6 @@ class Node(mixins.ConnectorMixin):
         self.loop = loop
         self.session = session
         self.timeout = timeout
+        # This statement is necessary to perform validation
+        assert self.connector.node == self.name
         super().__init__()
-
-    # @staticmethod
-    # def validate_name(name: str) -> str:
-    #     if not isinstance(name, str):
-    #         raise TypeError(
-    #             f"Name argument must be a string, not '{type(name)}'"
-    #         )
-    #     supported_nodes = list(connectors.MAPPING)
-    #     if name not in supported_nodes:
-    #         raise ValueError(
-    #             f"Unsupported node. Available only: {supported_nodes}"
-    #         )
-    #     return name
