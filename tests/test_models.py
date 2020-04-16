@@ -46,19 +46,36 @@ class TestNode:
         assert exc_info.value.args[0] == error_msg
 
     @staticmethod
-    async def test_init_connector_during_init():
+    async def test_init_defaults(node_name):
+        expect = {
+            "timeout": 3,
+            "rpc_host": "localhost",
+            "bitcoin-core": {
+                "currency": "bitcoin",
+                "rpc_port": 18332,
+                "rpc_username": "testnet_user",
+                "rpc_password": 'testnet_pass',
+            },
+            "geth": {
+                "currency": "ethereum",
+                "rpc_port": 8545,
+                "rpc_username": None,
+                "rpc_password": None,
+            }
+        }
         node = models.Node(
-            name="bitcoin-core",
-            rpc_host="127.0.0.1",
-            rpc_port=18332,
+            name=node_name,
             rpc_username="testnet_user",
             rpc_password="testnet_pass",
         )
-        assert node.connector.node == "bitcoin-core"
+        assert node.connector.node == node_name
         assert node.connector.node == node.name
-        assert node.connector.currency == "bitcoin"
+        assert node.connector.currency == expect[node_name]["currency"]
         assert node.connector.currency == node.currency.name
-        await node.close()
+        assert node.connector.rpc_host == expect["rpc_host"]
+        assert node.connector.rpc_port == expect[node_name]["rpc_port"]
+        assert node.connector.timeout.total == expect["timeout"]
+
 
 
 @pytest.mark.integration
