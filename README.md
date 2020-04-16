@@ -16,6 +16,9 @@
     </a>
 </p>
 
+[![PyPI version](https://badge.fury.io/py/obm.svg)](https://badge.fury.io/py/obm)
+[![Build Status](https://travis-ci.org/madnesspie/obm.svg?branch=master)](https://travis-ci.org/madnesspie/obm)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 # Rationale
 There are a lot of cryprocurrencies and many of them maintain their own blockchain. Essentially, blockchain is a database, therefore you can interact with it in the same way as with the ordinary database. If you follow how the database interacting tools evolved, you can see that at low-level there are database adapters (such as psycopg2, pymongo, etc.) on top of which are built
