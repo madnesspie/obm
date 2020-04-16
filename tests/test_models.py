@@ -16,7 +16,7 @@ from decimal import Decimal
 
 import pytest
 
-from obm import models, serializers
+from obm import connectors, models, serializers
 
 
 class TestNode:
@@ -39,11 +39,23 @@ class TestNode:
                 TypeError,
                 "Session must be a aiohttp.ClientSession, not int",
             ),
+            (
+                {"timeout": "WRONG_TYPE"},
+                TypeError,
+                "Timeout must be a number, not str",
+            ),
+            (
+                {"timeout": -0.1},
+                ValueError,
+                "Timeout must be greater than zero",
+            ),
         ),
         ids=(
             "wrong host type",
             "wrong port type",
             "wrong session type",
+            "wrong timeout type",
+            "wrong timeout value",
         ),
     )
     def test_init_validation(node_name, kwargs, error, error_msg):
@@ -54,7 +66,7 @@ class TestNode:
     @staticmethod
     async def test_init_defaults(node_name):
         expect = {
-            "timeout": 10,
+            "timeout": connectors.DEFAULT_TIMEOUT,
             "rpc_host": "localhost",
             "bitcoin-core": {
                 "currency": "bitcoin",
@@ -88,7 +100,7 @@ class TestNode:
 class TestNodeIntegration:
     @staticmethod
     async def test_list_transactions(node):
-        txs = await node.list_transactions(count=2)
+        txs = await node.list_transactions(count=5)
         assert isinstance(txs, list)
         assert serializers.Transaction().validate(txs, many=True) == {}
 

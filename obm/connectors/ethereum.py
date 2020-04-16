@@ -278,7 +278,7 @@ class GethConnector(base.Connector):
                 if tx["from"] in addresses or tx["to"] in addresses
             ]
 
-        bunch_size = kwargs.get("bunch_size", 500)
+        bunch_size = kwargs.get("bunch_size", 1000)
         latest_block_number = await self.latest_block_number
         addresses = await self.rpc_personal_list_accounts()
         start = latest_block_number - bunch_size - 1

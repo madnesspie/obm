@@ -39,13 +39,13 @@ class Node(mixins.ConnectorMixin):
         self,
         name: str,
         currency: Currency = None,
-        rpc_host: Optional[str] = "localhost",
+        rpc_host: str = "localhost",
         rpc_port: Optional[int] = None,
         rpc_username: Optional[str] = None,
         rpc_password: Optional[str] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         session: Optional[aiohttp.ClientSession] = None,
-        timeout: Optional[Union[int, float]] = connectors.DEFAULT_TIMEOUT,
+        timeout: Union[int, float] = connectors.DEFAULT_TIMEOUT,
     ):
         self.name = name
         self.currency = currency or Currency.create_for(name)

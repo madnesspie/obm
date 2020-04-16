@@ -22,7 +22,7 @@ import aiohttp
 
 from obm import exceptions
 
-DEFAULT_TIMEOUT = 10
+DEFAULT_TIMEOUT = 5*60
 
 
 def _catch_network_errors(func):
@@ -75,7 +75,7 @@ class Connector(abc.ABC):
         if timeout is not None:
             if not isinstance(timeout, float) and not isinstance(timeout, int):
                 raise TypeError(
-                    f"Timeout must be a number, not {type(session).__name__}"
+                    f"Timeout must be a number, not {type(timeout).__name__}"
                 )
             if timeout <= 0:
                 raise ValueError("Timeout must be greater than zero")
@@ -103,6 +103,7 @@ class Connector(abc.ABC):
     async def open(self):
         if self.session is None:
             self.session = aiohttp.ClientSession(
+                connector=aiohttp.TCPConnector(limit=300),
                 loop=self.loop,
                 headers=self.headers,
                 auth=self.auth,
