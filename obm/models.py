@@ -25,9 +25,8 @@ __all__ = [
 
 
 class Currency:
-    def __init__(self, name: str, symbol: str = None):
+    def __init__(self, name: str):
         self.name = name
-        self.symbol = symbol
 
     @classmethod
     def create_for(cls, connector_name: str):
@@ -57,8 +56,7 @@ class Node(mixins.ConnectorMixin):
         self.session = session
         self.timeout = timeout
         # This statement is necessary to perform validation
-        # TODO: Find out how to make it more neatly
-        self.connector  # pylint: disable=pointless-statement
+        assert self.connector.name == self.name
         super().__init__()
 
     # @staticmethod
