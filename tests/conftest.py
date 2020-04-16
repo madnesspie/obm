@@ -49,8 +49,9 @@ def pytest_runtest_setup(item):
     """
     markers = [marker.name for marker in item.iter_markers()]
     is_integration_test_session = item.config.getoption("--integration")
-    if not is_integration_test_session and 'integration' in markers:
+    if not is_integration_test_session and "integration" in markers:
         pytest.skip("skipped integration test")
+
 
 def pytest_configure(config):  # pylint: disable=unused-argument
     """Pytest hook that called before test session.
@@ -105,10 +106,13 @@ async def geth_node(loop):
 
 
 @pytest.fixture(params=["bitcoin-core", "geth"])
-async def node(
-    request, geth_node, bitcoin_core_node, loop
-):  # pylint: disable=unused-argument
-    if request.param == "bitcoin-core":
+def node_name(request):
+    return request.param
+
+
+@pytest.fixture
+def node(node_name, geth_node, bitcoin_core_node):
+    if node_name == "bitcoin-core":
         return bitcoin_core_node
-    if request.param == "geth":
+    if node_name == "geth":
         return geth_node

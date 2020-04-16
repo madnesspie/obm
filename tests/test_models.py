@@ -25,36 +25,21 @@ class TestNode:
         "kwargs, error, error_msg",
         (
             (
-                {"name": "bitcoin-core", "rpc_host": 111, "rpc_port": 111},
+                {"rpc_host": 111, "rpc_port": 111},
                 TypeError,
                 "PRC host must be a string, not int",
             ),
             (
-                {"name": "geth", "rpc_host": 111, "rpc_port": 111},
-                TypeError,
-                "PRC host must be a string, not int",
-            ),
-            (
-                {"name": "bitcoin-core", "rpc_port": "WRONG_TYPE"},
-                TypeError,
-                "PRC port must be an integer, not str",
-            ),
-            (
-                {"name": "geth", "rpc_port": "WRONG_TYPE"},
+                {"rpc_port": "WRONG_TYPE"},
                 TypeError,
                 "PRC port must be an integer, not str",
             ),
         ),
-        ids=(
-            "bitcoin-core wrong host type",
-            "geth wrong host type",
-            "bitcoin-core wrong port type",
-            "geth wrong port type",
-        ),
+        ids=("wrong host type", "wrong port type",),
     )
-    def test_init_validation(kwargs, error, error_msg):
+    def test_init_validation(node_name, kwargs, error, error_msg):
         with pytest.raises(error) as exc_info:
-            models.Node(**kwargs)
+            models.Node(name=node_name, **kwargs)
         assert exc_info.value.args[0] == error_msg
 
     @staticmethod
