@@ -62,17 +62,19 @@ class GethConnector(base.Connector):
         "rpc_personal_list_accounts": "personal_listAccounts",
         "rpc_eth_get_transaction_by_hash": "eth_getTransactionByHash",
     }
+    DEFAULT_PORT = 8545
 
     def __init__(
         self,
         rpc_host: str = "localhost",
-        rpc_port: int = 18332,
+        rpc_port: int = DEFAULT_PORT,
         rpc_username: str = None,  # pylint: disable=unused-argument
         rpc_password: str = None,  # pylint: disable=unused-argument
         loop: Optional[asyncio.AbstractEventLoop] = None,
         session: Optional[aiohttp.ClientTimeout] = None,
         timeout: Union[int, float] = base.DEFAULT_TIMEOUT,
     ):
+        rpc_port = rpc_port or self.DEFAULT_PORT
         self.auth = None
         self.headers = {
             "content-type": "application/json",

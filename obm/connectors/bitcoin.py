@@ -41,17 +41,19 @@ class BitcoinCoreConnector(base.Connector):
         "rpc_get_transaction": "gettransaction",
         "rpc_get_raw_transaction": "getrawtransaction",
     }
+    DEFAULT_PORT = 18332
 
     def __init__(
         self,
         rpc_host: str = "localhost",
-        rpc_port: int = 18332,
+        rpc_port: int = DEFAULT_PORT,
         rpc_username: str = None,
         rpc_password: str = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         session: Optional[aiohttp.ClientTimeout] = None,
         timeout: Union[int, float] = base.DEFAULT_TIMEOUT,
     ):
+        rpc_port = rpc_port or self.DEFAULT_PORT
         if rpc_username is not None and rpc_password is not None:
             self.auth = aiohttp.BasicAuth(rpc_username, rpc_password)
         # self.serializer = serializers.BitcoinCoreTransaction()

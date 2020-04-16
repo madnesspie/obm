@@ -37,9 +37,9 @@ class Node(mixins.ConnectorMixin):
     def __init__(
         self,
         name: str,
-        rpc_port: int,
         currency: Currency = None,
         rpc_host: str = "127.0.0.1",
+        rpc_port: int = None,
         rpc_username: str = None,
         rpc_password: str = None,
         loop=None,

@@ -25,7 +25,7 @@ class TestNode:
         "kwargs, error, error_msg",
         (
             (
-                {"rpc_host": 111, "rpc_port": 111},
+                {"rpc_host": 111},
                 TypeError,
                 "PRC host must be a string, not int",
             ),
@@ -35,7 +35,10 @@ class TestNode:
                 "PRC port must be an integer, not str",
             ),
         ),
-        ids=("wrong host type", "wrong port type",),
+        ids=(
+            "wrong host type",
+            "wrong port type",
+        ),
     )
     def test_init_validation(node_name, kwargs, error, error_msg):
         with pytest.raises(error) as exc_info:
