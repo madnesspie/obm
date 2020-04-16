@@ -90,7 +90,6 @@ async def geth(loop):
 async def bitcoin_core_node(loop):
     async with models.Node(
         name="bitcoin-core",
-        rpc_host="127.0.0.1",
         rpc_port=18332,
         rpc_username="testnet_user",
         rpc_password="testnet_pass",

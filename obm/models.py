@@ -11,7 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Union
+import asyncio
+from typing import Optional, Union
 
 import aiohttp
 
@@ -38,13 +39,13 @@ class Node(mixins.ConnectorMixin):
         self,
         name: str,
         currency: Currency = None,
-        rpc_host: str = "127.0.0.1",
-        rpc_port: int = None,
-        rpc_username: str = None,
-        rpc_password: str = None,
-        loop=None,
-        session: aiohttp.ClientSession = None,
-        timeout: Union[int, float] = connectors.base.DEFAULT_TIMEOUT,
+        rpc_host: Optional[str] = "localhost",
+        rpc_port: Optional[int] = None,
+        rpc_username: Optional[str] = None,
+        rpc_password: Optional[str] = None,
+        loop: Optional[asyncio.AbstractEventLoop] = None,
+        session: Optional[aiohttp.ClientSession] = None,
+        timeout: Optional[Union[int, float]] = connectors.DEFAULT_TIMEOUT,
     ):
         self.name = name
         self.currency = currency or Currency.create_for(name)

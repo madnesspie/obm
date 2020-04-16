@@ -11,13 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from obm.connectors.base import Connector
+from obm.connectors.base import DEFAULT_TIMEOUT, Connector
 from obm.connectors.bitcoin import BitcoinCoreConnector
 from obm.connectors.ethereum import GethConnector
 
 __all__ = [
     "BitcoinCoreConnector",
     "GethConnector",
+    "DEFAULT_TIMEOUT",
 ]
 
 MAPPING = {

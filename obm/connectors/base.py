@@ -55,8 +55,8 @@ class Connector(abc.ABC):
         rpc_host: str,
         rpc_port: int,
         loop: Optional[asyncio.AbstractEventLoop] = None,
-        session: Optional[aiohttp.ClientTimeout] = None,
-        timeout: Union[int, float] = DEFAULT_TIMEOUT,
+        session: Optional[aiohttp.ClientSession] = None,
+        timeout: Optional[Union[int, float]] = DEFAULT_TIMEOUT,
     ):
         if not isinstance(rpc_host, str):
             raise TypeError(
@@ -81,6 +81,8 @@ class Connector(abc.ABC):
                 raise ValueError("Timeout must be greater than zero")
 
         url = f"{rpc_host}:{rpc_port}"
+        self.rpc_host = rpc_host
+        self.rpc_port = rpc_port
         self.url = url if url.startswith("http") else "http://" + url
         self.timeout = aiohttp.ClientTimeout(total=timeout)
         self.loop = loop or asyncio.get_event_loop()
