@@ -11,20 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import web3
+from typing import Type
+
+from obm import connectors
 
 
-def to_wei(value):
-    return web3.Web3.toWei(value, "ether")
-
-
-def from_wei(value):
-    return web3.Web3.fromWei(value, "ether")
-
-
-def to_hex(value):
-    return web3.Web3.toHex(value)
-
-
-def to_int(value):
-    return web3.Web3.toInt(hexstr=value)
+def validate_node_is_supported(
+    name: str, error_cls: Type[Exception] = ValueError
+) -> str:
+    supported_nodes = list(connectors.MAPPING)
+    if name not in supported_nodes:
+        raise error_cls(f"Unsupported node. Available only: {supported_nodes}")
+    return name

@@ -11,9 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import asyncio
 from collections import defaultdict
 from decimal import Decimal
-from typing import List, Union
+from typing import List, Optional, Union
 
 import aiohttp
 
@@ -40,20 +41,21 @@ class BitcoinCoreConnector(base.Connector):
         "rpc_get_transaction": "gettransaction",
         "rpc_get_raw_transaction": "getrawtransaction",
     }
+    DEFAULT_PORT = 18332
 
     def __init__(
         self,
         rpc_host: str = "localhost",
-        rpc_port: int = 18332,
-        rpc_username: str = None,
-        rpc_password: str = None,
-        loop=None,
-        session: aiohttp.ClientSession = None,
-        timeout: Union[int, float] = None,
+        rpc_port: int = DEFAULT_PORT,
+        rpc_username: Optional[str] = None,
+        rpc_password: Optional[str] = None,
+        loop: Optional[asyncio.AbstractEventLoop] = None,
+        session: Optional[aiohttp.ClientSession] = None,
+        timeout: Union[int, float] = base.DEFAULT_TIMEOUT,
     ):
+        rpc_port = rpc_port or self.DEFAULT_PORT
         if rpc_username is not None and rpc_password is not None:
             self.auth = aiohttp.BasicAuth(rpc_username, rpc_password)
-        # self.serializer = serializers.BitcoinCoreTransaction()
         self.headers = {
             "content-type": "application/json",
             "cache-control": "no-cache",
