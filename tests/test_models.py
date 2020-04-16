@@ -21,6 +21,43 @@ from obm import models, serializers
 
 class TestNode:
     @staticmethod
+    @pytest.mark.parametrize(
+        "kwargs, error, error_msg",
+        (
+            (
+                {"name": "bitcoin-core", "rpc_host": 111, "rpc_port": 111},
+                TypeError,
+                "PRC host must be a string, not int",
+            ),
+            (
+                {"name": "geth", "rpc_host": 111, "rpc_port": 111},
+                TypeError,
+                "PRC host must be a string, not int",
+            ),
+            (
+                {"name": "bitcoin-core", "rpc_port": "WRONG_TYPE"},
+                TypeError,
+                "PRC port must be an integer, not str",
+            ),
+            (
+                {"name": "geth", "rpc_port": "WRONG_TYPE"},
+                TypeError,
+                "PRC port must be an integer, not str",
+            ),
+        ),
+        ids=(
+            "bitcoin-core wrong host type",
+            "geth wrong host type",
+            "bitcoin-core wrong port type",
+            "geth wrong port type",
+        ),
+    )
+    def test_init_validation(kwargs, error, error_msg):
+        with pytest.raises(error) as exc_info:
+            models.Node(**kwargs)
+        assert exc_info.value.args[0] == error_msg
+
+    @staticmethod
     async def test_init_connector_during_init():
         node = models.Node(
             name="bitcoin-core",
@@ -56,10 +93,7 @@ class TestIntegrationNode:
             to_address=os.environ.get("GETH_IN_WALLET_ADDRESS"),
             amount=10,
             data=None,
-            fee={
-                "gas": None,
-                "gas_price": None,
-            },
+            fee={"gas": None, "gas_price": None,},
         )
         assert isinstance(fee, Decimal)
 
@@ -79,19 +113,19 @@ class TestIntegrationNode:
         }
         tx = await node.send_transaction(**tx_data[node.name])
         assert isinstance(tx, dict)
-        assert tx["fee"] > Decimal('0')
+        assert tx["fee"] > Decimal("0")
         assert serializers.Transaction().validate(tx) == {}
 
     @staticmethod
     async def test_send_transaction_subtract_fee_from_amount(node):
         tx_data = {
             "bitcoin-core": {
-                "amount": Decimal('0.00001'),
+                "amount": Decimal("0.00001"),
                 "to_address": os.environ.get("BITCOIN_CORE_IN_WALLET_ADDRESS"),
                 "subtract_fee_from_amount": True,
             },
             "geth": {
-                "amount": Decimal('0.00003'),
+                "amount": Decimal("0.00003"),
                 "from_address": os.environ.get("GETH_SEND_FROM_ADDRESS"),
                 "to_address": os.environ.get("GETH_IN_WALLET_ADDRESS"),
                 "subtract_fee_from_amount": True,
@@ -100,6 +134,6 @@ class TestIntegrationNode:
         }
         tx = await node.send_transaction(**tx_data[node.name])
         assert isinstance(tx, dict)
-        assert tx["fee"] > Decimal('0')
+        assert tx["fee"] > Decimal("0")
         assert serializers.Transaction().validate(tx) == {}
         assert tx_data[node.name]["amount"] - tx["fee"] == tx["amount"]

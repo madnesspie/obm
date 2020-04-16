@@ -51,12 +51,32 @@ class _DecimalEncoder(json.JSONEncoder):
 
 class Connector(abc.ABC):
     def __init__(
-        self, rpc_host, rpc_port, loop, session, timeout=DEFAULT_TIMEOUT
+        self,
+        rpc_host: str,
+        rpc_port: int,
+        loop,
+        session: aiohttp.ClientTimeout,
+        timeout: Union[int, float] = DEFAULT_TIMEOUT,
     ):
-        # TODO: validate url
+        if not isinstance(rpc_host, str):
+            raise TypeError(
+                f"PRC host must be a string, not {type(rpc_host).__name__}"
+            )
+        if not isinstance(rpc_port, int):
+            raise TypeError(
+                f"PRC port must be an integer, not {type(rpc_port).__name__}"
+            )
+        if session is not None:
+            if not isinstance(session, aiohttp.ClientTimeout):
+                raise TypeError(
+                    f"Session must be a aiohttp.ClientSession, "
+                    f"not {type(session).__name__}"
+                )
         if timeout is not None:
             if not isinstance(timeout, float) and not isinstance(timeout, int):
-                raise TypeError("Timeout must be a number")
+                raise TypeError(
+                    f"Timeout must be a number, not {type(session).__name__}"
+                )
             if timeout <= 0:
                 raise ValueError("Timeout must be greater than zero")
 

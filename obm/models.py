@@ -55,6 +55,9 @@ class Node(mixins.ConnectorMixin):
         self.loop = loop
         self.session = session
         self.timeout = timeout
+        # This statement is necessary to perform validation
+        # TODO: Find out how to make it more neatly
+        self.connector  # pylint: disable=pointless-statement
         super().__init__()
 
     # @staticmethod
