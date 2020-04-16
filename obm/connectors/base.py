@@ -60,22 +60,22 @@ class Connector(abc.ABC):
     ):
         if not isinstance(rpc_host, str):
             raise TypeError(
-                f"PRC host must be a string, not {type(rpc_host).__name__}"
+                f"PRC host must be a string, not '{type(rpc_host).__name__}'"
             )
         if not isinstance(rpc_port, int):
             raise TypeError(
-                f"PRC port must be an integer, not {type(rpc_port).__name__}"
+                f"PRC port must be an integer, not '{type(rpc_port).__name__}'"
             )
         if session is not None:
             if not isinstance(session, aiohttp.ClientTimeout):
                 raise TypeError(
                     f"Session must be a aiohttp.ClientSession, "
-                    f"not {type(session).__name__}"
+                    f"not '{type(session).__name__}'"
                 )
         if timeout is not None:
             if not isinstance(timeout, float) and not isinstance(timeout, int):
                 raise TypeError(
-                    f"Timeout must be a number, not {type(timeout).__name__}"
+                    f"Timeout must be a number, not '{type(timeout).__name__}'"
                 )
             if timeout <= 0:
                 raise ValueError("Timeout must be greater than zero")

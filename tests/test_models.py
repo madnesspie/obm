@@ -27,22 +27,22 @@ class TestNode:
             (
                 {"rpc_host": 111},
                 TypeError,
-                "PRC host must be a string, not int",
+                "PRC host must be a string, not 'int'",
             ),
             (
                 {"rpc_port": "WRONG_TYPE"},
                 TypeError,
-                "PRC port must be an integer, not str",
+                "PRC port must be an integer, not 'str'",
             ),
             (
                 {"session": 111},
                 TypeError,
-                "Session must be a aiohttp.ClientSession, not int",
+                "Session must be a aiohttp.ClientSession, not 'int'",
             ),
             (
                 {"timeout": "WRONG_TYPE"},
                 TypeError,
-                "Timeout must be a number, not str",
+                "Timeout must be a number, not 'str'",
             ),
             (
                 {"timeout": -0.1},
@@ -127,6 +127,8 @@ class TestNodeIntegration:
     async def test_list_transactions(node):
         txs = await node.list_transactions(count=5)
         assert isinstance(txs, list)
+        assert isinstance(txs[0]["amount"], Decimal)
+        assert isinstance(txs[0]["fee"], Decimal)
         assert serializers.Transaction().validate(txs, many=True) == {}
 
     @staticmethod
