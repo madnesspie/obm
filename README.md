@@ -14,6 +14,9 @@
     <a href="https://github.com/madnesspie/obm/releases">
         Releases
     </a>
+    <br>
+    <br>
+    <br>
 </p>
 
 [![PyPI version](https://badge.fury.io/py/obm.svg)](https://badge.fury.io/py/obm)
