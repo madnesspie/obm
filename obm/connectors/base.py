@@ -22,7 +22,7 @@ import aiohttp
 
 from obm import exceptions
 
-DEFAULT_TIMEOUT = 3
+DEFAULT_TIMEOUT = 10
 
 
 def _catch_network_errors(func):
@@ -56,7 +56,7 @@ class Connector(abc.ABC):
         rpc_port: int,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         session: Optional[aiohttp.ClientSession] = None,
-        timeout: Optional[Union[int, float]] = DEFAULT_TIMEOUT,
+        timeout: Union[int, float] = DEFAULT_TIMEOUT,
     ):
         if not isinstance(rpc_host, str):
             raise TypeError(

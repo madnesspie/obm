@@ -66,13 +66,13 @@ class GethConnector(base.Connector):
 
     def __init__(
         self,
-        rpc_host: Optional[str] = "localhost",
-        rpc_port: Optional[int] = DEFAULT_PORT,
+        rpc_host: str = "localhost",
+        rpc_port: int = DEFAULT_PORT,
         rpc_username: Optional[str] = None,  # pylint: disable=unused-argument
         rpc_password: Optional[str] = None,  # pylint: disable=unused-argument
         loop: Optional[asyncio.AbstractEventLoop] = None,
         session: Optional[aiohttp.ClientSession] = None,
-        timeout: Optional[Union[int, float]] = base.DEFAULT_TIMEOUT,
+        timeout: Union[int, float] = base.DEFAULT_TIMEOUT,
     ):
         rpc_port = rpc_port or self.DEFAULT_PORT
         self.auth = None

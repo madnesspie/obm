@@ -34,10 +34,16 @@ class TestNode:
                 TypeError,
                 "PRC port must be an integer, not str",
             ),
+            (
+                {"session": 111},
+                TypeError,
+                "Session must be a aiohttp.ClientSession, not int",
+            ),
         ),
         ids=(
             "wrong host type",
             "wrong port type",
+            "wrong session type",
         ),
     )
     def test_init_validation(node_name, kwargs, error, error_msg):
@@ -48,7 +54,7 @@ class TestNode:
     @staticmethod
     async def test_init_defaults(node_name):
         expect = {
-            "timeout": 3,
+            "timeout": 10,
             "rpc_host": "localhost",
             "bitcoin-core": {
                 "currency": "bitcoin",
