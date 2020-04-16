@@ -11,9 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import asyncio
 from collections import defaultdict
 from decimal import Decimal
-from typing import List, Union
+from typing import List, Optional, Union
 
 import aiohttp
 
@@ -47,9 +48,9 @@ class BitcoinCoreConnector(base.Connector):
         rpc_port: int = 18332,
         rpc_username: str = None,
         rpc_password: str = None,
-        loop=None,
-        session: aiohttp.ClientSession = None,
-        timeout: Union[int, float] = None,
+        loop: Optional[asyncio.AbstractEventLoop] = None,
+        session: Optional[aiohttp.ClientTimeout] = None,
+        timeout: Union[int, float] = base.DEFAULT_TIMEOUT,
     ):
         if rpc_username is not None and rpc_password is not None:
             self.auth = aiohttp.BasicAuth(rpc_username, rpc_password)

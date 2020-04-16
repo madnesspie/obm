@@ -16,7 +16,7 @@ import asyncio
 import functools
 import json
 from decimal import Decimal
-from typing import List, Union
+from typing import List, Optional, Union
 
 import aiohttp
 
@@ -54,8 +54,8 @@ class Connector(abc.ABC):
         self,
         rpc_host: str,
         rpc_port: int,
-        loop,
-        session: aiohttp.ClientTimeout,
+        loop: Optional[asyncio.AbstractEventLoop] = None,
+        session: Optional[aiohttp.ClientTimeout] = None,
         timeout: Union[int, float] = DEFAULT_TIMEOUT,
     ):
         if not isinstance(rpc_host, str):

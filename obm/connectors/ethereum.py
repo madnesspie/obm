@@ -13,7 +13,7 @@
 # limitations under the License.
 import asyncio
 from decimal import Decimal
-from typing import List, Union
+from typing import List, Optional, Union
 
 import aiohttp
 import web3
@@ -69,9 +69,9 @@ class GethConnector(base.Connector):
         rpc_port: int = 18332,
         rpc_username: str = None,  # pylint: disable=unused-argument
         rpc_password: str = None,  # pylint: disable=unused-argument
-        loop=None,
-        session: aiohttp.ClientSession = None,
-        timeout: int = None,
+        loop: Optional[asyncio.AbstractEventLoop] = None,
+        session: Optional[aiohttp.ClientTimeout] = None,
+        timeout: Union[int, float] = base.DEFAULT_TIMEOUT,
     ):
         self.auth = None
         self.headers = {
