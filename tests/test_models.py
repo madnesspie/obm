@@ -79,7 +79,7 @@ class TestNode:
 
 
 @pytest.mark.integration
-class TestIntegrationNode:
+class TestNodeIntegration:
     @staticmethod
     async def test_list_transactions(node):
         txs = await node.list_transactions(count=2)

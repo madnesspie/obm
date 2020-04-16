@@ -71,7 +71,7 @@ class GethConnector(base.Connector):
         rpc_username: Optional[str] = None,  # pylint: disable=unused-argument
         rpc_password: Optional[str] = None,  # pylint: disable=unused-argument
         loop: Optional[asyncio.AbstractEventLoop] = None,
-        session: Optional[aiohttp.ClientTimeout] = None,
+        session: Optional[aiohttp.ClientSession] = None,
         timeout: Optional[Union[int, float]] = base.DEFAULT_TIMEOUT,
     ):
         rpc_port = rpc_port or self.DEFAULT_PORT
@@ -278,7 +278,7 @@ class GethConnector(base.Connector):
                 if tx["from"] in addresses or tx["to"] in addresses
             ]
 
-        bunch_size = kwargs.get("bunch_size", 1000)
+        bunch_size = kwargs.get("bunch_size", 500)
         latest_block_number = await self.latest_block_number
         addresses = await self.rpc_personal_list_accounts()
         start = latest_block_number - bunch_size - 1

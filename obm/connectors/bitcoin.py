@@ -50,7 +50,7 @@ class BitcoinCoreConnector(base.Connector):
         rpc_username: Optional[str] = None,
         rpc_password: Optional[str] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
-        session: Optional[aiohttp.ClientTimeout] = None,
+        session: Optional[aiohttp.ClientSession] = None,
         timeout: Optional[Union[int, float]] = base.DEFAULT_TIMEOUT,
     ):
         rpc_port = rpc_port or self.DEFAULT_PORT
