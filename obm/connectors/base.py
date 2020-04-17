@@ -103,7 +103,6 @@ class Connector(abc.ABC):
     async def open(self):
         if self.session is None:
             self.session = aiohttp.ClientSession(
-                connector=aiohttp.TCPConnector(limit=300),
                 loop=self.loop,
                 headers=self.headers,
                 auth=self.auth,
