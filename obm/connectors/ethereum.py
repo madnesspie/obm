@@ -130,7 +130,7 @@ class GethConnector(base.Connector):
         self,
         start: int,
         end: int = None,
-        bunch_size: int = 1000,
+        bunch_size: int = 500,
         delay: Union[int, float] = 0.1,
     ) -> List[dict]:
         """Fetches blocks range between start and end bounds.
@@ -139,7 +139,7 @@ class GethConnector(base.Connector):
             start: Start fetching bound.
             end: End fetching bound (not inclusive). Defaults to
                 latest block number.
-            bunch_size: Concurrent RPC request number. Defaults to 1000.
+            bunch_size: Concurrent RPC request number. Defaults to 500.
             delay: Delay in seconds between concurrent request bunches.
                 Defaults to 1.
 
@@ -169,7 +169,7 @@ class GethConnector(base.Connector):
     async def fetch_recent_blocks_range(
         self,
         length: int,
-        bunch_size: int = 1000,
+        bunch_size: int = 500,
         delay: Union[int, float] = 0.1,
     ):
         latest = await self.latest_block_number
@@ -278,7 +278,7 @@ class GethConnector(base.Connector):
                 if tx["from"] in addresses or tx["to"] in addresses
             ]
 
-        bunch_size = kwargs.get("bunch_size", 1000)
+        bunch_size = kwargs.get("bunch_size", 500)
         latest_block_number = await self.latest_block_number
         addresses = await self.rpc_personal_list_accounts()
         start = latest_block_number - bunch_size - 1
