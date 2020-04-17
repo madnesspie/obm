@@ -21,7 +21,9 @@ EXTRAS_REQUIRE = {
     "docs": ["sphinx>=2.4,<3", "sphinx-rtd-theme"],
     "dev": ["tox", "rope"],
 }
-EXTRAS_REQUIRE["dev"] += EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["lint"]
+EXTRAS_REQUIRE["dev"] += (
+    EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["lint"] + EXTRAS_REQUIRE["docs"]
+)
 
 
 def read(file_name):

@@ -47,7 +47,7 @@ pip install obm
 ## In future
 - support of: ETH, ETC, DASH, BCH, LTC, ZEC, XEM, XRP, etc.
 
-# Is OMB production ready?
+# Is OBM production ready?
 The project is now under active development. Use at your own risk and lock dependency version on minore.
 
 # Contributing
