@@ -26,7 +26,11 @@ __all__ = [
 
 class Currency:
     def __init__(self, name: str):
-        self.name = name
+        if not isinstance(name, str):
+            raise TypeError(
+                f"Name must be a string, not '{type(name).__name__}'"
+            )
+        self.name = validators.validate_currency_is_supported(name)
 
     @classmethod
     def create_for(cls, connector_name: str):

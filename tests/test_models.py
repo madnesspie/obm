@@ -16,7 +16,35 @@ from decimal import Decimal
 
 import pytest
 
-from obm import connectors, models, serializers
+from obm import connectors, exceptions, models, serializers
+
+
+class TestCurrency:
+    @staticmethod
+    @pytest.mark.parametrize(
+        "kwargs, error, error_msg",
+        (
+            (
+                {"name": 111},
+                TypeError,
+                "Name must be a string, not 'int'",
+            ),
+            (
+                {"name": 'shitcoin'},
+                exceptions.CurrencyUnsupportedError,
+                "Unsupported currency. Available only: ['ethereum', 'bitcoin']",
+            ),
+        ),
+        ids=(
+            "wrong name type",
+            "unsupported currency",
+        ),
+    )
+    def test_init_validation(kwargs, error, error_msg):
+        with pytest.raises(error) as exc_info:
+            models.Currency(**kwargs)
+        assert exc_info.value.args[0] == error_msg
+
 
 
 class TestNode:
@@ -74,7 +102,7 @@ class TestNode:
             ),
             (
                 {"name": 'fuckfinex'},
-                ValueError,
+                exceptions.NodeUnsupportedError,
                 "Unsupported node. Available only: ['bitcoin-core', 'geth']",
             ),
         ),

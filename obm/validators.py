@@ -13,13 +13,24 @@
 # limitations under the License.
 from typing import Type
 
-from obm import connectors
+from obm import connectors, exceptions
 
 
 def validate_node_is_supported(
-    name: str, error_cls: Type[Exception] = ValueError
+    name: str, error_cls: Type[Exception] = exceptions.NodeUnsupportedError
 ) -> str:
     supported_nodes = list(connectors.MAPPING)
     if name not in supported_nodes:
         raise error_cls(f"Unsupported node. Available only: {supported_nodes}")
+    return name
+
+
+def validate_currency_is_supported(
+    name: str, error_cls: Type[Exception] = exceptions.CurrencyUnsupportedError
+) -> str:
+    if name not in connectors.SUPPORTED_CURRENCIES:
+        raise error_cls(
+            f"Unsupported currency. Available only: "
+            f"{connectors.SUPPORTED_CURRENCIES}"
+        )
     return name

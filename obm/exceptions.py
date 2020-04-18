@@ -23,12 +23,15 @@ class NodeInvalidResponceError(NodeError):
     """Node returns a invalid response."""
 
 
-class NodeUnsupportedError(NodeError):
+class NodeUnsupportedError(NodeError, ValueError):
     """Node unsupported error."""
-
 
 class NodeTooSmallTransactionAmount(NodeError):
     """Insufficient transaction amount for substract fee. """
+
+
+class CurrencyUnsupportedError(NodeError, ValueError):
+    """Currency unsupported error."""
 
 
 class NetworkError(BaseError):
