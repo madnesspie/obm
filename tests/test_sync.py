@@ -59,6 +59,10 @@ class TestIntegrationNode:
         assert serializers.Transaction().validate(txs, many=True) == {}
 
     @staticmethod
+    def test_get_latest_block_number(node):
+        assert isinstance(node.get_latest_block_number(), int)
+
+    @staticmethod
     def test_create_address(node):
         txs = node.create_address()
         assert isinstance(txs, str)

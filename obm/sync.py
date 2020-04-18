@@ -52,6 +52,7 @@ def syncify(*types):
     for _type in types:
         for name in dir(_type):
             if not name.startswith("_") or name == "__call__":
+                # TODO: Move to __slots__
                 if inspect.iscoroutinefunction(getattr(_type, name)):
                     _syncify_wrap(_type, name)
 
