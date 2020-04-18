@@ -44,10 +44,13 @@ class ConnectorMixin:
         await self.close()
 
     async def open(self):
-        await self.connector.close()
+        await self.connector.open()
 
     async def close(self):
         await self.connector.close()
+
+    async def get_latest_block_number(self):
+        return await self.connector.latest_block_number
 
     async def create_address(self, password: str = "") -> str:
         return await self.connector.create_address(password)

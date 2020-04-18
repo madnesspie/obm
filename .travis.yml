@@ -6,8 +6,7 @@ python:
 install:
 - pip install -e .[dev]
 script:
-- pylint obm tests -d C
-- pytest -vrs --maxfail=1
+- tox
 deploy:
   provider: pypi
   skip_existing: true
