@@ -32,7 +32,8 @@ class TestCurrency:
             (
                 {"name": 'shitcoin'},
                 exceptions.CurrencyUnsupportedError,
-                "Unsupported currency. Available only: ['ethereum', 'bitcoin']",
+                f"Unsupported currency. Available only: "
+                f"{connectors.SUPPORTED_CURRENCIES}",
             ),
         ),
         ids=(
