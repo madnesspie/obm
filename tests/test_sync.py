@@ -53,8 +53,8 @@ def sync_node(request, sync_geth_node, sync_bitcoin_core_node):
 @pytest.mark.integration
 class TestIntegrationNode:
     @staticmethod
-    def test_list_transactions(node):
-        txs = node.list_transactions()
+    def test_fetch_recent_transactions(node):
+        txs = node.fetch_recent_transactions(limit=5)
         assert isinstance(txs, list)
         assert serializers.Transaction().validate(txs, many=True) == {}
 

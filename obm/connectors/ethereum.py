@@ -261,14 +261,16 @@ class GethConnector(base.Connector):
         tx = await self.rpc_eth_get_transaction_by_hash(txid)
         return self.format_transaction(tx, addresses)
 
-    async def list_transactions(self, count: int = 10, **kwargs) -> List[dict]:
-        """Lists most recent transactions.
+    async def fetch_recent_transactions(
+        self, limit: int = 10, **kwargs
+    ) -> List[dict]:
+        """Fetches most recent transactions from a blockchain.
 
         Args:
-            count: The number of transactions to return. Defaults to 10.
+            limit: The number of transactions to return. Defaults to 10.
 
         Returns:
-            Recent transactions list.
+            Most recent transactions list.
         """
 
         def find_transactions_in(block, addresses):
@@ -278,6 +280,7 @@ class GethConnector(base.Connector):
                 if tx["from"] in addresses or tx["to"] in addresses
             ]
 
+        # TODO: Add block fetching limit
         bunch_size = kwargs.get("bunch_size", 500)
         latest_block_number = await self.latest_block_number
         addresses = await self.rpc_personal_list_accounts()
@@ -288,10 +291,10 @@ class GethConnector(base.Connector):
             blocks_range = await self.fetch_blocks_range(start, end, bunch_size)
             for block in blocks_range[::-1]:
                 txs += find_transactions_in(block, addresses)
-                if len(txs) >= count:
+                if len(txs) >= limit:
                     return [
                         self.format_transaction(tx, addresses)
-                        for tx in txs[:count]
+                        for tx in txs[:limit]
                     ]
             if start == 0:
                 return [self.format_transaction(tx, addresses) for tx in txs]
@@ -299,3 +302,16 @@ class GethConnector(base.Connector):
             end -= bunch_size
             if start < 0:
                 start = 0
+
+    async def fetch_in_wallet_transaction(self, txid: str) -> dict:
+        """Fetches the transaction by txid from a blockchain.
+
+        Args:
+            txid: Transaction ID to return.
+
+        Returns:
+            Dict that represent the transaction.
+        """
+        addresses = await self.rpc_personal_list_accounts()
+        tx = await self.rpc_eth_get_transaction_by_hash(txid)
+        return self.format_transaction(tx, addresses)

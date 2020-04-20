@@ -18,6 +18,11 @@ import pytest
 
 from obm import connectors, exceptions, models, serializers
 
+TXIDS_BY_CURRENCY = {
+    "bitcoin": os.environ.get("BITCOIN_IN_WALLET_TXID"),
+    "ethereum": os.environ.get("ETHEREUM_IN_WALLET_TXID"),
+}
+
 
 class TestCurrency:
     @staticmethod
@@ -153,8 +158,8 @@ class TestNode:
 @pytest.mark.integration
 class TestNodeIntegration:
     @staticmethod
-    async def test_list_transactions(node):
-        txs = await node.list_transactions(count=5)
+    async def test_fetch_recent_transactions(node):
+        txs = await node.fetch_recent_transactions(limit=5)
         assert isinstance(txs, list)
         assert isinstance(txs[0]["amount"], Decimal)
         assert isinstance(txs[0]["fee"], Decimal)
@@ -216,3 +221,34 @@ class TestNodeIntegration:
         assert tx["fee"] > Decimal("0")
         assert serializers.Transaction().validate(tx) == {}
         assert tx_data[node.name]["amount"] - tx["fee"] == tx["amount"]
+
+    @staticmethod
+    async def test_fetch_in_wallet_transaction(node):
+        tx = await node.fetch_in_wallet_transaction(
+            txid=TXIDS_BY_CURRENCY[node.currency.name]
+        )
+        assert isinstance(tx, dict)
+        assert serializers.Transaction().validate(tx) == {}
+
+    @staticmethod
+    async def test_fetch_in_wallet_transactions(node):
+        txs = await node.fetch_in_wallet_transactions(
+            txids=[TXIDS_BY_CURRENCY[node.currency.name]] * 3,
+        )
+        assert isinstance(txs, list)
+        assert len(txs) == 3
+        assert serializers.Transaction().validate(txs, many=True) == {}
+
+
+@pytest.mark.integration
+class TestTransactionIntegration:
+    @staticmethod
+    async def test_sync(node):
+        tx = models.Transaction(
+            node=node,
+            to_address='fake-addr',
+            amount=1,
+            txid=TXIDS_BY_CURRENCY[node.currency.name],
+        )
+        await tx.sync()
+        assert tx.block_number is not None

@@ -117,8 +117,8 @@ class TestBitcoinCoreConnectorIntegration:
         assert isinstance(fee, dict)
 
     @staticmethod
-    async def test_list_transactions(bitcoin_core):
-        txs = await bitcoin_core.list_transactions(count=30)
+    async def test_fetch_recent_transactions(bitcoin_core):
+        txs = await bitcoin_core.fetch_recent_transactions(limit=30)
         assert len(txs) == 30
 
         # Tests block_number calculation

@@ -22,7 +22,7 @@ import aiohttp
 
 from obm import exceptions
 
-DEFAULT_TIMEOUT = 5*60
+DEFAULT_TIMEOUT = 5 * 60
 
 
 def _catch_network_errors(func):
@@ -185,5 +185,39 @@ class Connector(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def list_transactions(self, count: int = 10, **kwargs) -> List[dict]:
-        ...
+    async def fetch_recent_transactions(
+        self, limit: int = 10, **kwargs,
+    ) -> List[dict]:
+        """Fetches most recent transactions from a blockchain.
+
+        Args:
+            limit: The number of transactions to return. Defaults to 10.
+
+        Returns:
+            Most recent transactions list.
+        """
+
+    @abc.abstractmethod
+    async def fetch_in_wallet_transaction(self, txid: str) -> dict:
+        """Fetches the transaction by txid from a blockchain.
+
+        Args:
+            txid: Transaction ID to return.
+
+        Returns:
+            Dict that represent the transaction.
+        """
+
+    async def fetch_in_wallet_transactions(
+        self, txids: List[str]
+    ) -> List[dict]:
+        """Fetches the transactions by txids from a blockchain.
+
+        Args:
+            txids: Transaction IDs to return.
+
+        Returns:
+            Dict that represent the transactions list.
+        """
+        batch = [self.fetch_in_wallet_transaction(txid) for txid in txids]
+        return await asyncio.gather(*batch)
