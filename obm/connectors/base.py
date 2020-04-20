@@ -208,15 +208,16 @@ class Connector(abc.ABC):
             Dict that represent the transaction.
         """
 
-    # @abc.abstractmethod
-    # async def fetch_transactions(
-    #     self, txids: List[str]
-    # ) -> List[dict]:
-    #     """Fetches transactions by txids from a blockchain.
+    async def fetch_in_wallet_transactions(
+        self, txids: List[str]
+    ) -> List[dict]:
+        """Fetches the transactions by txids from a blockchain.
 
-    #     Args:
-    #         txids: Transaction IDs to return.
+        Args:
+            txids: Transaction IDs to return.
 
-    #     Returns:
-    #         Transactions list.
-    #     """
+        Returns:
+            Dict that represent the transactions list.
+        """
+        batch = [self.fetch_in_wallet_transaction(txid) for txid in txids]
+        return await asyncio.gather(*batch)

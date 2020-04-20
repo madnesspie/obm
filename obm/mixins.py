@@ -104,6 +104,20 @@ class ConnectorMixin:
         """
         return await self.connector.fetch_in_wallet_transaction(txid)
 
+    async def fetch_in_wallet_transactions(
+        self, txids: List[str]
+    ) -> List[dict]:
+        """Fetches the transactions by txids from a blockchain.
+
+        Args:
+            txids: Transaction IDs to return.
+
+        Returns:
+            Dict that represent the transactions list.
+        """
+        return await self.connector.fetch_in_wallet_transactions(txids)
+
+
 # class TransactionMixin:
 #     async def sync(self):
 #         """Synchronizes the transaction with blockchain.
@@ -116,6 +130,6 @@ class ConnectorMixin:
 #             Synchronized transaction.
 #         """
 #         if self.block_number is None:
-#             tx = await self.node.fetch_transaction()
+#             tx = await self.node.fetch_in_wallet_transaction(txid=self.txid)
 #             self.block_number = tx["block_number"]
 #         return self

@@ -228,3 +228,16 @@ class TestNodeIntegration:
         )
         assert isinstance(tx, dict)
         assert serializers.Transaction().validate(tx) == {}
+
+    @staticmethod
+    async def test_fetch_in_wallet_transactions(node):
+        txids_by_currency = {
+            "bitcoin": os.environ.get("BITCOIN_IN_WALLET_TXID"),
+            "ethereum": os.environ.get("ETHEREUM_IN_WALLET_TXID"),
+        }
+        txs = await node.fetch_in_wallet_transactions(
+            txids=[txids_by_currency[node.currency.name]] * 3,
+        )
+        assert isinstance(txs, list)
+        assert len(txs) == 3
+        assert serializers.Transaction().validate(txs, many=True) == {}
