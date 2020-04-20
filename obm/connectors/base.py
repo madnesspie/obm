@@ -196,3 +196,27 @@ class Connector(abc.ABC):
         Returns:
             Most recent transactions list.
         """
+
+    @abc.abstractmethod
+    async def fetch_in_wallet_transaction(self, txid: str) -> dict:
+        """Fetches the transaction by txid from a blockchain.
+
+        Args:
+            txid: Transaction ID to return.
+
+        Returns:
+            Dict that represent the transaction.
+        """
+
+    # @abc.abstractmethod
+    # async def fetch_transactions(
+    #     self, txids: List[str]
+    # ) -> List[dict]:
+    #     """Fetches transactions by txids from a blockchain.
+
+    #     Args:
+    #         txids: Transaction IDs to return.
+
+    #     Returns:
+    #         Transactions list.
+    #     """

@@ -91,6 +91,18 @@ class ConnectorMixin:
             subtract_fee_from_amount,
         )
 
+    async def fetch_in_wallet_transaction(
+        self, txid: str
+    ) -> dict:
+        """Fetches the transaction by txid from a blockchain.
+
+        Args:
+            txid: Transaction ID to return.
+
+        Returns:
+            Dict that represent the transaction.
+        """
+        return await self.connector.fetch_in_wallet_transaction(txid)
 
 # class TransactionMixin:
 #     async def sync(self):

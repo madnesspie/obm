@@ -280,6 +280,7 @@ class GethConnector(base.Connector):
                 if tx["from"] in addresses or tx["to"] in addresses
             ]
 
+        # TODO: Add block fetching limit
         bunch_size = kwargs.get("bunch_size", 500)
         latest_block_number = await self.latest_block_number
         addresses = await self.rpc_personal_list_accounts()
@@ -301,3 +302,16 @@ class GethConnector(base.Connector):
             end -= bunch_size
             if start < 0:
                 start = 0
+
+    async def fetch_in_wallet_transaction(self, txid: str) -> dict:
+        """Fetches the transaction by txid from a blockchain.
+
+        Args:
+            txid: Transaction ID to return.
+
+        Returns:
+            Dict that represent the transaction.
+        """
+        addresses = await self.rpc_personal_list_accounts()
+        tx = await self.rpc_eth_get_transaction_by_hash(txid)
+        return self.format_transaction(tx, addresses)

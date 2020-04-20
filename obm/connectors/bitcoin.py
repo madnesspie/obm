@@ -210,3 +210,17 @@ class BitcoinCoreConnector(base.Connector):
             reverse=True,
         )
         return sorted_txs[:limit]
+
+    async def fetch_in_wallet_transaction(
+        self, txid: str
+    ) -> dict:
+        """Fetches the transaction by txid from a blockchain.
+
+        Args:
+            txid: Transaction ID to return.
+
+        Returns:
+            Dict that represent the transaction.
+        """
+        tx = await self.rpc_get_transaction(txid)
+        return self.format_transaction(tx, await self.latest_block_number)

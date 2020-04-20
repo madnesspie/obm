@@ -216,3 +216,15 @@ class TestNodeIntegration:
         assert tx["fee"] > Decimal("0")
         assert serializers.Transaction().validate(tx) == {}
         assert tx_data[node.name]["amount"] - tx["fee"] == tx["amount"]
+
+    @staticmethod
+    async def test_fetch_in_wallet_transaction(node):
+        txids_by_currency = {
+            "bitcoin": os.environ.get("BITCOIN_IN_WALLET_TXID"),
+            "ethereum": os.environ.get("ETHEREUM_IN_WALLET_TXID"),
+        }
+        tx = await node.fetch_in_wallet_transaction(
+            txid=txids_by_currency[node.currency.name]
+        )
+        assert isinstance(tx, dict)
+        assert serializers.Transaction().validate(tx) == {}
