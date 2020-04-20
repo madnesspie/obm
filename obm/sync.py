@@ -57,4 +57,4 @@ def syncify(*types):
                     _syncify_wrap(_type, name)
 
 
-syncify(mixins.ConnectorMixin)
+syncify(mixins.ConnectorMixin, mixins.TransactionMixin)

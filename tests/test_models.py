@@ -18,6 +18,11 @@ import pytest
 
 from obm import connectors, exceptions, models, serializers
 
+TXIDS_BY_CURRENCY = {
+    "bitcoin": os.environ.get("BITCOIN_IN_WALLET_TXID"),
+    "ethereum": os.environ.get("ETHEREUM_IN_WALLET_TXID"),
+}
+
 
 class TestCurrency:
     @staticmethod
@@ -219,25 +224,31 @@ class TestNodeIntegration:
 
     @staticmethod
     async def test_fetch_in_wallet_transaction(node):
-        txids_by_currency = {
-            "bitcoin": os.environ.get("BITCOIN_IN_WALLET_TXID"),
-            "ethereum": os.environ.get("ETHEREUM_IN_WALLET_TXID"),
-        }
         tx = await node.fetch_in_wallet_transaction(
-            txid=txids_by_currency[node.currency.name]
+            txid=TXIDS_BY_CURRENCY[node.currency.name]
         )
         assert isinstance(tx, dict)
         assert serializers.Transaction().validate(tx) == {}
 
     @staticmethod
     async def test_fetch_in_wallet_transactions(node):
-        txids_by_currency = {
-            "bitcoin": os.environ.get("BITCOIN_IN_WALLET_TXID"),
-            "ethereum": os.environ.get("ETHEREUM_IN_WALLET_TXID"),
-        }
         txs = await node.fetch_in_wallet_transactions(
-            txids=[txids_by_currency[node.currency.name]] * 3,
+            txids=[TXIDS_BY_CURRENCY[node.currency.name]] * 3,
         )
         assert isinstance(txs, list)
         assert len(txs) == 3
         assert serializers.Transaction().validate(txs, many=True) == {}
+
+
+@pytest.mark.integration
+class TestTransactionIntegration:
+    @staticmethod
+    async def test_sync(node):
+        tx = models.Transaction(
+            node=node,
+            to_address='fake-addr',
+            amount=1,
+            txid=TXIDS_BY_CURRENCY[node.currency.name],
+        )
+        await tx.sync()
+        assert tx.block_number is not None

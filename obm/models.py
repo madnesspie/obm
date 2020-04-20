@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import asyncio
+from decimal import Decimal
 from typing import Optional, Union
 
 import aiohttp
@@ -65,4 +66,30 @@ class Node(mixins.ConnectorMixin):
         self.timeout = timeout
         # This statement is necessary to perform validation
         assert self.connector.node == self.name
+        super().__init__()
+
+
+class Transaction(mixins.TransactionMixin):
+    def __init__(
+        self,
+        node: Node,
+        to_address: str,
+        amount: Union[float, Decimal],
+        from_address: Optional[str] = None,
+        block_number: Optional[int] = None,
+        txid: Optional[str] = None,
+        category: Optional[str] = None,
+        timestamp: Optional[int] = None,
+        fee: Optional[Union[dict, float, Decimal]] = None,
+    ):
+        # TODO: Add validation
+        self.node = node
+        self.to_address = to_address
+        self.amount = amount
+        self.from_address = from_address
+        self.block_number = block_number
+        self.txid = txid
+        self.category = category
+        self.timestamp = timestamp
+        self.fee = fee
         super().__init__()

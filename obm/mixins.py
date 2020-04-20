@@ -118,18 +118,18 @@ class ConnectorMixin:
         return await self.connector.fetch_in_wallet_transactions(txids)
 
 
-# class TransactionMixin:
-#     async def sync(self):
-#         """Synchronizes the transaction with blockchain.
+class TransactionMixin:
+    async def sync(self):
+        """Synchronizes the transaction with blockchain.
 
-#         Make sense to synchronize only a transaction that still have
-#         block_number equals to None. Because a transaction that have already
-#         added to block is unchanging by blockchain design.
+        Make sense to synchronize only a transaction that still have
+        block_number equals to None. Because a transaction that have already
+        added to block is unchanging by blockchain design.
 
-#         Returns:
-#             Synchronized transaction.
-#         """
-#         if self.block_number is None:
-#             tx = await self.node.fetch_in_wallet_transaction(txid=self.txid)
-#             self.block_number = tx["block_number"]
-#         return self
+        Returns:
+            Synchronized transaction.
+        """
+        if self.block_number is None:
+            tx = await self.node.fetch_in_wallet_transaction(txid=self.txid)
+            self.block_number = tx["block_number"]
+        return self
