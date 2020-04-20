@@ -158,14 +158,16 @@ class BitcoinCoreConnector(base.Connector):
         tx = await self.rpc_get_transaction(txid)
         return self.format_transaction(tx, latest_block_number)
 
-    async def list_transactions(self, count: int = 10, **kwargs) -> List[dict]:
-        """Lists most recent transactions.
+    async def fetch_recent_transactions(
+        self, limit: int = 10, **kwargs
+    ) -> List[dict]:
+        """Fetches most recent transactions from a blockchain.
 
         Args:
-            count: The number of transactions to return. Defaults to 10.
+            limit: The number of transactions to return. Defaults to 10.
 
         Returns:
-            Recent transactions list.
+            Most recent transactions list.
         """
 
         def combine_duplicates(txs):
@@ -191,11 +193,11 @@ class BitcoinCoreConnector(base.Connector):
         # Double increase the transactions number for feching to prevent cases
         # when transaction was sent on in-wallet address and is present in
         # bitcoin core list tansaction twice with different categories.
-        inner_count = count * 2
+        count = limit * 2
         latest_block_number = await self.latest_block_number
         txs = await self.rpc_list_transactions(
             kwargs.get("label", "*"),
-            inner_count,
+            count,
             kwargs.get("skip", 0),
             kwargs.get("include_watchonly", False),
         )
@@ -207,4 +209,4 @@ class BitcoinCoreConnector(base.Connector):
             key=lambda x: x["timestamp"],
             reverse=True,
         )
-        return sorted_txs[:count]
+        return sorted_txs[:limit]

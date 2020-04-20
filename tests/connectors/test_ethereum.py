@@ -133,8 +133,8 @@ class TestIntegrationGethConnector:
         assert isinstance(fee, dict)
 
     @staticmethod
-    async def test_list_transaction(geth):
-        txs = await geth.list_transactions(count=5)
+    async def test_fetch_recent_transactions(geth):
+        txs = await geth.fetch_recent_transactions(limit=5)
         assert isinstance(txs, list)
         assert len(txs) == 5
 
@@ -145,7 +145,7 @@ class TestIntegrationGethConnector:
             prev_block = tx["block_number"]
 
     @staticmethod
-    async def test_list_transaction_analyse_only_before_genesis_block(
+    async def test_fetch_recent_transactions_analyse_only_before_genesis_block(
         monkeypatch, geth
     ):
         async def mock(*_):
@@ -154,6 +154,6 @@ class TestIntegrationGethConnector:
         monkeypatch.setattr(
             ethereum.GethConnector, "latest_block_number", property(mock),
         )
-        txs = await geth.list_transactions(count=10)
+        txs = await geth.fetch_recent_transactions(limit=10)
         assert isinstance(txs, list)
         assert len(txs) == 0

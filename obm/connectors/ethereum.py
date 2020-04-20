@@ -261,14 +261,16 @@ class GethConnector(base.Connector):
         tx = await self.rpc_eth_get_transaction_by_hash(txid)
         return self.format_transaction(tx, addresses)
 
-    async def list_transactions(self, count: int = 10, **kwargs) -> List[dict]:
-        """Lists most recent transactions.
+    async def fetch_recent_transactions(
+        self, limit: int = 10, **kwargs
+    ) -> List[dict]:
+        """Fetches most recent transactions from a blockchain.
 
         Args:
-            count: The number of transactions to return. Defaults to 10.
+            limit: The number of transactions to return. Defaults to 10.
 
         Returns:
-            Recent transactions list.
+            Most recent transactions list.
         """
 
         def find_transactions_in(block, addresses):
@@ -288,10 +290,10 @@ class GethConnector(base.Connector):
             blocks_range = await self.fetch_blocks_range(start, end, bunch_size)
             for block in blocks_range[::-1]:
                 txs += find_transactions_in(block, addresses)
-                if len(txs) >= count:
+                if len(txs) >= limit:
                     return [
                         self.format_transaction(tx, addresses)
-                        for tx in txs[:count]
+                        for tx in txs[:limit]
                     ]
             if start == 0:
                 return [self.format_transaction(tx, addresses) for tx in txs]

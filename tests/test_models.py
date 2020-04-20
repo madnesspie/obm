@@ -153,8 +153,8 @@ class TestNode:
 @pytest.mark.integration
 class TestNodeIntegration:
     @staticmethod
-    async def test_list_transactions(node):
-        txs = await node.list_transactions(count=5)
+    async def test_fetch_recent_transactions(node):
+        txs = await node.fetch_recent_transactions(limit=5)
         assert isinstance(txs, list)
         assert isinstance(txs[0]["amount"], Decimal)
         assert isinstance(txs[0]["fee"], Decimal)

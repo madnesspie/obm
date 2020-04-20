@@ -68,8 +68,10 @@ class ConnectorMixin:
             from_address, to_address, amount, fee, data, conf_target,
         )
 
-    async def list_transactions(self, count: int = 10) -> List[dict]:
-        return await self.connector.list_transactions(count)
+    async def fetch_recent_transactions(
+        self, limit: int = 10, **kwargs,
+    ) -> List[dict]:
+        return await self.connector.fetch_recent_transactions(limit, **kwargs)
 
     async def send_transaction(
         self,
@@ -88,3 +90,20 @@ class ConnectorMixin:
             password,
             subtract_fee_from_amount,
         )
+
+
+# class TransactionMixin:
+#     async def sync(self):
+#         """Synchronizes the transaction with blockchain.
+
+#         Make sense to synchronize only a transaction that still have
+#         block_number equals to None. Because a transaction that have already
+#         added to block is unchanging by blockchain design.
+
+#         Returns:
+#             Synchronized transaction.
+#         """
+#         if self.block_number is None:
+#             tx = await self.node.fetch_transaction()
+#             self.block_number = tx["block_number"]
+#         return self

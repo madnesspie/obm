@@ -22,7 +22,7 @@ import aiohttp
 
 from obm import exceptions
 
-DEFAULT_TIMEOUT = 5*60
+DEFAULT_TIMEOUT = 5 * 60
 
 
 def _catch_network_errors(func):
@@ -185,5 +185,14 @@ class Connector(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def list_transactions(self, count: int = 10, **kwargs) -> List[dict]:
-        ...
+    async def fetch_recent_transactions(
+        self, limit: int = 10, **kwargs,
+    ) -> List[dict]:
+        """Fetches most recent transactions from a blockchain.
+
+        Args:
+            limit: The number of transactions to return. Defaults to 10.
+
+        Returns:
+            Most recent transactions list.
+        """
