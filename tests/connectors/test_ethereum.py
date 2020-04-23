@@ -20,7 +20,7 @@ from obm.connectors import ethereum
 
 
 @pytest.mark.integration
-class TestIntegrationGethConnector:
+class TestGethConnectorIntegration:
     @staticmethod
     def is_ordered(numbers):
         prev_number = numbers[0]

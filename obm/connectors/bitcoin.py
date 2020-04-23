@@ -58,7 +58,6 @@ class BitcoinCoreConnector(base.Connector):
             self.auth = aiohttp.BasicAuth(rpc_username, rpc_password)
         self.headers = {
             "content-type": "application/json",
-            "cache-control": "no-cache",
         }
         super().__init__(rpc_host, rpc_port, loop, session, timeout)
 
