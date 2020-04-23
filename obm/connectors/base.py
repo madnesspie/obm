@@ -80,6 +80,7 @@ class Connector(abc.ABC):
             if timeout <= 0:
                 raise ValueError("Timeout must be greater than zero")
 
+        # TODO: Create auth here
         url = f"{rpc_host}:{rpc_port}"
         self.rpc_host = rpc_host
         self.rpc_port = rpc_port
@@ -120,7 +121,10 @@ class Connector(abc.ABC):
     async def call(self, payload: dict) -> dict:
         await self.open()
         async with self.session.post(  # type: ignore
-            url=self.url, json=payload, timeout=self.timeout
+            url=self.url,
+            json=payload,
+            timeout=self.timeout,
+            raise_for_status=True,
         ) as response:
             return await response.json(
                 loads=functools.partial(json.loads, parse_float=Decimal)
