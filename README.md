@@ -1,7 +1,7 @@
 <p align="center">
     <br>
     <a href="https://github.com/madnesspie/obm">
-        <img src="logo.svg" alt="OBM" width="70%">
+        <img src="docs/images/logo.svg" alt="OBM" width="70%">
     </a>
     <br>
     <br>
