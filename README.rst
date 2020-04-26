@@ -6,7 +6,7 @@
     <p align="center">
         <br>
         <a href="https://github.com/madnesspie/obm">
-            <img src="docs/images/logo.svg" alt="OBM" width="70%">
+            <img src="https://raw.githubusercontent.com/madnesspie/obm/e310e12d5485a98bb3b6526ac71b5c5ccd702961/logo.svg" alt="OBM" width="70%">
         </a>
         <br>
         <br>
@@ -104,11 +104,10 @@ Sponsors
 Special thanks for `Swapzilla <https://www.swapzilla.co/>`_ project that
 paid me part of the development.
 
-.. raw:: html
-
-    <a href="https://www.swapzilla.co">
-        <img src="docs/images/swapzilla.jpeg" alt="Swapzilla logo" width="100%">
-    </a>
+.. figure:: https://raw.githubusercontent.com/madnesspie/django-obm/d285241038bb8d325599e8c4dddb567468daae81/docs/swapzilla.jpeg
+  :width: 100%
+  :figwidth: image
+  :alt: Swapzilla logo
 
 You can also become the sponsor and get priority development of the features
 you require. Just `contact me <https://github.com/madnesspie>`_.
