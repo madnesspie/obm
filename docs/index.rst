@@ -11,6 +11,7 @@
    :caption: Table of contents:
 
    contributing
+   authors
 
 Indices and tables
 ==================
