@@ -7,7 +7,7 @@ Maintainers
 - `Alexander Polishchuk <https://github.com/madnesspie>`_
 
 
-Cuntributors
+Contributors
 ------------
 
-- `Evgeny Yachmenev <https://www.behance.net/yes_dez>`_
+- `Evgeny Yachmenev <https://www.behance.net/yes_dez>`_ (logo)
