@@ -8,7 +8,9 @@
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Table of contents:
+
+   contributing
 
 Indices and tables
 ==================
