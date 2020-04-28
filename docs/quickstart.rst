@@ -29,3 +29,12 @@ Create the model
     ...     name="geth",
     ...     rpc_port=8545,
     ... )
+
+Create address
+``````````````
+.. code-block:: python
+
+    >>> btc.create_address()
+    '2N1Gbn5dqQxxD443Se9moXBaafGLvKCweop'
+    >>> eth.create_address()
+    '0x8a9c181caa4a1273e46a306309e806e2d61fc560'
