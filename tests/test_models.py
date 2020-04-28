@@ -29,28 +29,20 @@ class TestCurrency:
     @pytest.mark.parametrize(
         "kwargs, error, error_msg",
         (
+            ({"name": 111}, TypeError, "Name must be a string, not 'int'",),
             (
-                {"name": 111},
-                TypeError,
-                "Name must be a string, not 'int'",
-            ),
-            (
-                {"name": 'shitcoin'},
+                {"name": "shitcoin"},
                 exceptions.CurrencyUnsupportedError,
                 f"Unsupported currency. Available only: "
                 f"{connectors.SUPPORTED_CURRENCIES}",
             ),
         ),
-        ids=(
-            "wrong name type",
-            "unsupported currency",
-        ),
+        ids=("wrong name type", "unsupported currency",),
     )
     def test_init_validation(kwargs, error, error_msg):
         with pytest.raises(error) as exc_info:
             models.Currency(**kwargs)
         assert exc_info.value.args[0] == error_msg
-
 
 
 class TestNode:
@@ -101,21 +93,14 @@ class TestNode:
     @pytest.mark.parametrize(
         "kwargs, error, error_msg",
         (
+            ({"name": 111}, TypeError, "Name must be a string, not 'int'",),
             (
-                {"name": 111},
-                TypeError,
-                "Name must be a string, not 'int'",
-            ),
-            (
-                {"name": 'fuckfinex'},
+                {"name": "fuckfinex"},
                 exceptions.NodeUnsupportedError,
                 "Unsupported node. Available only: ['bitcoin-core', 'geth']",
             ),
         ),
-        ids=(
-            "wrong name type",
-            "unsupported node",
-        ),
+        ids=("wrong name type", "unsupported node",),
     )
     def test_init_validation(kwargs, error, error_msg):
         with pytest.raises(error) as exc_info:
@@ -131,14 +116,14 @@ class TestNode:
                 "currency": "bitcoin",
                 "rpc_port": 18332,
                 "rpc_username": "testnet_user",
-                "rpc_password": 'testnet_pass',
+                "rpc_password": "testnet_pass",
             },
             "geth": {
                 "currency": "ethereum",
                 "rpc_port": 8545,
                 "rpc_username": None,
                 "rpc_password": None,
-            }
+            },
         }
         node = models.Node(
             name=node_name,
@@ -152,7 +137,6 @@ class TestNode:
         assert node.connector.rpc_host == expect["rpc_host"]
         assert node.connector.rpc_port == expect[node_name]["rpc_port"]
         assert node.connector.timeout.total == expect["timeout"]
-
 
 
 @pytest.mark.integration
@@ -246,7 +230,7 @@ class TestTransactionIntegration:
     async def test_sync(node):
         tx = models.Transaction(
             node=node,
-            to_address='fake-addr',
+            to_address="fake-addr",
             amount=1,
             txid=TXIDS_BY_CURRENCY[node.currency.name],
         )

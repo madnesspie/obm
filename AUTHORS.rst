@@ -10,4 +10,4 @@ Maintainers
 Contributors
 ------------
 
-- `Evgeny Yachmenev <https://www.behance.net/yes_dez>`_ (logo)
+- `Evgeniy Yachmenyov <https://www.behance.net/yes_dez>`_ (logo)
