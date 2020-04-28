@@ -10,6 +10,7 @@
    :maxdepth: 2
    :caption: Table of contents:
 
+   quickstart
    contributing
    authors
 
