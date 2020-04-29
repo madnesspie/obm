@@ -11,6 +11,11 @@ There are two layers in :bash:`OBM` architecture. The top-level is
 The second one is low-level :bash:`obm.connectors`, that contains connectors
 with non-unified and unified for each node that supported by :bash:`obm`.
 
+.. note::
+    This guide uses python built-in async REPL to show asynchronous API
+    features. You can launch it using command :bash:`python -m asyncio` (Python
+    3.8 or higher).
+
 Models
 ------
 
