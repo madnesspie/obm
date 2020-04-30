@@ -19,10 +19,14 @@ EXTRAS_REQUIRE = {
     "tests": ["pytest", "python-dotenv", "pytest-xdist"],
     "lint": ["pylint", "mypy"],
     "docs": ["sphinx>=2.4,<3", "sphinx-rtd-theme"],
+    "deploy": ["twine"],
     "dev": ["tox", "rope"],
 }
 EXTRAS_REQUIRE["dev"] += (
-    EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["lint"] + EXTRAS_REQUIRE["docs"]
+    EXTRAS_REQUIRE["tests"]
+    + EXTRAS_REQUIRE["lint"]
+    + EXTRAS_REQUIRE["docs"]
+    + EXTRAS_REQUIRE["deploy"]
 )
 
 
