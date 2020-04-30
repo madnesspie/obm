@@ -1,29 +1,20 @@
 .. role:: bash(code)
    :language: bash
+.. role:: raw-html(raw)
+    :format: html
 
-.. raw:: html
+|
 
-    <p align="center">
-        <br>
-        <a href="https://github.com/madnesspie/obm">
-            <img src="https://raw.githubusercontent.com/madnesspie/obm/e310e12d5485a98bb3b6526ac71b5c5ccd702961/logo.svg" alt="OBM" width="70%">
-        </a>
-        <br>
-        <br>
-        <b>Async blockchain nodes interacting tool with ORM-like API</b>
-        <br>
-        <a href="https://obm.readthedocs.io/">
-            Documentation
-        </a>
-        •
-        <a href="https://github.com/madnesspie/obm/releases">
-            Releases
-        </a>
-        <br>
-        <br>
-        <br>
-    </p>
+.. image:: https://raw.githubusercontent.com/madnesspie/obm/e310e12d5485a98bb3b6526ac71b5c5ccd702961/logo.svg
+   :target: https://github.com/madnesspie/obm
+   :align: center
+   :width: 70%
+   :alt: OBM logo
 
+|
+|
+|
+|
 
 |travis| |pypi-version| |readthedocs| |code-style|
 
@@ -59,6 +50,11 @@ already reached stable APIs unlike blockchain nodes that just provide scattered
 JSON RPC or/and other non-standard API. OBM is trying to do typically things in
 universal way. Thereby standardization and unification become the second
 project goal.
+
+Resources
+=========
+- `Documentation <https://obm.readthedocs.io/>`_
+- `Releases <https://github.com/madnesspie/obm/releases>`_
 
 Installation
 ============
