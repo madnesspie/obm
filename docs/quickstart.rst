@@ -19,11 +19,12 @@ with non-unified and unified for each node that supported by :bash:`obm`.
 Models
 ------
 
-Create the model
+Create a model
 ````````````````
 .. code-block:: python
 
-    >>> from obm.sync import models
+    >>> import asyncio
+    >>> from obm import models
     >>> btc = models.Node(
     ...     name="bitcoin-core",
     ...     rpc_port=18332,
@@ -39,16 +40,16 @@ Create address
 ``````````````
 .. code-block:: python
 
-    >>> btc.create_address()
+    >>> await btc.create_address()
     '2N1Gbn5dqQxxD443Se9moXBaafGLvKCweop'
-    >>> eth.create_address()
+    >>> await eth.create_address()
     '0x8a9c181caa4a1273e46a306309e806e2d61fc560'
 
 Send transactions
 `````````````````
 .. code-block:: python
 
-    >>> btc.send_transaction(
+    >>> await btc.send_transaction(
     ...     amount=0.00001,
     ...     to_address='2NAmne8BsSXWbV5iStkVzL4vW7Z4F6a5o68',
     ...     subtract_fee_from_amount=True,
@@ -64,7 +65,7 @@ Send transactions
         "timestamp": 1588076404,
         "info": {...},
     }
-    >>> eth.send_transaction(
+    >>> await eth.send_transaction(
     ...     amount=0.00005,
     ...     from_address='0xe1082e71f1ced0efb0952edd23595e4f76840128',
     ...     to_address='0xb610de1be67b10c746afec8fe74ad14d97e34146',
