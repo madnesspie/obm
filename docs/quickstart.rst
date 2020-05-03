@@ -3,13 +3,14 @@
 .. role:: python(code)
    :language: python
 
-
+==========
 Quickstart
 ==========
 There are two layers in :bash:`OBM` architecture. The top-level is
 :bash:`obm.models`, that provide unified API and should be enough in most cases.
 The second one is low-level :bash:`obm.connectors`, that contains connectors
-with non-unified and unified for each node that supported by :bash:`obm`.
+with both non-unified and unified API for each node that supported by
+:bash:`obm`.
 
 .. note::
     This guide uses python built-in async REPL to show asynchronous API
@@ -83,3 +84,38 @@ Send transactions
         "timestamp": None,
         "info": {...},
     }
+
+
+Fetch transactions
+``````````````````
+
+.. code-block:: python
+
+    >>> await btc.fetch_recent_transactions(limit=1)
+    [
+        {
+            "txid": "cc8c9f7a86261fcb00d68b62073c740b8a0e14079d67e44fd726e0de2954c69a",
+            "from_address": "2NAmne8BsSXWbV5iStkVzL4vW7Z4F6a5o68",
+            "to_address": "2NAmne8BsSXWbV5iStkVzL4vW7Z4F6a5o68",
+            "amount": Decimal("0.00000866"),
+            "fee": Decimal("0.00000134"),
+            "block_number": 1722208,
+            "category": "oneself",
+            "timestamp": 1588076404,
+            "info": {...},
+        }
+    ]
+    >>> await eth.fetch_recent_transactions(limit=1)
+    [
+        {
+            "txid": "0x4831820db0de1aad336c7a083b2504ad0b91eba293e5d7a6fa3bef49f660766c",
+            "from_address": "0xe1082e71f1ced0efb0952edd23595e4f76840128",
+            "to_address": "0xb610de1be67b10c746afec8fe74ad14d97e34146",
+            "amount": Decimal("0.000029"),
+            "fee": Decimal("0.000021"),
+            "block_number": 6394779,
+            "category": "oneself",
+            "timestamp": None,
+            "info": {...},
+        }
+    ]
