@@ -3,18 +3,28 @@
 .. role:: raw-html(raw)
     :format: html
 
-|
+.. raw:: html
 
-.. image:: https://raw.githubusercontent.com/madnesspie/obm/e310e12d5485a98bb3b6526ac71b5c5ccd702961/logo.svg
-   :target: https://github.com/madnesspie/obm
-   :align: center
-   :width: 70%
-   :alt: OBM logo
-
-|
-|
-|
-|
+    <p align="center">
+        <br>
+        <a href="https://github.com/madnesspie/obm">
+            <img src="https://raw.githubusercontent.com/madnesspie/obm/e310e12d5485a98bb3b6526ac71b5c5ccd702961/logo.svg" alt="OBM" width="70%">
+        </a>
+        <br>
+        <br>
+        <b>Async blockchain nodes interacting tool with ORM-like API</b>
+        <br>
+        <a href="https://obm.readthedocs.io/">
+            Documentation
+        </a>
+        •
+        <a href="https://github.com/madnesspie/obm/releases">
+            Releases
+        </a>
+        <br>
+        <br>
+        <br>
+    </p>
 
 |travis| |pypi-version| |readthedocs| |code-style|
 
@@ -84,8 +94,8 @@ Future features
 
 Is OBM production ready?
 ====================================================
-The project is now under active development. Use at your own risk and lock
-dependency version on minore.
+The project is now under active development and it haven't reached the stable
+API yet. Use at your own risk and lock dependency version on minore.
 
 Contributing
 ============
