@@ -63,7 +63,7 @@ pip install obm
 - NodePool model for node horizontal scaling
 - Support for: ETH, ETC, DASH, BCH, LTC, ZEC, XEM, XRP, etc.
 
-# Is OMB production ready?
+# Is OBM production ready?
 The project is now under active development and it haven't reached the stable
 API yet. Use at your own risk and lock dependency version on minore.
 
