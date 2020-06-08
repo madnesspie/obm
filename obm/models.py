@@ -38,7 +38,7 @@ class Currency:
         return cls(name=connectors.MAPPING[connector_name].currency)
 
 
-class Node(mixins.ConnectorMixin):
+class Node(mixins.NodeMixin):
     def __init__(
         self,
         name: str,

@@ -12,12 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from decimal import Decimal
-from typing import List, Union
+from typing import List
+from typing import Union
 
 from obm import connectors
+from obm import utils
 
 
-class ConnectorMixin:
+class SyncContextManagerMixin:
+    def __enter__(self):
+        return utils.sync_run(self.__aenter__())
+
+    def __exit__(self, exc_type, exc, tb):
+        return utils.sync_run(self.__aexit__(exc_type, exc, tb))
+
+
+class NodeMixin(SyncContextManagerMixin):
 
     __connector = None
 
