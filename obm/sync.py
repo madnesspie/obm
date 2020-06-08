@@ -18,11 +18,12 @@ running. This rewrite may not be desirable if the end user always uses the
 methods they way they should be ran, but it's incredibly useful for quick
 scripts and the runtime overhead is relatively low.
 """
-import asyncio
 import functools
 import inspect
 
-from obm import mixins, models
+from obm import mixins
+from obm import models
+from obm import utils
 
 __all__ = ["models", "mixins"]
 
@@ -33,35 +34,25 @@ def _syncify_wrap(_type, method_name):
     @functools.wraps(method)
     def syncified(*args, **kwargs):
         coro = method(*args, **kwargs)
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            return coro
-        return loop.run_until_complete(coro)
-
-    def optional_rename(name):
-        return (
-            name.replace("a", "")
-            if name in ["__aenter__", "__aexit__"]
-            else name
-        )
+        return utils.sync_run(coro)
 
     # Save an accessible reference to the original method
     syncified.asynchronous = method
-    setattr(_type, optional_rename(method_name), syncified)
+    setattr(_type, method_name, syncified)
 
 
 def syncify(*types):
     """Converts all async methods in given types into synchronous.
 
-    Converted methods return either the coroutine or the result
+    Converted methods return eith   er the coroutine or the result
     based on whether asyncio's event loop is running.
     """
     for _type in types:
         for name in dir(_type):
-            if not name.startswith("_") or name in ["__aexit__", "__aenter__"]:
+            if not name.startswith("_"):
                 # TODO: Move to __slots__
                 if inspect.iscoroutinefunction(getattr(_type, name)):
                     _syncify_wrap(_type, name)
 
 
-syncify(mixins.ConnectorMixin, mixins.TransactionMixin)
+syncify(mixins.NodeMixin, mixins.TransactionMixin)
