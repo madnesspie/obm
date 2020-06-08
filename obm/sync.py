@@ -38,9 +38,16 @@ def _syncify_wrap(_type, method_name):
             return coro
         return loop.run_until_complete(coro)
 
+    def optional_rename(name):
+        return (
+            name.replace("a", "")
+            if name in ["__aenter__", "__aexit__"]
+            else name
+        )
+
     # Save an accessible reference to the original method
     syncified.asynchronous = method
-    setattr(_type, method_name, syncified)
+    setattr(_type, optional_rename(method_name), syncified)
 
 
 def syncify(*types):
@@ -51,7 +58,7 @@ def syncify(*types):
     """
     for _type in types:
         for name in dir(_type):
-            if not name.startswith("_") or name == "__call__":
+            if not name.startswith("_") or name in ["__aexit__", "__aenter__"]:
                 # TODO: Move to __slots__
                 if inspect.iscoroutinefunction(getattr(_type, name)):
                     _syncify_wrap(_type, name)

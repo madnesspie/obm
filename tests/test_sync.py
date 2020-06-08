@@ -51,7 +51,7 @@ def sync_node(request, sync_geth_node, sync_bitcoin_core_node):
 
 
 @pytest.mark.integration
-class TestIntegrationNode:
+class TestNodeIntegration:
     @staticmethod
     def test_fetch_recent_transactions(node):
         txs = node.fetch_recent_transactions(limit=5)
@@ -64,8 +64,8 @@ class TestIntegrationNode:
 
     @staticmethod
     def test_create_address(node):
-        txs = node.create_address()
-        assert isinstance(txs, str)
+        addr = node.create_address()
+        assert isinstance(addr, str)
 
     @staticmethod
     def test_send_transaction(node):
@@ -84,3 +84,11 @@ class TestIntegrationNode:
         tx = node.send_transaction(**tx_data[node.name])
         assert isinstance(tx, dict)
         assert serializers.Transaction().validate(tx) == {}
+
+
+class TestNode:
+    @staticmethod
+    def test_sync_context_methods(node):
+        with node:
+            assert node.connector.session is not None
+        assert node.connector.session is None
