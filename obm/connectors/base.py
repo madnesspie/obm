@@ -73,7 +73,7 @@ class Connector(abc.ABC):
                     f"not '{type(session).__name__}'"
                 )
         if timeout is not None:
-            if not isinstance(timeout, float) and not isinstance(timeout, int):
+            if not isinstance(timeout, (float, int)):
                 raise TypeError(
                     f"Timeout must be a number, not '{type(timeout).__name__}'"
                 )
@@ -84,10 +84,10 @@ class Connector(abc.ABC):
         url = f"{rpc_host}:{rpc_port}"
         self.rpc_host = rpc_host
         self.rpc_port = rpc_port
-        self.url = url if url.startswith("http") else "http://" + url
-        self.timeout = aiohttp.ClientTimeout(total=timeout)
-        self.loop = loop or asyncio.get_event_loop()
+        self.timeout = timeout
         self.session = session
+        self.url = url if url.startswith("http") else "http://" + url
+        self.loop = loop or asyncio.get_event_loop()
 
     def __getattribute__(self, item):
         if item != "METHODS" and item in self.METHODS:
@@ -107,6 +107,7 @@ class Connector(abc.ABC):
                 loop=self.loop,
                 headers=self.headers,
                 auth=self.auth,
+                timeout=aiohttp.ClientTimeout(total=self.timeout),
                 json_serialize=functools.partial(
                     json.dumps, cls=_DecimalEncoder
                 ),
@@ -123,7 +124,6 @@ class Connector(abc.ABC):
         async with self.session.post(  # type: ignore
             url=self.url,
             json=payload,
-            timeout=self.timeout,
             raise_for_status=True,
         ) as response:
             return await response.json(
