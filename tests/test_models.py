@@ -136,7 +136,7 @@ class TestNode:
         assert node.connector.currency == node.currency.name
         assert node.connector.rpc_host == expect["rpc_host"]
         assert node.connector.rpc_port == expect[node_name]["rpc_port"]
-        assert node.connector.timeout.total == expect["timeout"]
+        assert node.connector.timeout == expect["timeout"]
 
 
 @pytest.mark.integration
