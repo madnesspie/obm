@@ -59,6 +59,63 @@ class TestBitcoinCoreConnector:
             await bitcoin_core.estimate_fee()
         assert exc_info.value.args[0] == [error_1]
 
+    @staticmethod
+    @pytest.mark.parametrize(
+        "mocked_data, expected_result",
+        (
+            (
+                {
+                    "amount": 0.00015000,
+                    "confirmations": 0,
+                    "trusted": False,
+                    "txid": "5bfe8e66c05bed33432c96b73da22fe6f17cd45f4269d53987cfb774a7e3a0e9",
+                    "walletconflicts": [],
+                    "time":1592413084,
+                    "timereceived":1592413084,
+                    "bip125-replaceable":"no",
+                    "details": [
+                        {
+                            "address": "32A5JFirRRoEz7dhsmqHRNWWe36Z9cmRET",
+                            "category": "receive",
+                            "amount": 0.00015000,
+                            "label": "",
+                            "vout":0
+                        }
+                    ],
+                    "hex":"02000000012de8a25f30b4d13101a68a9b92fc58d06130207a80dd5e87a44475513638b964090000006a473044022050a180a78dea52b0d620471dbfbda5853dd3dec356997175387ee692a021d37602203cc0b97058d4521201cc5c7bf827cef98f1ce7b35412ce8ae972fc1b446f09290121030c62d097d1c88b1909df6965576f909b6484398846e9dcb87463cb032ab0a331ffffffff02983a00000000000017a914051e0c36f2daf491ea262e04245c3622e1bdf878877ee50200000000001976a9143ea96e3b0a7f901ebde6a481e3e6677d0e38f37288ac00000000"
+                },
+                {
+                    "category": "receive",
+                },
+            ),
+        ),
+        ids=["receive"],
+    )
+    async def test_in_wallet_transaction(
+        monkeypatch, bitcoin_core, mocked_data, expected_result,
+    ):
+        async def mock_call(*_, **__):
+            return {"result": mocked_data}
+
+        @property
+        async def mock_latest_block_number(_):
+            return 100
+
+        monkeypatch.setattr(
+            connectors.BitcoinCoreConnector,
+            "call",
+            mock_call,
+        )
+        monkeypatch.setattr(
+            connectors.BitcoinCoreConnector,
+            "latest_block_number",
+            mock_latest_block_number,
+        )
+        result = await bitcoin_core.fetch_in_wallet_transaction(
+            txid=mocked_data["txid"],
+        )
+        assert result["category"] == expected_result["category"]
+
 
 @pytest.mark.integration
 class TestBitcoinCoreConnectorIntegration:

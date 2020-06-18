@@ -74,11 +74,16 @@ class BitcoinCoreConnector(base.Connector):
         if category is None:
             # Tx is send_transaction output.
             details = {detail["category"]: detail for detail in tx["details"]}
-            fee = details["send"]["fee"]
-            amount = details["send"]["amount"]
-            to_address = details["receive"]["address"]
-            from_address = details["send"]["address"]
-            category = "send" if from_address != to_address else "oneself"
+            fee = details.get("send", {}).get("fee")
+            from_address = details.get("send", {}).get("address")
+            amount = details.get("receive", {}).get("amount")
+            to_address = details.get("receive", {}).get("address")
+            if from_address and to_address:
+                category = "send" if from_address != to_address else "oneself"
+            elif from_address:
+                category = "send"
+            elif to_address:
+                category = "receive"
         else:
             # Tx is list_transactions output.
             if category == "oneself":
@@ -107,7 +112,7 @@ class BitcoinCoreConnector(base.Connector):
             "from_address": from_address,
             "to_address": to_address,
             "amount": abs(amount),
-            "fee": abs(fee),
+            "fee": abs(fee) if fee is not None else None,
             "block_number": block_number,
             "category": category,
             "timestamp": tx["time"],
@@ -210,9 +215,7 @@ class BitcoinCoreConnector(base.Connector):
         )
         return sorted_txs[:limit]
 
-    async def fetch_in_wallet_transaction(
-        self, txid: str
-    ) -> dict:
+    async def fetch_in_wallet_transaction(self, txid: str) -> dict:
         """Fetches the transaction by txid from a blockchain.
 
         Args:
@@ -222,4 +225,5 @@ class BitcoinCoreConnector(base.Connector):
             Dict that represent the transaction.
         """
         tx = await self.rpc_get_transaction(txid)
-        return self.format_transaction(tx, await self.latest_block_number)
+        latest_block_number = await self.latest_block_number
+        return self.format_transaction(tx, latest_block_number)
