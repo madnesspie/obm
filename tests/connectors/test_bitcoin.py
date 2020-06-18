@@ -94,17 +94,25 @@ class TestBitcoinCoreConnector:
     async def test_in_wallet_transaction(
         monkeypatch, bitcoin_core, mocked_data, expected_result,
     ):
-        async def mock(*_, **__):
+        async def mock_call(*_, **__):
             return {"result": mocked_data}
+
+        @property
+        async def mock_latest_block_number(_):
+            return 100
 
         monkeypatch.setattr(
             connectors.BitcoinCoreConnector,
             "call",
-            mock,
+            mock_call,
+        )
+        monkeypatch.setattr(
+            connectors.BitcoinCoreConnector,
+            "latest_block_number",
+            mock_latest_block_number,
         )
         result = await bitcoin_core.fetch_in_wallet_transaction(
             txid=mocked_data["txid"],
-            latest_block_number=100,
         )
         assert result["category"] == expected_result["category"]
 
