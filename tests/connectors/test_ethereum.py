@@ -157,3 +157,18 @@ class TestGethConnectorIntegration:
         txs = await geth.fetch_recent_transactions(limit=10)
         assert isinstance(txs, list)
         assert len(txs) == 0
+
+
+    @staticmethod
+    async def test_fetch_recent_transactions_blocks_limit(
+        monkeypatch, geth
+    ):
+        async def mock(*_):
+            return 1_000_000
+
+        monkeypatch.setattr(
+            ethereum.GethConnector, "latest_block_number", property(mock),
+        )
+        txs = await geth.fetch_recent_transactions(limit=10, blocks_limit=150)
+        assert isinstance(txs, list)
+        assert len(txs) == 0
