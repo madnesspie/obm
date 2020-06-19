@@ -130,7 +130,7 @@ class GethConnector(base.Connector):
         self,
         start: int,
         end: int = None,
-        bunch_size: int = 500,
+        batch_size: int = 100,
         delay: Union[int, float] = 0.1,
     ) -> List[dict]:
         """Fetches blocks range between start and end bounds.
@@ -139,42 +139,41 @@ class GethConnector(base.Connector):
             start: Start fetching bound.
             end: End fetching bound (not inclusive). Defaults to
                 latest block number.
-            bunch_size: Concurrent RPC request number. Defaults to 500.
-            delay: Delay in seconds between concurrent request bunches.
+            batch_size: Concurrent RPC request number. Defaults to 100.
+            delay: Delay in seconds between concurrent request batches.
                 Defaults to 1.
 
         Returns:
             List that contains block range.
         """
 
-        def to_bunches(coros, bunch_size):
-            bunch_start = 0
-            while bunch_start < len(coros):
-                yield coros[bunch_start : bunch_start + bunch_size]
-                bunch_start += bunch_size
+        def to_batches(coros, batch_size):
+            batch_start = 0
+            while batch_start < len(coros):
+                yield coros[batch_start : batch_start + batch_size]
+                batch_start += batch_size
 
         # TODO: Add validation
-
         end = end or await self.latest_block_number + 1
         get_block_coros = [
             self.rpc_eth_get_block_by_number(to_hex(n), True)
             for n in range(start, end)
         ]
         blocks_range = []
-        for bunch in to_bunches(get_block_coros, bunch_size):
-            blocks_range += await asyncio.gather(*bunch)
+        for batch in to_batches(get_block_coros, batch_size):
+            blocks_range += await asyncio.gather(*batch)
             await asyncio.sleep(delay)
         return blocks_range
 
     async def fetch_recent_blocks_range(
         self,
         length: int,
-        bunch_size: int = 500,
+        batch_size: int = 100,
         delay: Union[int, float] = 0.1,
     ):
         latest = await self.latest_block_number
         return await self.fetch_blocks_range(
-            latest - length, latest + 1, bunch_size, delay
+            latest - length, latest + 1, batch_size, delay
         )
 
     # Unified interface
@@ -261,9 +260,7 @@ class GethConnector(base.Connector):
         tx = await self.rpc_eth_get_transaction_by_hash(txid)
         return self.format_transaction(tx, addresses)
 
-    async def fetch_recent_transactions(
-        self, limit: int = 10, **kwargs
-    ) -> List[dict]:
+    async def fetch_recent_transactions(self, limit: int = 10, **kwargs) -> List[dict]:
         """Fetches most recent transactions from a blockchain.
 
         Args:
@@ -280,26 +277,28 @@ class GethConnector(base.Connector):
                 if tx["from"] in addresses or tx["to"] in addresses
             ]
 
-        # TODO: Add block fetching limit
-        bunch_size = kwargs.get("bunch_size", 500)
+        batch_size = kwargs.get("batch_size", 100)
+        blocks_limit = kwargs.get("blocks_limit", 1000)
         latest_block_number = await self.latest_block_number
         addresses = await self.rpc_personal_list_accounts()
-        start = latest_block_number - bunch_size - 1
+        start = latest_block_number - batch_size - 1
         end = latest_block_number + 1
+        blocks_count = 0
         txs = []
         while True:
-            blocks_range = await self.fetch_blocks_range(start, end, bunch_size)
+            blocks_range = await self.fetch_blocks_range(start, end, batch_size)
             for block in blocks_range[::-1]:
+                blocks_count += 1
                 txs += find_transactions_in(block, addresses)
-                if len(txs) >= limit:
+                if len(txs) >= limit or blocks_count >= blocks_limit:
                     return [
                         self.format_transaction(tx, addresses)
                         for tx in txs[:limit]
                     ]
             if start == 0:
                 return [self.format_transaction(tx, addresses) for tx in txs]
-            start -= bunch_size
-            end -= bunch_size
+            start -= batch_size
+            end -= batch_size
             if start < 0:
                 start = 0
 

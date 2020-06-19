@@ -16,7 +16,9 @@ import asyncio
 import functools
 import json
 from decimal import Decimal
-from typing import List, Optional, Union
+from typing import List
+from typing import Optional
+from typing import Union
 
 import aiohttp
 
@@ -213,7 +215,7 @@ class Connector(abc.ABC):
         """
 
     async def fetch_in_wallet_transactions(
-        self, txids: List[str]
+        self, txids: List[str],
     ) -> List[dict]:
         """Fetches the transactions by txids from a blockchain.
 

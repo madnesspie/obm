@@ -13,6 +13,8 @@
 # limitations under the License.
 
 # pylint: disable = redefined-outer-name
+import os
+
 import dotenv
 import pytest
 
@@ -21,6 +23,7 @@ from obm import connectors, models
 # TODO: Check node balance before integration tests
 # TODO: Check testnet statuses before testing
 
+dotenv.load_dotenv(dotenv_path="./.env")
 pytest_plugins = "aiohttp.pytest_plugin"
 
 # console options
@@ -53,28 +56,16 @@ def pytest_runtest_setup(item):
         pytest.skip("skipped integration test")
 
 
-def pytest_configure(config):  # pylint: disable=unused-argument
-    """Pytest hook that called before test session.
-
-    Docs:
-        https://docs.pytest.org/en/latest/reference.html#_pytest.hookspec.pytest_configure
-
-    Args:
-        config: Pytest config object.
-    """
-    dotenv.load_dotenv(dotenv_path="./.env")
-
-
 # fixtures
 
 
 @pytest.fixture
 async def bitcoin_core(loop):
     async with connectors.BitcoinCoreConnector(
-        rpc_host="127.0.0.1",
-        rpc_port=18332,
-        rpc_username="testnet_user",
-        rpc_password="testnet_pass",
+        rpc_host=os.getenv("BITCOIN_CORE_HOST", "localhost"),
+        rpc_port=int(os.getenv("BITCOIN_CORE_PORT", "18332")),
+        rpc_username=os.getenv("BITCOIN_CORE_USERNAME", "testnet_user"),
+        rpc_password=os.getenv("BITCOIN_CORE_PASSWORD", "testnet_pass"),
         loop=loop,
     ) as connector:
         yield connector
@@ -82,7 +73,11 @@ async def bitcoin_core(loop):
 
 @pytest.fixture
 async def geth(loop):
-    async with connectors.GethConnector(rpc_port=8545, loop=loop) as connector:
+    async with connectors.GethConnector(
+        rpc_host=os.getenv("GETH_HOST", "localhost"),
+        rpc_port=int(os.getenv("GETH_PORT", "8545")),
+        loop=loop
+    ) as connector:
         yield connector
 
 
@@ -90,9 +85,10 @@ async def geth(loop):
 async def bitcoin_core_node(loop):
     async with models.Node(
         name="bitcoin-core",
-        rpc_port=18332,
-        rpc_username="testnet_user",
-        rpc_password="testnet_pass",
+        rpc_host=os.getenv("BITCOIN_CORE_HOST", "localhost"),
+        rpc_port=int(os.getenv("BITCOIN_CORE_PORT", "18332")),
+        rpc_username=os.getenv("BITCOIN_CORE_USERNAME", "testnet_user"),
+        rpc_password=os.getenv("BITCOIN_CORE_PASSWORD", "testnet_pass"),
         loop=loop,
     ) as node:
         yield node
@@ -100,7 +96,12 @@ async def bitcoin_core_node(loop):
 
 @pytest.fixture
 async def geth_node(loop):
-    async with models.Node(name="geth", rpc_port=8545, loop=loop) as node:
+    async with models.Node(
+        name="geth",
+        rpc_host=os.getenv("GETH_HOST", "localhost"),
+        rpc_port=int(os.getenv("GETH_PORT", "8545")),
+        loop=loop,
+    ) as node:
         yield node
 
 
