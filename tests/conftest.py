@@ -62,10 +62,10 @@ def pytest_runtest_setup(item):
 @pytest.fixture
 async def bitcoin_core(loop):
     async with connectors.BitcoinCoreConnector(
-        rpc_host=os.environ["BITCOIN_CORE_HOST"],
-        rpc_port=int(os.environ["BITCOIN_CORE_PORT"]),
-        rpc_username=os.environ["BITCOIN_CORE_USERNAME"],
-        rpc_password=os.environ["BITCOIN_CORE_PASSWORD"],
+        rpc_host=os.getenv("BITCOIN_CORE_HOST", "localhost"),
+        rpc_port=int(os.getenv("BITCOIN_CORE_PORT", "18332")),
+        rpc_username=os.getenv("BITCOIN_CORE_USERNAME", "testnet_user"),
+        rpc_password=os.getenv("BITCOIN_CORE_PASSWORD", "testnet_pass"),
         loop=loop,
     ) as connector:
         yield connector
@@ -74,8 +74,8 @@ async def bitcoin_core(loop):
 @pytest.fixture
 async def geth(loop):
     async with connectors.GethConnector(
-        rpc_host=os.environ["GETH_HOST"],
-        rpc_port=int(os.environ["GETH_PORT"]),
+        rpc_host=os.getenv("GETH_HOST", "localhost"),
+        rpc_port=int(os.getenv("GETH_PORT", "8545")),
         loop=loop
     ) as connector:
         yield connector
@@ -85,10 +85,10 @@ async def geth(loop):
 async def bitcoin_core_node(loop):
     async with models.Node(
         name="bitcoin-core",
-        rpc_host=os.environ["BITCOIN_CORE_HOST"],
-        rpc_port=int(os.environ["BITCOIN_CORE_PORT"]),
-        rpc_username=os.environ["BITCOIN_CORE_USERNAME"],
-        rpc_password=os.environ["BITCOIN_CORE_PASSWORD"],
+        rpc_host=os.getenv("BITCOIN_CORE_HOST", "localhost"),
+        rpc_port=int(os.getenv("BITCOIN_CORE_PORT", "18332")),
+        rpc_username=os.getenv("BITCOIN_CORE_USERNAME", "testnet_user"),
+        rpc_password=os.getenv("BITCOIN_CORE_PASSWORD", "testnet_pass"),
         loop=loop,
     ) as node:
         yield node
@@ -98,9 +98,9 @@ async def bitcoin_core_node(loop):
 async def geth_node(loop):
     async with models.Node(
         name="geth",
-        rpc_host=os.environ["GETH_HOST"],
-        rpc_port=int(os.environ["GETH_PORT"]),
-        loop=loop
+        rpc_host=os.getenv("GETH_HOST", "localhost"),
+        rpc_port=int(os.getenv("GETH_PORT", "8545")),
+        loop=loop,
     ) as node:
         yield node
 
