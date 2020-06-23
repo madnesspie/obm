@@ -70,20 +70,30 @@ class BitcoinCoreConnector(base.Connector):
 
     @staticmethod
     def format_transaction(tx, latest_block_number):
+
+        def get_amount(details, category):
+            if category in ["send", "oneself"]:
+                return details.get("send", {}).get("amount")
+            elif category == "receive":
+                return details.get("receive", {}).get("amount")
+
+        def get_category(from_address, to_address):
+            if from_address and to_address:
+                return "send" if from_address != to_address else "oneself"
+            elif from_address:
+                return "send"
+            elif to_address:
+                return "receive"
+
         category = tx.get("category")
         if category is None:
             # Tx is send_transaction output.
             details = {detail["category"]: detail for detail in tx["details"]}
             fee = details.get("send", {}).get("fee")
             from_address = details.get("send", {}).get("address")
-            amount = details.get("receive", {}).get("amount")
             to_address = details.get("receive", {}).get("address")
-            if from_address and to_address:
-                category = "send" if from_address != to_address else "oneself"
-            elif from_address:
-                category = "send"
-            elif to_address:
-                category = "receive"
+            category = get_category(from_address, to_address)
+            amount = get_amount(details, category)
         else:
             # Tx is list_transactions output.
             if category == "oneself":

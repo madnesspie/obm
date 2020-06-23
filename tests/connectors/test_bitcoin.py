@@ -174,6 +174,14 @@ class TestBitcoinCoreConnectorIntegration:
         assert isinstance(fee, dict)
 
     @staticmethod
+    async def test_send_transaction_on_outside_wallet(bitcoin_core):
+        fee = await bitcoin_core.send_transaction(
+            amount=0.00001,
+            to_address=os.environ.get("BITCOIN_CORE_OUT_WALLET_ADDRESS"),
+        )
+        assert isinstance(fee, dict)
+
+    @staticmethod
     async def test_fetch_recent_transactions(bitcoin_core):
         txs = await bitcoin_core.fetch_recent_transactions(limit=30)
         assert len(txs) == 30

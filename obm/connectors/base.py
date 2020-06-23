@@ -123,11 +123,7 @@ class Connector(abc.ABC):
     @_catch_network_errors
     async def call(self, payload: dict) -> dict:
         await self.open()
-        async with self.session.post(  # type: ignore
-            url=self.url,
-            json=payload,
-            raise_for_status=True,
-        ) as response:
+        async with self.session.post(url=self.url, json=payload) as response:
             return await response.json(
                 loads=functools.partial(json.loads, parse_float=Decimal)
             )
