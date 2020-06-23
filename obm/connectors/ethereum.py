@@ -107,7 +107,7 @@ class GethConnector(base.Connector):
         elif tx["to"] in addresses:
             category = "receive"
         else:
-            assert False, "Unrecognized category"
+            raise RuntimeError("Unrecognized category")
 
         if tx["blockNumber"] is None:
             block_number = None

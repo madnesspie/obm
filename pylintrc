@@ -60,6 +60,7 @@ disable=
     too-many-ancestors,
     bad-continuation,
     inconsistent-return-statements,
+    no-else-return,
     R0801, # Stupid similar lines in 2 files :)
 
 
