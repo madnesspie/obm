@@ -154,10 +154,9 @@ API yet. Use at your own risk and lock dependency version on minore.
 # Contributing
 See [CONTRIBUTING.rst](https://github.com/madnesspie/obm/blob/master/CONTRIBUTING.rst) for instructions.
 
-Support the developer
-=====================
+# Support the developer
 
-# Sponsors
+## Sponsors
 You can become the sponsor and get priority development of the features
 you require. Just [contact me](https://github.com/madnesspie).
 
