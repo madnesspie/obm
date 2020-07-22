@@ -158,12 +158,7 @@ Support the developer
 =====================
 
 # Sponsors
-Special thanks for [Swapzilla](https://www.swapzilla.co/) project that
-paid me part of the development.
-
-![swapzilla-logo](https://raw.githubusercontent.com/madnesspie/django-cryptocurrency-framework/d285241038bb8d325599e8c4dddb567468daae81/docs/swapzilla.jpeg)
-
-You can also become the sponsor and get priority development of the features
+You can become the sponsor and get priority development of the features
 you require. Just [contact me](https://github.com/madnesspie).
 
 ## Buy me a beer
